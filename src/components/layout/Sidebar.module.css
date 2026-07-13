@@ -1,0 +1,138 @@
+.sidebar {
+  width: 160px;
+  min-height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  border-right: 1px solid #f0f0f0;
+  transition: width 0.2s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.collapsed {
+  width: 56px;
+}
+
+/* 상단 */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 8px;
+}
+
+.groupName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  overflow: hidden;
+}
+
+.groupIcon {
+  color: #6366f1;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.groupLabel {
+  white-space: nowrap;
+}
+
+.groupArrow {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.collapseBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 12px;
+  flex-shrink: 0;
+  padding: 4px;
+}
+
+/* 네비게이션 */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.navItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.active {
+  background: #eeefff;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.active .dot {
+  background: #6366f1;
+}
+
+/* 하단 마이페이지 */
+.bottom {
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.mypage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 8px 10px;
+  border-radius: 8px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mypage:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.mypageIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
