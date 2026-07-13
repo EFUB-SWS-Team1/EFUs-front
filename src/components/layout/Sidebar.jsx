@@ -11,14 +11,18 @@ const NAV_ITEMS = [
   { label: 'DB', path: '/db' },
 ];
 
-function Sidebar() {
+function Sidebar({ onCollapse }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
 
+  const handleCollapse = () => {
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    onCollapse(next); // 부모한테 상태 전달
+  };
+
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-
-      {/* 상단 단체명 + 접기 버튼 */}
       <div className={styles.top}>
         {!isCollapsed && (
           <div className={styles.groupName}>
@@ -27,15 +31,11 @@ function Sidebar() {
             <span className={styles.groupArrow}>∨</span>
           </div>
         )}
-        <button
-          className={styles.collapseBtn}
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
+        <button className={styles.collapseBtn} onClick={handleCollapse}>
           {isCollapsed ? '▶' : '◀'}
         </button>
       </div>
 
-      {/* 네비게이션 메뉴 */}
       <nav className={styles.nav}>
         {NAV_ITEMS.map((item) => (
           <NavLink
@@ -51,14 +51,12 @@ function Sidebar() {
         ))}
       </nav>
 
-      {/* 하단 마이페이지 */}
       <div className={styles.bottom}>
         <button className={styles.mypage} onClick={() => navigate('/mypage')}>
           <span className={styles.mypageIcon}>👤</span>
           {!isCollapsed && <span>마이페이지</span>}
         </button>
       </div>
-
     </aside>
   );
 }
