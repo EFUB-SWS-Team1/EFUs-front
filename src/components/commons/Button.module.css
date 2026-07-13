@@ -1,0 +1,45 @@
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 보라색 채워진 버튼 */
+.primary {
+  background-color: #6366f1;
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* 테두리만 있는 버튼 */
+.outline {
+  background-color: white;
+  color: #6366f1;
+  border: 1.5px solid #6366f1;
+}
+
+.outline:hover:not(:disabled) {
+  background-color: #f0f0ff;
+}
+
+/* 빨간 버튼 */
+.danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.danger:hover:not(:disabled) {
+  opacity: 0.85;
+}
