@@ -1,0 +1,247 @@
+.panel {
+  position: fixed;
+  top: 0;
+  left: 56px;
+  width: 360px;
+  height: 100vh;
+  background: white;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+  overflow-y: auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+/* 프로필 */
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.roleBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.adminBadge {
+  background: #6366f1;
+  color: white;
+}
+
+.generalBadge {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.email {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.roleChangeBtn {
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.roleChangeBtn:hover {
+  background: #f9fafb;
+}
+
+/* 납부 요약 */
+.duesSummary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.duesCard {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.duesLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dotGreen {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.dotRed {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.duesAmount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* 회비 목록 */
+.duesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.duesItem {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.duesName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.duesMeta {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.paid {
+  font-size: 13px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.unpaid {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+/* 권한 변경 모달 */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.modalDesc {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.roleBtn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  text-align: center;
+}
+
+.roleBtn:hover {
+  background: #f9fafb;
+}
+
+.kickBtn {
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.kickBtn:hover {
+  background: #fef2f2;
+}

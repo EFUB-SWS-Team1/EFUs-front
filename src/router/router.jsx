@@ -6,6 +6,7 @@ import GroupListPage from '../pages/group/GroupListPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import BudgetPage from '../pages/budget/BudgetPage';
 import BudgetDetailPage from '../pages/budget/BudgetDetailPage';
+import MemberPage from '../pages/member/MemberPage';
 
 
 const router = createBrowserRouter([
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'budget', element: <BudgetPage /> },
       { path: 'budget/:id', element: <BudgetDetailPage /> },
+      { path: 'member', element: <MemberPage /> },
     ],
   },
 ]);
