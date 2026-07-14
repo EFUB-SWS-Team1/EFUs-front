@@ -4,6 +4,9 @@ import OnboardingPage from '../pages/auth/onboardingPage';
 import LoginPage from '../pages/auth/LoginPage';
 import GroupListPage from '../pages/group/GroupListPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
+import BudgetPage from '../pages/budget/BudgetPage';
+import BudgetDetailPage from '../pages/budget/BudgetDetailPage';
+
 
 const router = createBrowserRouter([
   // 레이아웃 없는 페이지 (사이드바 X)
@@ -18,7 +21,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
-      // 나중에 여기에 가계부, 예산, 회비, 멤버, DB 추가
+      { path: 'budget', element: <BudgetPage /> },
+      { path: 'budget/:id', element: <BudgetDetailPage /> },
     ],
   },
 ]);
