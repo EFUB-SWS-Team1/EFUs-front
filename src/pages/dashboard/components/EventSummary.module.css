@@ -1,0 +1,50 @@
+.title {
+  font-size: 14px;
+  color: var(--color-gray-500);
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.eventName {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.progress {
+  margin-bottom: 8px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.amountText {
+  color: var(--color-gray-500);
+}
+
+.overText {
+  color: var(--color-danger-text);
+  font-weight: 500;
+}

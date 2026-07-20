@@ -1,0 +1,57 @@
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.titleSuffix {
+  font-weight: 400;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-gray-200);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.editButton:hover {
+  color: var(--color-gray-500);
+}
+
+.readOnlyText {
+  font-size: 14px;
+  color: var(--color-gray-400);
+}
+
+.statusText {
+  padding: 32px;
+  font-size: 14px;
+  color: var(--color-gray-400);
+}
+
+.errorText {
+  color: var(--color-danger-text);
+}

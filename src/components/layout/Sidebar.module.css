@@ -1,0 +1,93 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--color-white);
+  border-right: 1px solid var(--color-gray-100);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.collapsed {
+  width: var(--sidebar-width-collapsed);
+  padding: 20px 8px;
+}
+
+.collapseButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-gray-50);
+  border-radius: 8px;
+  color: var(--color-gray-400);
+  cursor: pointer;
+}
+
+.collapseButton:hover {
+  background: var(--color-gray-100);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--color-gray-400);
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  background: var(--color-gray-50);
+}
+
+.navItemActive {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-gray-200);
+}
+
+.navItemActive .dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-gray-100);
+  margin: 8px 4px;
+}

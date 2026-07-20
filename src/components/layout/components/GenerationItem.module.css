@@ -1,0 +1,29 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-gray-500);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--color-gray-50);
+}
+
+.selected {
+  background: var(--color-gray-100);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.icon {
+  font-size: 10px;
+  color: var(--color-primary);
+}
