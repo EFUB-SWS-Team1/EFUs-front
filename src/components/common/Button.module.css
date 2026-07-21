@@ -1,0 +1,37 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* primary = 거래등록, 전체1 */
+.primary {
+  background-color: #5b6cf9;
+  color: #ffffff;
+}
+
+/* secondary = 뒤로가기, 전체2 */
+.secondary {
+  background-color: #ffffff;
+  color: #555555;
+  border: 1px solid #e5e5e5; /* 흰 배경에서 구분용 */
+}
+
+.fullWidth {
+  width: 100%;
+}
