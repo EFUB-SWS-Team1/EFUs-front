@@ -1,0 +1,38 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* 운영진 / 일반 */
+.staff {
+  background-color: #3340b0;
+  color: #ffffff;
+}
+
+.general {
+  background-color: #f0f1ff;
+  color: #3340b0;
+}
+
+/* 상태 배지 */
+.danger {
+  background-color: #fff0f0;
+  color: #ff6b6b;
+}
+
+.warning {
+  background-color: #fff5e6;
+  color: #ffc23d;
+}
+
+.success {
+  background-color: #edfff7;
+  color: #25c189;
+}
