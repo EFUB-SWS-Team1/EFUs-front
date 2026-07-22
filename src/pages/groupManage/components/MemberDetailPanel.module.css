@@ -1,0 +1,166 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 900;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  background: #ffffff;
+  z-index: 901;
+  padding: 24px 20px;
+  overflow-y: auto;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: #aaaaaa;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.loading {
+  padding: 40px 0;
+  text-align: center;
+  color: #888888;
+  font-size: 14px;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0 28px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: #e8eaff;
+  margin-bottom: 4px;
+}
+
+.name {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.email {
+  margin: 0;
+  font-size: 13px;
+  color: #888888;
+}
+
+.summaryRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.summaryCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafafa;
+  border-radius: 12px;
+}
+
+.summaryDotPaid,
+.summaryDotUnpaid {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.summaryDotPaid {
+  background: #25c189;
+}
+
+.summaryDotUnpaid {
+  background: #ff6b6b;
+}
+
+.summaryLabel {
+  margin: 0;
+  font-size: 13px;
+  color: #888888;
+}
+
+.summaryAmountPaid {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #25c189;
+}
+
+.summaryAmountUnpaid {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+.duesTitle {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.duesList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dueItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dueLabel {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.dueMeta {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #888888;
+}
+
+.noAccess {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 14px;
+  color: #888888;
+}

@@ -1,0 +1,221 @@
+.page {
+  width: 100%;
+  max-width: 1225px;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  min-height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.headerIcon {
+  width: 28px;
+  height: 28px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ── 기수 카드 1225 fill × 112 hug, padding 28 ── */
+.generationCard {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border-radius: 16px;
+}
+
+.generationLabel {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.generationDate {
+  margin: 0;
+  font-size: 14px;
+  color: #888888;
+  line-height: 1.4;
+}
+
+.closeGenBtn {
+  flex-shrink: 0;
+}
+
+/* ── 멤버 헤더 (카드 없음) ── */
+.memberToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.memberCount {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.memberIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.inviteBtn {
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.inviteBtn:hover {
+  background: #fafafa;
+}
+
+/* ── 검색 카드 1225 × 48 ── */
+.searchCard {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid #eeeeee;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px 0 44px;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  color: #333333;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.searchInput::placeholder {
+  color: #999999;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 2px rgba(91, 108, 249, 0.25);
+}
+
+/* ── 리스트 카드 1225 × 501 hug ── */
+.listCard {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 501px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0 20px;
+  background: #ffffff;
+  border-radius: 16px;
+}
+
+.memberList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: #8e8e8e;
+  font-size: 14px;
+}
+
+/* ── 페이지네이션: 카드 하단 가운데 ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.pageBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: #555555;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageBtn:not(:disabled):hover {
+  background: #f5f5f5;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #555555;
+  min-width: 40px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .generationCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .listCard {
+    min-height: auto;
+  }
+}

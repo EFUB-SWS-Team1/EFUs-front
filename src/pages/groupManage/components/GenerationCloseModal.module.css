@@ -1,0 +1,213 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  box-sizing: border-box;
+  width: 320px;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.title {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  position: relative;
+}
+
+.dateLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.dateInput {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+  color: #888888;
+}
+
+.dateInput:hover {
+  border-color: #5b6cf9;
+}
+
+.dateValue {
+  color: #333333;
+  font-size: 15px;
+}
+
+.datePlaceholder {
+  color: #aaaaaa;
+  font-size: 15px;
+}
+
+.notice {
+  margin: 16px 0 24px;
+  font-size: 13px;
+  color: #888888;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cancelBtn,
+.submitBtn {
+  box-sizing: border-box;
+  width: 114px;
+  height: 33px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.cancelBtn {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  color: #555555;
+}
+
+.cancelBtn:hover {
+  background: #fafafa;
+}
+
+.submitBtn {
+  background: #eeeeee;
+  border: none;
+  color: #555555;
+}
+
+.submitBtn:disabled {
+  background: #eeeeee;
+  color: #aaaaaa;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.submitBtn:not(:disabled):hover {
+  background: #e5e5e5;
+}
+
+/* ── 캘린더 ── */
+.calendar {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+}
+
+.calHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.calHeader button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #555555;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.calHeader button:hover {
+  background: #f5f5f5;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-bottom: 4px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day {
+  width: 100%;
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  color: #333333;
+  font-family: inherit;
+}
+
+.day:hover:not(.dayOutside) {
+  background: #f0f1ff;
+}
+
+.dayOutside {
+  color: #cccccc;
+  cursor: default;
+}
+
+.daySelected {
+  background: #5b6cf9 !important;
+  color: #ffffff !important;
+}
+
+.calendarIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+}
