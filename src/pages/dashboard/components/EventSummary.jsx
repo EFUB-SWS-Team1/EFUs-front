@@ -6,7 +6,6 @@ function formatWon(amount) {
   return `${amount.toLocaleString("ko-KR")}원`;
 }
 
-// 행사 status -> 뱃지 variant / 라벨
 function getBadgeProps(event) {
   switch (event.status) {
     case "ongoing":
@@ -31,7 +30,11 @@ function EventCard({ event }) {
         <Badge variant={variant}>{label}</Badge>
       </div>
 
-      <ProgressBar percent={event.percent} variant={isOver ? "danger" : "default"} className={styles.progress} />
+      <ProgressBar
+        percent={event.percent}
+        variant={isOver ? "danger" : "default"}
+        className={styles.progress}
+      />
 
       <div className={styles.cardFooter}>
         <p className={styles.amountText}>
@@ -47,18 +50,15 @@ function EventCard({ event }) {
   );
 }
 
-/**
- * events: [{ id, name, status: 'ongoing'|'warning'|'over', spent, budget, percent, overAmount? }]
- */
 export default function EventSummary({ events }) {
   return (
-    <div>
-      <p className={styles.title}>행사별 예산</p>
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>행사별 예산</h2>
       <div className={styles.grid}>
         {events.map((event) => (
           <EventCard key={event.id} event={event} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

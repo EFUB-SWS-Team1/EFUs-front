@@ -1,16 +1,12 @@
 /**
  * dashboard.js
  *
- * 백엔드 API가 아직 준비되지 않아 우선 mock 데이터를 반환합니다.
- * USE_MOCK을 false로 바꾸면 실제 axiosInstance 호출로 전환됩니다.
- * 응답 형태는 백엔드 스펙 확정 시 이 파일 안에서만 맞추면 되도록
- * 컴포넌트 쪽 prop 형태를 이 mock 구조에 맞춰뒀습니다.
- *
- * 주의: api/axiosInstance.js가 아직 만들어지지 않았기 때문에,
- * 최상단에서 import하지 않고 USE_MOCK이 false일 때만 안에서 불러옵니다.
- * axiosInstance.js가 준비되면 아래 실제 호출 코드의 주석을 해제하고
- * 상단에 `import axiosInstance from "./axiosInstance";`를 추가하면 됩니다.
+ * 백엔드 API가 아직 준비되지 않아 우선 mock 데이터를 반환.
+ * USE_MOCK을 false로 바꾸면 실제 axiosInstance 호출로 전환됨.
+ * axiosInstance.js가 준비되면 아래 실제 호출 코드의 주석을 해제
+ * 상단에 `import axiosInstance from "./axiosInstance";`를 추가
  */
+ 
 
 const USE_MOCK = true;
 
@@ -70,10 +66,12 @@ const MOCK_DASHBOARD = {
  * 대시보드 요약 데이터 조회
  * @param {string} generationId - 조회할 기수 id (예: "efub-6")
  */
+
+//USE_MOCK 이 true 이면 목 데이터 반환
 export async function getDashboardSummary(generationId) {
   if (USE_MOCK) {
     const data = MOCK_DASHBOARD[generationId] ?? MOCK_DASHBOARD["efub-6"];
-    // 실제 API처럼 약간의 지연을 흉내내고 싶다면 아래 주석 해제
+    // 0.3초 기다리게. 로딩화면이 잘 뜨는지 체크
     // await new Promise((resolve) => setTimeout(resolve, 300));
     return data;
   }
@@ -82,5 +80,5 @@ export async function getDashboardSummary(generationId) {
   // import axiosInstance from "./axiosInstance";
   // const response = await axiosInstance.get(`/dashboard/${generationId}`);
   // return response.data;
-  throw new Error("axiosInstance가 아직 준비되지 않았습니다. USE_MOCK을 true로 두세요.");
+  throw new Error("usemock 이 false 인데 백엔드가 없을 때를 대비한 throw error.");
 }

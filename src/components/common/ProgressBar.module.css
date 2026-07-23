@@ -1,19 +1,19 @@
 .track {
   width: 100%;
-  height: 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-gray-100);
+  height: 16px;
+  border-radius: 48px;
+  background: #f0f1ff;
   overflow: hidden;
 }
 
 .bar {
   height: 100%;
-  border-radius: var(--radius-pill);
+  border-radius: 48px;
   transition: width 0.2s ease;
 }
 
 .barDefault {
-  background: var(--color-primary);
+  background: #5b6cf9;
 }
 
 .barDanger {

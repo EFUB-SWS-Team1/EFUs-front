@@ -1,10 +1,11 @@
 .page {
-  max-width: 960px;
+  width: 100%;
+  max-width: 1089px;
   margin: 0 auto;
   padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .titleRow {
@@ -14,27 +15,69 @@
 }
 
 .titleIcon {
-  color: var(--color-primary);
+  display: flex;
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  aspect-ratio: 1/1;
+}
+
+.titleIcon img {
+  width: 32px;
+  height: 32px;
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 700;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline; 
+  column-gap: 0;
+  font-family: Pretendard, sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.36px;
   color: var(--color-gray-900);
+}
+
+.titleSuffixWrap {
+  display: inline-flex;
+  align-items: center; 
+  gap: 4px; 
+}
+
+.titleHighlight {
+  color: #5b6cf9;
+  font-weight: 600;
+  font-size: 36px;
+  font-family: Pretendard;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: -0.36px;
 }
 
 .titleSuffix {
   font-weight: 400;
+  font-size: 24px;
+  line-height: 1; 
+  color: var(--color-gray-900);
 }
 
 .editButton {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-gray-200);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  transition: color 0.15s ease;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0; 
+  align-self: auto; 
+  color: var(--color-gray-200);
 }
 
 .editButton:hover {
@@ -54,4 +97,10 @@
 
 .errorText {
   color: var(--color-danger-text);
+}
+
+.editButton img {
+  display: block;
+  width: 20px;
+  height: 20px;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logoIcon from "../../assets/efub로고1.svg";
+import logoIcon from "../../assets/efub로고2.svg";
 import pencilIcon from "../../assets/Edit_Pencil_Line_01.svg";
 import { getDashboardSummary } from "../../api/dashboard";
 import useGroup from "../../hooks/useGroup";
@@ -52,25 +52,36 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      {/* 타이틀 영역: 현재 기수는 수정 아이콘, 지난 기수는 기간 + 읽기 전용 표시 */}
       <div className={styles.titleRow}>
-        {/* TODO: 디자이너 SVG 받으면 아이콘으로 교체 */}
         <span className={styles.titleIcon} aria-hidden="true">
-            <img src={logoIcon} alt="../../assets/efub로고1.svg" aria-hidden="true" className={styles.titleIcon} />
+          <img
+            src={logoIcon}
+            alt="../../assets/efub로고2.svg"
+            aria-hidden="true"
+            className={styles.titleIcon}
+          />
         </span>
         <h1 className={styles.title}>
-          {generation.name}
+          <span className={styles.titleHighlight}>{generation.name}</span>
+          <span className={styles.titleSuffixWrap}>
           <span className={styles.titleSuffix}> 의 공동 가계부입니다</span>
-        </h1>
+        
 
-        {generation.isCurrent ? (
-          <button type="button" className={styles.editButton} aria-label="가계부 이름 수정">
-  <img src={pencilIcon} alt="" />
-</button>
-        ) : (
-          <span className={styles.readOnlyText}>
-            {generation.period} · 읽기 전용 · 수정 불가
-          </span>
+        {generation.isCurrent && (
+          <button
+            type="button"
+            className={styles.editButton}
+            aria-label="가계부 이름 수정"
+          >
+            <img src={pencilIcon} alt="" />
+          </button>
+        )}
+        </span>
+        </h1>
+        {!generation.isCurrent && (
+    <span className={styles.readOnlyText}>
+      {generation.period} · 읽기 전용 · 수정 불가
+    </span>
         )}
       </div>
 
