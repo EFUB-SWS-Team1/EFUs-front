@@ -1,14 +1,16 @@
-import styles from "./GenerationItem.module.css";
+import styles from './GenerationItem.module.css';
 
-/**
- * GenerationItem
- * GenerationSwitcher 드롭다운 안에서 기수 하나를 렌더링하는 단위.
- */
-export default function GenerationItem({ name, isSelected, onClick }) {
+export default function GenerationItem({
+  label,
+  logo,
+  isActive = false,
+  onClick,
+}) {
   return (
     <li>
       <button
         type="button"
+<<<<<<< HEAD
         className={`${styles.item} ${isSelected ? styles.selected : ""}`}
         onClick={onClick}
       >
@@ -17,6 +19,15 @@ export default function GenerationItem({ name, isSelected, onClick }) {
           ▪▪
         </span>
         {name}
+=======
+        className={[styles.item, isActive ? styles.active : '']
+          .filter(Boolean)
+          .join(' ')}
+        onClick={onClick}
+      >
+        {logo && <img src={logo} alt="" className={styles.logo} />}
+        <span className={styles.label}>{label}</span>
+>>>>>>> origin/develop
       </button>
     </li>
   );

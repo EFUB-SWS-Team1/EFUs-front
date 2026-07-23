@@ -1,74 +1,132 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-
-import GenerationSwitcher from "./GenerationSwitcher";
-import sidebarToggleIcon from "../../assets/Bar_Left.svg";
+import GenerationItem from "./components/GenerationItem";
 import styles from "./Sidebar.module.css";
 
+import sidebarToggleIcon from "../../assets/Bar_Left.svg";
+import groupLogoIcon from "../../assets/efub로고2.svg";
+
 const NAV_ITEMS = [
-  { label: "대시보드", path: "/dashboard" },
-  { label: "가계부", path: "/ledger" },
-  { label: "행사", path: "/event" },
+  { to: "/dashboard", label: "대시보드" },
+  { to: "/ledger", label: "가계부" },
+  { to: "/event", label: "행사" },
+  { to: "/group-manage", label: "단체" },
 ];
 
-const GROUP_ITEM = { label: "단체", path: "/groups" };
+export default function Sidebar({
+  generations = [
+    { id: 6, label: "EFUB 6기" },
+    { id: 5, label: "EFUB 5기" },
+    { id: 4, label: "EFUB 4기" },
+    { id: 3, label: "EFUB 3기" },
+  ],
+  activeGenerationId = 6,
+  onGenerationChange,
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-/**
- * Sidebar
- * isCollapsed / onToggleCollapse는 Layout이 소유한 상태를 props로 받음.
- * 기수 드롭다운(GenerationSwitcher)이 열려있는 동안엔 메뉴 목록 대신
- * 기수 목록이 보이도록(이미지 3번 참고) isGenerationMenuOpen으로 분기.
- */
-export default function Sidebar({ isCollapsed, onToggleCollapse }) {
-  const [isGenerationMenuOpen, setIsGenerationMenuOpen] = useState(false);
+  const activeGeneration =
+    generations.find((g) => g.id === activeGenerationId) ?? generations[0];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (collapsed) setDropdownOpen(false);
+  }, [collapsed]);
+
+  const handleGenerationSelect = (id) => {
+    onGenerationChange?.(id);
+    setDropdownOpen(false);
+  };
 
   return (
-    <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
-      <button
-        type="button"
-        className={styles.collapseButton}
-        onClick={onToggleCollapse}
-        aria-label={isCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
+    <aside
+      className={[styles.sidebar, collapsed ? styles.collapsed : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div
+        className={collapsed ? styles.collapsedHeader : styles.expandedHeader}
       >
-        <img src={sidebarToggleIcon} alt="" className={styles.collapseIcon} />
-      </button>
+        <button
+          type="button"
+          className={styles.toggleBtn}
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? "사이드바 펼치기" : "사이드바 접기"}
+        >
+          <img src={sidebarToggleIcon} alt="" className={styles.toggleIcon} />
+        </button>
+      </div>
 
-      {!isCollapsed && (
-        <GenerationSwitcher
-          isOpen={isGenerationMenuOpen}
-          onToggle={() => setIsGenerationMenuOpen((prev) => !prev)}
-        />
+      {!collapsed && (
+        <div className={styles.groupSelector} ref={dropdownRef}>
+          <button
+            type="button"
+            className={styles.groupBtn}
+            onClick={() => setDropdownOpen((prev) => !prev)}
+          >
+            <img src={groupLogoIcon} alt="" className={styles.groupLogo} />
+            <span className={styles.groupName}>EFUB</span>
+            <span
+              className={[
+                styles.chevron,
+                dropdownOpen ? styles.chevronOpen : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
+          </button>
+
+          {dropdownOpen && (
+            <ul className={styles.dropdown}>
+              {generations.map((gen) => (
+                <GenerationItem
+                  key={gen.id}
+                  label={gen.label}
+                  logo={groupLogoIcon}
+                  isActive={gen.id === activeGenerationId}
+                  onClick={() => handleGenerationSelect(gen.id)}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
       )}
 
-      {!isGenerationMenuOpen && (
-        <nav className={styles.nav}>
-          <ul className={styles.navList}>
-            {NAV_ITEMS.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
-                  }
-                >
-                  <span className={styles.dot} aria-hidden="true" />
-                  {!isCollapsed && <span>{item.label}</span>}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-
+      <nav className={styles.nav}>
+        {NAV_ITEMS.map(({ to, label }) => (
           <NavLink
-            to={GROUP_ITEM.path}
+            key={to}
+            to={to}
             className={({ isActive }) =>
-              `${styles.navItem} ${isActive ? styles.navItemActive : ""}`
+              [styles.navItem, isActive ? styles.navItemActive : ""]
+                .filter(Boolean)
+                .join(" ")
             }
           >
-            <span className={styles.dot} aria-hidden="true" />
-            {!isCollapsed && <span>{GROUP_ITEM.label}</span>}
+            {({ isActive }) => (
+              <>
+                <span
+                  className={[styles.dot, isActive ? styles.dotActive : ""]
+                    .filter(Boolean)
+                    .join(" ")}
+                />
+                <span className={styles.navLabel}>{label}</span>
+              </>
+            )}
           </NavLink>
-        </nav>
-      )}
+        ))}
+      </nav>
     </aside>
   );
 }

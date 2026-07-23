@@ -1,29 +1,42 @@
 .item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--color-gray-500);
-  font-size: 13px;
-  text-align: left;
+  background: none;
   cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  text-align: left;
+  transition: background-color 0.15s ease;
 }
 
 .item:hover {
-  background: var(--color-gray-50);
+  background-color: #f8f8f8;
 }
 
-.selected {
-  background: var(--color-gray-100);
-  color: var(--color-primary);
+.active {
+  background-color: #f0f1ff;
+  color: #3340b0;
   font-weight: 600;
 }
 
-.icon {
-  font-size: 10px;
-  color: var(--color-primary);
+.active:hover {
+  background-color: #f0f1ff;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.label {
+  flex: 1;
 }

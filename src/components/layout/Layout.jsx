@@ -1,21 +1,18 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import Sidebar from './Sidebar';
+import styles from './Layout.module.css';
 
-import Sidebar from "./Sidebar";
-import styles from "./Layout.module.css";
-
-/**
- * Layout
- * Sidebar + Outlet 감싸는 틀. isCollapsed 상태를 여기서 소유해서
- * Sidebar 너비와 main 여백을 같이 조정.
- */
 export default function Layout() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeGenerationId, setActiveGenerationId] = useState(6);
 
   return (
     <div className={styles.layout}>
-      <Sidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed((prev) => !prev)} />
-      <main className={`${styles.main} ${isCollapsed ? styles.mainCollapsed : ""}`}>
+      <Sidebar
+        activeGenerationId={activeGenerationId}
+        onGenerationChange={setActiveGenerationId}
+      />
+      <main className={styles.main}>
         <Outlet />
       </main>
     </div>
