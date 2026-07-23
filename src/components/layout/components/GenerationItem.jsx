@@ -10,16 +10,7 @@ export default function GenerationItem({
     <li>
       <button
         type="button"
-<<<<<<< HEAD
-        className={`${styles.item} ${isSelected ? styles.selected : ""}`}
-        onClick={onClick}
-      >
-        {/* TODO: 디자이너 SVG 받으면 교체 */}
-        <span className={styles.icon} aria-hidden="true">
-          ▪▪
-        </span>
-        {name}
-=======
+
         className={[styles.item, isActive ? styles.active : '']
           .filter(Boolean)
           .join(' ')}
@@ -27,7 +18,6 @@ export default function GenerationItem({
       >
         {logo && <img src={logo} alt="" className={styles.logo} />}
         <span className={styles.label}>{label}</span>
->>>>>>> origin/develop
       </button>
     </li>
   );
