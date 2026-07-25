@@ -113,7 +113,22 @@ export default function GroupManagePage() {
     loadOverview();
   }
 
-  return (
+ return (
+  <div
+    className={[
+      styles.pageRoot,
+      selectedMemberId != null ? styles.pageRootWithPanel : '',
+    ]
+      .filter(Boolean)
+      .join(' ')}
+  >
+    <MemberDetailPanel
+      isOpen={selectedMemberId != null}
+      detail={memberDetail}
+      loading={detailLoading}
+      onClose={handleCloseDetail}
+    />
+
     <div className={styles.page}>
       <header className={styles.header}>
         <img src={groupIcon} alt="" className={styles.headerIcon} />
@@ -122,15 +137,15 @@ export default function GroupManagePage() {
 
       <section className={styles.generationCard}>
         <div className={styles.generationInfo}>
-          <h2 className={styles.generationLabel}>{generation?.label ?? "-"}</h2>
+          <h2 className={styles.generationLabel}>{generation?.label ?? '-'}</h2>
           <p className={styles.generationDate}>
             {generation?.startDate
               ? `${formatShortDate(generation.startDate)} -${
                   generation.endDate
                     ? ` ${formatShortDate(generation.endDate)}`
-                    : ""
+                    : ''
                 }`
-              : "-"}
+              : '-'}
           </p>
         </div>
         {isStaff && generation?.isActive && (
@@ -224,36 +239,27 @@ export default function GroupManagePage() {
           </div>
         )}
       </section>
-
-      {isStaff && (
-        <>
-          <InviteCodeModal
-            isOpen={isInviteOpen}
-            generationId={GENERATION_ID}
-            onClose={() => setIsInviteOpen(false)}
-          />
-
-          <GenerationCloseModal
-            isOpen={isCloseOpen}
-            generationLabel={generation?.label ?? ""}
-            onClose={() => setIsCloseOpen(false)}
-            onSubmit={handleGenerationClose}
-          />
-
-          <SuccessModal
-            isOpen={isSuccessOpen}
-            message="기수가 성공적으로 종료되었어요!"
-            onClose={() => setIsSuccessOpen(false)}
-          />
-        </>
-      )}
-
-      <MemberDetailPanel
-        isOpen={selectedMemberId != null}
-        detail={memberDetail}
-        loading={detailLoading}
-        onClose={handleCloseDetail}
-      />
     </div>
-  );
-}
+
+    {isStaff && (
+      <>
+        <InviteCodeModal
+          isOpen={isInviteOpen}
+          generationId={GENERATION_ID}
+          onClose={() => setIsInviteOpen(false)}
+        />
+        <GenerationCloseModal
+          isOpen={isCloseOpen}
+          generationLabel={generation?.label ?? ''}
+          onClose={() => setIsCloseOpen(false)}
+          onSubmit={handleGenerationClose}
+        />
+        <SuccessModal
+          isOpen={isSuccessOpen}
+          message="기수가 성공적으로 종료되었어요!"
+          onClose={() => setIsSuccessOpen(false)}
+        />
+      </>
+    )}
+  </div>
+)};

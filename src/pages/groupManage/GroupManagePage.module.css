@@ -15,15 +15,16 @@
 }
 
 .headerIcon {
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
 }
 
 .title {
   margin: 0;
   font-size: 24px;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-weight: 500;
+  color: #3340b0;
+  font-family: Pretendard;
 }
 
 /* ── 기수 카드 1225 fill × 112 hug, padding 28 ── */
@@ -218,4 +219,16 @@
   .listCard {
     min-height: auto;
   }
+}
+
+.pageRoot {
+  position: relative;
+}
+
+/* 패널 열릴 때만: main padding 상쇄 → 사이드바에 붙음 */
+.pageRootWithPanel {
+  margin: -32px 0 -32px -32px;
+  padding: 32px 32px 32px 0;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
