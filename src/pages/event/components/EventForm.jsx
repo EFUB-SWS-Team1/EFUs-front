@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { ko } from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
+import { Button, Input } from "../../../components/common";
 import styles from "./EventForm.module.css";
+import calendarIcon from "../../../assets/Calendar.svg";
 
 function parseNumber(value) {
   return Number(String(value).replace(/,/g, "")) || 0;
@@ -15,6 +17,20 @@ function toDateString(date) {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+
+const DateInput = forwardRef(function DateInput(
+  { value, onClick, placeholder },
+  ref,
+) {
+  return (
+    <button type="button" className={styles.dateInputButton} onClick={onClick} ref={ref}>
+      <img src={calendarIcon} alt="" className={styles.calendarIcon} />
+      <span className={value ? styles.dateValue : styles.datePlaceholder}>
+        {value || placeholder}
+      </span>
+    </button>
+  );
+});
 
 export default function EventForm({ title, initialValues, submitLabel, onCancel, onSubmit }) {
   const [name, setName] = useState("");
@@ -61,49 +77,31 @@ export default function EventForm({ title, initialValues, submitLabel, onCancel,
       <h1 className={styles.title}>{title}</h1>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="event-name">
-            행사명 <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="event-name"
-            className={styles.input}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="9월 MT"
-          />
-        </div>
+        <Input
+          label="행사명 *"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="9월 MT"
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="event-budget">
-            예산 <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="event-budget"
-            className={styles.input}
-            value={budget}
-            onChange={(e) => setBudget(e.target.value.replace(/[^\d,]/g, ""))}
-            placeholder="500,000"
-            inputMode="numeric"
-          />
-        </div>
+        <Input
+          label="예산 *"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value.replace(/[^\d,]/g, ""))}
+          placeholder="500,000"
+          inputMode="numeric"
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="event-participants">
-            참여 인원
-          </label>
-          <input
-            id="event-participants"
-            className={styles.input}
-            value={participants}
-            onChange={(e) => setParticipants(e.target.value.replace(/\D/g, ""))}
-            placeholder="30"
-            inputMode="numeric"
-          />
-        </div>
+        <Input
+          label="참여 인원"
+          value={participants}
+          onChange={(e) => setParticipants(e.target.value.replace(/\D/g, ""))}
+          placeholder="30"
+          inputMode="numeric"
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label}>날짜</label>
+        <div className={styles.dateField}>
+          <label className={styles.dateLabel}>날짜</label>
           <div className={styles.datePickerWrap}>
             <DatePicker
               selectsRange
@@ -113,7 +111,8 @@ export default function EventForm({ title, initialValues, submitLabel, onCancel,
               locale={ko}
               dateFormat="yyyy.MM.dd"
               placeholderText="날짜를 선택하세요"
-              isClearable
+              customInput={<DateInput placeholder="날짜를 선택하세요" />}
+              popperClassName={styles.datePopper}
             />
           </div>
         </div>
@@ -121,12 +120,12 @@ export default function EventForm({ title, initialValues, submitLabel, onCancel,
         {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.actions}>
-          <button type="button" className={styles.cancelBtn} onClick={onCancel}>
+          <Button type="button" variant="secondary" className={styles.cancelBtn} onClick={onCancel}>
             취소
-          </button>
-          <button type="submit" className={styles.submitBtn} disabled={!isValid}>
+          </Button>
+          <Button type="submit" variant="primary" className={styles.submitBtn} disabled={!isValid}>
             {submitLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

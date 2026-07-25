@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getEventDetail, updateEvent } from "../../api/event";
 import { formatCurrency, formatDate, formatDateRange, formatNumber } from "../../utils/format";
+import { Button, PermissionBadge } from "../../components/common";
 import EventFormModal from "./components/EventFormModal";
 import styles from "./EventDetailPage.module.css";
+import chevronLeft from "../../assets/Chevron left.svg";
 
 const STATUS_MAP = {
-  ongoing: { label: "진행 중", className: styles.badgeSuccess },
-  warning: { label: "80% 초과", className: styles.badgeWarning },
-  over: { label: "예산 초과", className: styles.badgeDanger },
+  ongoing: { label: "진행 중", variant: "success" },
+  warning: { label: "80% 초과", variant: "warning" },
+  over: { label: "예산 초과", variant: "danger" },
 };
 
 const GENERATION_ID = "efub-6";
@@ -54,12 +56,17 @@ export default function EventDetailPage() {
   return (
     <div className={styles.page}>
       <div className={styles.topBar}>
-        <button type="button" className={styles.backBtn} onClick={() => navigate("/events")}>
-          ← 행사 목록으로
-        </button>
-        <button type="button" className={styles.editBtn} onClick={() => setIsEditOpen(true)}>
+        <Button
+          variant="secondary"
+          icon={<img src={chevronLeft} alt="" className={styles.backIcon} />}
+          className={styles.backBtn}
+          onClick={() => navigate("/events")}
+        >
+          행사 목록으로
+        </Button>
+        <Button variant="secondary" className={styles.editBtn} onClick={() => setIsEditOpen(true)}>
           수정
-        </button>
+        </Button>
       </div>
 
       <div className={styles.summaryCard}>
@@ -70,14 +77,13 @@ export default function EventDetailPage() {
               {formatDateRange(event.startDate, event.endDate)} · {event.participants}명 참여
             </p>
           </div>
-          <span className={`${styles.badge} ${status.className}`}>{status.label}</span>
+          <PermissionBadge variant={status.variant} className={styles.statusBadge}>
+            {status.label}
+          </PermissionBadge>
         </div>
 
         <div className={styles.progressTrack}>
-          <div
-            className={`${styles.progressFill} ${isOverBudget ? styles.progressFillOver : ""}`}
-            style={{ width: `${progressWidth}%` }}
-          />
+          <div className={styles.progressFill} style={{ width: `${progressWidth}%` }} />
         </div>
 
         <div className={styles.budgetRow}>

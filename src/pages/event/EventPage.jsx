@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { createEvent, getEvents } from "../../api/event";
 import { formatCurrency } from "../../utils/format";
+import { Button } from "../../components/common";
 import SummaryCard from "./components/SummaryCard";
 import EventItem from "./components/EventItem";
 import EventFormModal from "./components/EventFormModal";
 import styles from "./EventPage.module.css";
 import eventIcon from "../../assets/efub로고2.svg";
+import plusIcon from "../../assets/plusIcon.svg";
 
 const GENERATION_ID = "efub-6";
 
@@ -40,17 +42,28 @@ export default function EventPage() {
 
       {summary && (
         <div className={styles.summaryRow}>
-          <SummaryCard label="총 예산" value={formatCurrency(summary.totalBudget)} />
-          <SummaryCard label="총 지출" value={formatCurrency(summary.totalSpent)} />
+          <SummaryCard
+            label="총 예산"
+            value={formatCurrency(summary.totalBudget)}
+          />
+          <SummaryCard
+            label="총 지출"
+            value={formatCurrency(summary.totalSpent)}
+          />
           <SummaryCard label="잔액" value={formatCurrency(summary.balance)} />
         </div>
       )}
 
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>행사별 예산</h2>
-        <button type="button" className={styles.addBtn} onClick={() => setIsCreateOpen(true)}>
-          + 행사 등록
-        </button>
+        <Button
+          variant="primary"
+          icon={<img src={plusIcon} alt="" className={styles.addBtnIcon} />}
+          className={styles.addBtn}
+          onClick={() => setIsCreateOpen(true)}
+        >
+          행사 등록
+        </Button>
       </div>
 
       {events.length === 0 ? (
