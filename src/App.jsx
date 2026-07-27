@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import { Button, PermissionBadge, Input, Card, Modal } from './components/common';
 
+// 🔥 [추가] 방금 만든 온보딩 페이지 불러오기
+import Onboarding from './pages/auth/Onboarding';
 
 /* ── 아이콘 ── */
 const PlusIcon = () => (
@@ -112,8 +114,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 🔥 [추가] 첫 화면(/)을 사이드바 없는 Onboarding 페이지로 지정 */}
+        <Route path="/" element={<Onboarding />} />
+
+        {/* 사이드바 메뉴가 포함되는 라우트 모음 */}
         <Route element={<Layout />}>
-          <Route index element={<ComponentPreview />} />
+          {/* 🔥 [변경] 기존에 '/' 였던 컴포넌트 미리보기를 '/preview' 경로로 살려둠 */}
+          <Route path="preview" element={<ComponentPreview />} />
+          
           <Route path="dashboard" element={<DummyPage title="대시보드" />} />
           <Route path="ledger" element={<DummyPage title="가계부" />} />
           <Route path="event" element={<DummyPage title="행사" />} />
@@ -123,5 +131,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-
