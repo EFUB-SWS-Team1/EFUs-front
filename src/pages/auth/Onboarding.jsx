@@ -79,30 +79,31 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
   },
-  // 🔥 1. 큰 꽃 로고: 크기 160x160 & 아래 여백을 56px로 넉넉하게 넓힘!
+  // 1. 꽃 심볼 로고 (158.22 x 160) 및 아래 간격 80px
   logoIconImage: {
-    width: '160px',
+    width: '158.22px',
     height: '160px',
     objectFit: 'contain',
-    marginBottom: '56px', // 🔥 기존 32px -> 56px로 수정하여 시원하게 벌림
+    marginTop: '0px',
+    marginBottom: '80px',
   },
-  // 🔥 2. EFUs 글씨 로고: width 고정 및 아래 여백을 8px로 좁혀 문구와 붙임
+  // 2. EFUs 텍스트 로고
   logoTextImage: {
     width: '120px',
     height: 'auto',
     objectFit: 'contain',
-    marginBottom: '8px',  // 🔥 바로 아래 "우리 단체~" 문구와 바짝 붙임
+    marginBottom: '8px',
   },
-  // 🔥 3. "우리 단체의 돈을 함께 관리해요" 서브타이틀
+  // 3. 서브타이틀 & 카카오 버튼과의 간격 (피그마 정밀 수치 80px)
   subtitle: {
-    fontSize: '15px',
-    lineHeight: '22px',
+    fontSize: '18px',
+    lineHeight: '24px',
     color: '#2B42B6',
-    margin: '0 0 52px 0', // 아래 카카오 버튼과의 여백
+    margin: '0 0 80px 0',
     fontWeight: '500',
     letterSpacing: '-0.3px',
   },
-  // 4. 카카오 시작하기 버튼
+  // 4. 카카오 시작하기 버튼 (320 x 40)
   kakaoButton: {
     width: '320px',
     height: '40px',
