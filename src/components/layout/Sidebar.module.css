@@ -8,7 +8,9 @@
   flex-direction: column;
   gap: 20px;
   flex-shrink: 0;
-  transition: width 0.2s ease, padding 0.2s ease;
+  transition:
+    width 0.2s ease,
+    padding 0.2s ease;
   box-sizing: border-box;
 }
 
@@ -147,13 +149,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
+
   padding: 11px 14px;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 500;
   color: #c4c4c4;
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .navItem:hover {
