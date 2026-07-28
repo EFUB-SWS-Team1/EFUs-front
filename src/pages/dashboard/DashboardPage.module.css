@@ -1,11 +1,13 @@
 .page {
   width: 100%;
-  max-width: 1089px;
-  margin: 0 auto;
-  padding: 32px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 32px;
+  box-sizing: border-box;
 }
 
 .titleRow {
@@ -34,26 +36,26 @@
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline; 
+  align-items: baseline;
   column-gap: 0;
   font-family: Pretendard, sans-serif;
-  font-size: 36px;
-  font-weight: 600;
-  letter-spacing: -0.36px;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.24px;
   color: var(--color-gray-900);
 }
 
 .titleSuffixWrap {
   display: inline-flex;
-  align-items: center; 
-  gap: 4px; 
+  align-items: center;
+  gap: 4px;
 }
 
 .titleHighlight {
   color: #5b6cf9;
   font-weight: 600;
   font-size: 36px;
-  font-family: Pretendard;
+  font-family: Pretendard, sans-serif;
   font-style: normal;
   line-height: normal;
   letter-spacing: -0.36px;
@@ -62,7 +64,7 @@
 .titleSuffix {
   font-weight: 400;
   font-size: 24px;
-  line-height: 1; 
+  line-height: 1;
   color: var(--color-gray-900);
 }
 
@@ -75,8 +77,8 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
-  margin: 0; 
-  align-self: auto; 
+  margin: 0;
+  align-self: auto;
   color: var(--color-gray-200);
 }
 
@@ -90,7 +92,7 @@
 }
 
 .statusText {
-  padding: 32px;
+  padding: 0;
   font-size: 14px;
   color: var(--color-gray-400);
 }
