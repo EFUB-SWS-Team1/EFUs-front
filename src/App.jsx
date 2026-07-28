@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import { Button, PermissionBadge, Input, Card, Modal } from './components/common';
+import EventPage from './pages/event/EventPage';
+import EventDetailPage from './pages/event/EventDetailPage';
 
 // 🔥 [추가] 방금 만든 온보딩 페이지 불러오기
 import Onboarding from './pages/auth/Onboarding';
@@ -109,7 +111,6 @@ function DummyPage({ title }) {
   );
 }
 
-/* ── App ── */
 export default function App() {
   return (
     <BrowserRouter>
@@ -131,3 +132,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
