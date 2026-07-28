@@ -1,0 +1,31 @@
+.card {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #fafafa;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+}
+
+.label {
+  margin: 0;
+  font-family: Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #777;
+}
+
+.value {
+  margin: 0;
+  font-family: Pretendard, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.24px;
+}

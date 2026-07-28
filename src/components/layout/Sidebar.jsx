@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import GenerationItem from "./components/GenerationItem";
@@ -9,7 +10,7 @@ import groupLogoIcon from "../../assets/efub로고2.svg";
 const NAV_ITEMS = [
   { to: "/dashboard", label: "대시보드" },
   { to: "/ledger", label: "가계부" },
-  { to: "/event", label: "행사" },
+  { to: "/events", label: "행사" },
   { to: "/group-manage", label: "단체" },
 ];
 
