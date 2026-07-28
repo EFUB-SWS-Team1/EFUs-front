@@ -1,28 +1,22 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Onboarding from './pages/auth/Onboarding';
-
-function DummyPage({ title }) {
-  return (
-    <div>
-      <h1 style={{ margin: 0, fontSize: '24px' }}>{title}</h1>
-      <p style={{ color: '#888', marginTop: '8px' }}>Sidebar 메뉴 클릭 테스트용 페이지입니다.</p>
-    </div>
-  );
-}
+import OrgSelect from './pages/auth/OrgSelect'; // 아직 미구현, 단체 선택하는거
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ── 인증/온보딩 (Layout 없음) ── */}
         <Route path="/" element={<Onboarding />} />
-         <Route path="/org-select" element={<OrgSelect />} />
+        <Route path="/org-select" element={<OrgSelect />} />
 
+        {/* ── 메인 앱 (Layout + Sidebar) ── */}
         <Route element={<Layout />}>
-          <Route path="dashboard" element={<DummyPage title="대시보드" />} />
-          <Route path="ledger" element={<DummyPage title="가계부" />} />
-          <Route path="event" element={<DummyPage title="행사" />} />
-          <Route path="group-manage" element={<DummyPage title="단체" />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="ledger" element={<Ledger />} />
+          <Route path="event" element={<Event />} />
+          <Route path="group-manage" element={<GroupManage />} />
         </Route>
       </Routes>
     </BrowserRouter>
