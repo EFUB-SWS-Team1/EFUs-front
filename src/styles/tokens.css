@@ -1,0 +1,40 @@
+/**
+ * tokens.css
+ * 프로젝트 전역 색상/디자인 토큰. main.jsx에서 한 번만 import.
+ * 피그마 공통 컴포넌트(Badge, Button 등) 색상 기준으로 추출.
+ */
+
+:root {
+  /* brand */
+  --color-primary: #6c63ff;
+  --color-primary-hover: #5b52e6;
+
+  /* neutral */
+  --color-gray-900: #1f2330;
+  --color-gray-700: #4b4f5e;
+  --color-gray-500: #8b8fa3;
+  --color-gray-400: #a0a4b8;
+  --color-gray-200: #e5e6ec;
+  --color-gray-100: #f1f1f5;
+  --color-gray-50: #f7f7fa;
+  --color-white: #ffffff;
+
+  /* status */
+  --color-success-bg: #e7f7f1;
+  --color-success-text: #34c38f;
+
+  --color-warning-bg: #fdf3e2;
+  --color-warning-text: #e0a63f;
+
+  --color-danger-bg: #fdecec;
+  --color-danger-text: #f0716f;
+
+  /* radius / shadow */
+  --radius-card: 20px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(20, 20, 43, 0.04);
+
+  /* layout */
+  --sidebar-width: 220px;
+  --sidebar-width-collapsed: 64px;
+}

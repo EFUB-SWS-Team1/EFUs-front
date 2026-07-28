@@ -10,6 +10,7 @@ export default function GenerationItem({
     <li>
       <button
         type="button"
+
         className={[styles.item, isActive ? styles.active : '']
           .filter(Boolean)
           .join(' ')}
