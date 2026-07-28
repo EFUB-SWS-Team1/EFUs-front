@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import EventPage from "../pages/event/EventPage";
 import EventDetailPage from "../pages/event/EventDetailPage";
+import GroupManagePage from "../pages/groupManage/GroupManagePage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: "events/:eventId",
         element: <EventDetailPage />,
+      },
+      {
+        path: "group-manage",
+        element: <GroupManagePage />,
       },
     ],
   },

@@ -1,0 +1,130 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  box-sizing: border-box;
+  width: 320px;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  color: #aaaaaa;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.title {
+  margin: 0 0 6px;
+  padding-right: 24px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.desc {
+  margin: 0 0 20px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #888888;
+  line-height: 1.4;
+}
+
+.codeList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.codeCard {
+  background: #f0f1ff;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.roleLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #777777;
+  line-height: 1.2;
+}
+
+.codeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.code {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+}
+
+.codeStaff {
+  color: #3340b0;
+}
+
+.codeGeneral {
+  color: #333333;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.copyBtn:hover {
+  opacity: 0.85;
+}
+
+.copyIcon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.expire {
+  margin: 16px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: #aaaaaa;
+  text-align: left;
+  line-height: 1.4;
+}
