@@ -1,0 +1,108 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
+import {
+  getMyOrganizations,
+  joinOrganizationByCode,
+  createOrganization,
+} from "../../api/orgSelect";
+import ProfileHeader from "./components/ProfileHeader";
+import OrgEmptyState from "./components/OrgEmptyState";
+import OrgList from "./components/OrgList";
+import OrgSelectActions from "./components/OrgSelectActions";
+import InviteCodeModal from "./components/InviteCodeModal";
+import CreateOrgModal from "./components/CreateOrgModal";
+import CreateOrgSuccessModal from "./components/CreateOrgSuccessModal";
+import styles from "./OrgSelectPage.module.css";
+
+export default function OrgSelectPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [organizations, setOrganizations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeModal, setActiveModal] = useState(null);
+  // null | 'invite' | 'create' | 'createSuccess'
+  const [createdInviteCodes, setCreatedInviteCodes] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchOrgs() {
+      try {
+        const data = await getMyOrganizations();
+        if (!ignore) setOrganizations(data);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    fetchOrgs();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const handleEnterOrg = (orgId) => {
+    navigate("/dashboard");
+  };
+
+  const handleJoinByCode = async (code) => {
+    const joined = await joinOrganizationByCode(code);
+    setOrganizations((prev) => [...prev, joined]);
+    setActiveModal(null);
+  };
+
+  const handleCreateOrg = async (payload) => {
+    const result = await createOrganization(payload);
+    setOrganizations((prev) => [...prev, result.org]);
+    setCreatedInviteCodes(result.inviteCodes);
+    setActiveModal("createSuccess");
+  };
+
+  const hasOrgs = organizations.length > 0;
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <ProfileHeader user={user} />
+
+        <div className={styles.body}>
+          {isLoading ? (
+            <p className={styles.statusText}>불러오는 중...</p>
+          ) : hasOrgs ? (
+            <OrgList organizations={organizations} onEnter={handleEnterOrg} />
+          ) : (
+            <OrgEmptyState />
+          )}
+        </div>
+
+        <OrgSelectActions
+          onInviteClick={() => setActiveModal("invite")}
+          onCreateClick={() => setActiveModal("create")}
+        />
+      </div>
+
+      <InviteCodeModal
+        isOpen={activeModal === "invite"}
+        onClose={() => setActiveModal(null)}
+        onSubmit={handleJoinByCode}
+      />
+
+      <CreateOrgModal
+        isOpen={activeModal === "create"}
+        onClose={() => setActiveModal(null)}
+        onSubmit={handleCreateOrg}
+      />
+
+      <CreateOrgSuccessModal
+        isOpen={activeModal === "createSuccess"}
+        inviteCodes={createdInviteCodes}
+        onClose={() => {
+          setActiveModal(null);
+          setCreatedInviteCodes(null);
+        }}
+      />
+    </div>
+  );
+}

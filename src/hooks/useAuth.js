@@ -1,3 +1,10 @@
 export default function useAuth() {
-  return { user: { name: "임시 유저" }, isLoading: false };
+  return {
+    user: {
+      name: "김민지",
+      email: "kimminji@email.com",
+      profileImageUrl: null,
+    },
+    isLoading: false,
+  };
 }

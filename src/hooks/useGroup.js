@@ -1,11 +1,6 @@
-/**
- * useGroup.js (임시 stub)
+/*
  *
- * 실제 group/기수 상태 관리는 groupStore.js + group 담당자의 useGroup 구현으로
- * 대체될 예정입니다. dashboard/layout 브랜치를 독립적으로 개발/테스트하기 위한
- * 임시 버전이며, develop 병합 시 실제 훅으로 교체되어야 합니다.
- *
- * 반환 형태 (실제 구현도 이 shape을 따른다고 가정):
+ * 반환 형태:
  *  {
  *    currentGeneration: {
  *      id: string,
@@ -19,7 +14,7 @@
  */
 
 export default function useGroup() {
-  // TODO: groupStore(zustand 등) 연동 후 실제 선택된 기수로 교체
+  
   const currentGeneration = {
     id: "efub-6",
     name: "EFUB 6기",
@@ -35,7 +30,7 @@ export default function useGroup() {
   ];
 
   function switchGeneration(generationId) {
-    // TODO: 실제 구현에서는 groupStore의 선택된 기수를 업데이트
+    
     console.log("switchGeneration:", generationId);
   }
 

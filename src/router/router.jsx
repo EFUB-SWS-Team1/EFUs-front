@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import ProtectedRoute from "./ProtectedRoute";
 
 import Onboarding from "../pages/auth/Onboarding";
+import OrgSelectPage from "../pages/orgSelect/OrgSelectPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import EventPage from "../pages/event/EventPage";
 import EventDetailPage from "../pages/event/EventDetailPage";
@@ -15,6 +16,14 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Onboarding />,
   },
+  {
+  path: "/org-select",
+  element: (
+    <ProtectedRoute>
+      <OrgSelectPage />
+    </ProtectedRoute>
+  ),
+},
 
   // ── 메인 앱 (로그인 필요) ──
   {

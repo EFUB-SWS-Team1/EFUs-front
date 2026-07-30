@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 320px;
+  padding: 40px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow:
+    0 8px 32px rgba(91, 108, 249, 0.1),
+    0 2px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0 0 8px;
+  color: #111;
+  font-family: Pretendard, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.16px;
+}
+
+.description {
+  margin: 0 0 20px;
+  color: #777;
+  font-family: Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.14px;
+}
+
+.fieldLabel {
+  display: block;
+  margin: 0 0 8px;
+  color: #777;
+  font-family: Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.14px;
+}
+
+.required {
+  color: #5b6cf9;
+}
+
+.input {
+  display: flex;
+  width: 100%;
+  height: 41px;
+  padding: 12px 20px;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #111;
+  font-family: Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.14px;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #aaa;
+}
+
+.input:focus {
+  border-color: #5b6cf9;
+}
+
+.inputError {
+  border-color: #ff6b6b;
+}
+
+.errorText {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancelBtn,
+.primaryBtn {
+  flex: 1;
+  height: 40px;
+  border-radius: 12px;
+  font-family: Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.cancelBtn {
+  border: 1px solid #eee;
+  background: #ffffff;
+  color: #4b4f5e;
+}
+
+.cancelBtn:hover {
+  background: #fafafa;
+}
+
+.primaryBtn {
+  border: none;
+  background: #5b6cf9;
+  color: #ffffff;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: #4a5ae8;
+}
+
+.primaryBtn:disabled {
+  border: 1px solid #eee;
+  background: #fafafa;
+  color: #ccc;
+  cursor: not-allowed;
+}
