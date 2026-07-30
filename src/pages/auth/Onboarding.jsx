@@ -5,7 +5,7 @@ import styles from './Onboarding.module.css';
 
 export default function Onboarding() {
   const handleKakaoLogin = () => {
-    // TODO: 백엔드 카카오 
+    navigate("/org-select"); 
     
   };
 
