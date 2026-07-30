@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import logoIcon from '../../assets/efub로고1.svg';
 import logoText from '../../assets/efus-text-logo.svg';
 import kakaoIcon from '../../assets/kakao-icon.svg';
 import styles from './Onboarding.module.css';
 
 export default function Onboarding() {
+
+  const navigate = useNavigate();
   const handleKakaoLogin = () => {
     navigate("/org-select"); 
     
