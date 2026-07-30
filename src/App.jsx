@@ -1,7 +1,7 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Onboarding from './pages/auth/Onboarding';
-import OrgSelect from './pages/auth/OrgSelect'; // 아직 미구현, 단체 선택하는거
+import OrgSelect from './pages/auth/OrgSelect'; 
 
 export default function App() {
   return (
