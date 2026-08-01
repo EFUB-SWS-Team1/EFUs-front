@@ -1,0 +1,166 @@
+/* 전체 레이아웃 */
+.detail-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #111111;
+}
+
+/* 상단 네비게이션 및 버튼 */
+.detail-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555555;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.2s;
+}
+
+.btn-back:hover {
+  background-color: #f9fafb;
+}
+
+.back-arrow {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-edit {
+  background-color: #F3F4F6;
+  color: #4B5563;
+}
+
+.btn-edit:hover {
+  background-color: #E5E7EB;
+}
+
+.btn-delete {
+  background-color: #FEF2F2;
+  color: #EF4444;
+}
+
+.btn-delete:hover {
+  background-color: #FEE2E2;
+}
+
+/* 타이틀 및 금액 영역 */
+.detail-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.detail-main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 6px 0;
+}
+
+.detail-reg-date {
+  font-size: 14px;
+  color: #999999;
+  margin: 0;
+}
+
+.detail-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #EF4444;
+}
+
+/* 상세 정보 카드 박스 */
+.detail-card {
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: 28px;
+  column-gap: 40px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-item.full-width {
+  grid-column: span 2;
+}
+
+.detail-item .label {
+  font-size: 14px;
+  color: #888888;
+}
+
+.detail-item .value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111111;
+}
+
+/* 영수증 및 수정 이력 섹션 */
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.section-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 10px;
+}
+
+.section-box {
+  width: 100%;
+  height: 80px;
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #AAAAAA;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
