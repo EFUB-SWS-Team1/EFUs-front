@@ -19,6 +19,9 @@ const ExpensePage = () => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // 행사 추가가 완료되었는지 여부를 관리하는 state (false: 초기 행사 선택 단계, true: 지출 등록 단계)
+  const [isEventAdded, setIsEventAdded] = useState(false);
+
   // 3번 조건: hidden input의 showPicker() 호출을 위한 ref
   const dateInputRef = useRef(null);
 
@@ -57,10 +60,49 @@ const ExpensePage = () => {
     }
   };
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitted Expense Data:', formData);
+    console.log("현재 isEventAdded 상태:", isEventAdded);
+
+    // 1단계: 아직 행사를 '추가'하기 전인 경우
+    if (!isEventAdded) {
+      if (!formData.event) {
+        alert("행사를 선택해주세요.");
+        return;
+      }
+      
+      console.log('Submitted Expense Data:', formData);
+
+	    // 1. [요구사항 1] 행사(event) 값은 유지(prev.event)하고, 나머지 항목만 초기화
+	    setFormData((prev) => ({
+	      title: '',
+	      amount: '',
+	      date: '',
+	      event: prev.event, // 기존에 선택했던 행사는 그대로 유지!
+	      memo: '',
+	      receipt: null
+	    }));
+	
+  
+      // 행사가 선택되었다면 '등록' 단계로 전환!
+      setIsEventAdded(true);
+      return; // 여기서 멈추고 다음 단계(지출 입력)로 넘어감
+    }
+
+    // 2단계: '등록' 단계인 경우 (내용, 금액, 날짜 필수 검사)
+    if (!formData.title || !formData.amount || !formData.date) {
+      alert("내용, 금액, 날짜는 필수 입력입니다.");
+      return;
+    }
+
+    console.log('Submitted Final Expense Data:', formData);
+
+    // 최종 등록 완료 후 다른 페이지로 이동 (예: navigate('/home'))
+    navigate('/목적지경로'); 
   };
+
+
 
   return (
     <div className="expense-container">
@@ -77,7 +119,7 @@ const ExpensePage = () => {
               value={formData.title}
               onChange={handleChange}
               placeholder=""
-              required
+             
             />
           </div>
 
@@ -89,7 +131,7 @@ const ExpensePage = () => {
               value={formData.amount}
               onChange={handleChange}
               placeholder=""
-              required
+              
             />
           </div>
         </div>
@@ -109,7 +151,7 @@ const ExpensePage = () => {
                 className="hidden-date-input"
                 value={formData.date}
                 onChange={handleChange}
-                required
+               
               />
             </div>
           </div>
@@ -179,14 +221,15 @@ const ExpensePage = () => {
         </div>
 
         {/* 1번 조건: 취소/추가 버튼 동일한 크기로 맞춤 + 취소 시 이전 페이지 이동 */}
+        {/* 버튼 그룹 (글자가 동적으로 '추가' 또는 '등록'으로 변경됨) */}
         <div className="button-group">
-          <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>
-            취소
-          </button>
-          <button type="submit" className="btn btn-submit">
-            추가
-          </button>
-        </div>
+            <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>
+                취소
+            </button>
+                <button type="submit" className={`btn btn-submit ${isEventAdded ? 'register-mode' : 'add-mode'}`}>
+                {isEventAdded ? '등록' : '추가'} 
+            </button>
+            </div>
       </form>
     </div>
   );
