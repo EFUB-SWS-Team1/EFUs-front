@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // 👈 추가!
 import './LedgerCreatePage.css';
 
 import logoIcon from '../../assets/efub로고1.svg';
@@ -29,6 +30,7 @@ const initialData = [
 ];
 
 export default function LedgerCreatePage() {
+  const navigate = useNavigate(); // 👈 추가!
   const [filter, setFilter] = useState('all');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -175,7 +177,7 @@ export default function LedgerCreatePage() {
               <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
                 취소
               </button>
-              <button className="btn-next" onClick={() => alert(`${selectedType === 'income' ? '수입' : '지출'} 페이지로 이동`)}>
+              <button className="btn-next" onClick={() => navigate(selectedType === 'expense' ? '/expense' : '/income')}>
                 다음
               </button>
             </div>
