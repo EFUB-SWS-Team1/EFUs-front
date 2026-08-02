@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './ExpenseDetailPage.css';
 import backArrowIcon from '../../assets/화살표.svg';
@@ -8,7 +8,8 @@ const ExpenseDetailPage = () => {
   const navigate = useNavigate();
 
   // 전달받은 데이터가 없거나 테스트용일 때 보여줄 기본 데이터
-  const expenseData = location.state?.expenseData || {
+  const [expenseData, setExpenseData] = useState(
+    location.state?.expenseData || {
     title: '2월 MT 준비물',
     registrationDate: '2026.02.05',
     amount: '-70,000원',
@@ -17,9 +18,30 @@ const ExpenseDetailPage = () => {
     memo: '-',
     receipt: null,
     history: [],
+    isDeleted: false,
+    deletedDate: null,
+  }
+  );
+
+  // [추가] 모달 창 열림/닫힘 상태 관리
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // [추가] 모달에서 삭제 확정 시 실행되는 핸들러 함수
+  const handleDeleteConfirm = () => {
+    const today = '2026.10.25'; // 예시 삭제 날짜
+    
+    setExpenseData((prev) => ({
+      ...prev,
+      isDeleted: true,
+      deletedDate: today,
+      history: [
+        { date: today, author: '홍길동', content: '삭제' },
+        ...prev.history,
+      ],
+    }));
+    
+    setIsDeleteModalOpen(false); // 모달 닫기
   };
-
-
 
   return (
     <div className="detail-container">
@@ -35,7 +57,10 @@ const ExpenseDetailPage = () => {
           >
             수정
           </button>
-          <button className="btn-action btn-delete" onClick={() => { alert('삭제되었습니다.'); navigate('/expense'); }}>
+          <button 
+              className="btn-action btn-delete" 
+              onClick={() => setIsDeleteModalOpen(true)}
+            >
             삭제
           </button>
         </div>
@@ -118,6 +143,24 @@ const ExpenseDetailPage = () => {
           )}
         </div>
       </div>
+
+          {isDeleteModalOpen && (
+      <div className="modal-overlay">
+        <div className="delete-modal">
+          <h3>거래 삭제</h3>
+          <p>{expenseData.title} 내역을 삭제합니다</p>
+          <p className="modal-sub-text">거래를 삭제해도 삭제 이력까지 계속 보관돼요</p>
+          <div className="modal-buttons">
+            <button className="btn-modal-cancel" onClick={() => setIsDeleteModalOpen(false)}>
+              취소
+            </button>
+            <button className="btn-modal-confirm" onClick={handleDeleteConfirm}>
+              삭제
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 };

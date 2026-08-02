@@ -283,3 +283,96 @@
 }
 
 
+
+
+
+/* =========================================================
+   6. 삭제 상태 및 모달 관련 추가 스타일 (추가된 부분)
+   ========================================================= */
+
+/* [추가] 삭제 완료 시 제목 및 금액에 적용될 취소선(줄 두 개 느낌) 스타일 */
+.deleted-text {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px; /* 취소선 두께 조절 */
+  color: #9ca3af !important; /* 삭제 시 회색빛으로 변경 */
+}
+
+/* [추가] 등록일 대신 표시되는 '삭제된 날짜' 텍스트 색상 */
+.deleted-date-text {
+  color: #ef4444; 
+}
+
+/* [추가] 모달이 뜰 때 뒷배경을 어둡게 처리해 주는 레이어 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* [추가] 화면 중앙에 뜨는 삭제 확인 모달 박스 */
+.delete-modal {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 360px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+/* [추가] 모달 제목(거래 삭제) 폰트 스타일 */
+.delete-modal h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* [추가] 모달 안내 본문 텍스트 */
+.delete-modal p {
+  color: #374151;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* [추가] 모달 하단 보조 설명 텍스트 (이력 보관 안내 등) */
+.delete-modal .modal-sub-text {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-bottom: 24px;
+}
+
+/* [추가] 모달 내부 버튼들을 나란히 배치하는 상자 */
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* [추가] 모달 내부 [취소], [삭제] 버튼 공통 디자인 */
+.btn-modal-cancel,
+.btn-modal-confirm {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+/* [추가] 모달 [취소] 버튼 색상 (회색톤) */
+.btn-modal-cancel {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* [추가] 모달 [삭제] 버튼 색상 (붉은톤) */
+.btn-modal-confirm {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
