@@ -7,7 +7,11 @@
   color: #111111;
 }
 
-/* 상단 네비게이션 및 버튼 */
+/* =========================================================
+   2. 상단 네비게이션 (뒤로 가기 버튼 & 수정/삭제 버튼 영역)
+   ========================================================= */
+
+/* 상단 영역을 좌우 끝으로 정렬해 주는 컨테이너 */
 .detail-top-nav {
   display: flex;
   justify-content: space-between;
@@ -15,11 +19,12 @@
   margin-bottom: 32px;
 }
 
+/* '가계부 목록으로' 돌아가는 뒤로 가기 버튼 모양 */
 .btn-back {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 4px;
+  padding: 12px 20px;
   background-color: #ffffff;
   border: 1px solid #EEEEEE;
   border-radius: 20px;
@@ -31,22 +36,26 @@
   transition: background-color 0.2s;
 }
 
+/* 뒤로 가기 버튼에 마우스 올렸을 때 효과 */
 .btn-back:hover {
   background-color: #f9fafb;
 }
 
+/* 뒤로 가기 화살표 기호 스타일 */
 .back-arrow {
   font-size: 16px;
   font-weight: bold;
 }
 
+/* [수정] [삭제] 버튼 2개를 나란히 묶어주는 상자 */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
+/* [수정] [삭제] 버튼 공통 디자인 */
 .btn-action {
-  padding: 8px 18px;
+  padding: 12px 20px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
@@ -55,112 +64,138 @@
   transition: background-color 0.2s;
 }
 
+/* '수정' 버튼 전용 색상 (회색빛) */
 .btn-edit {
-  background-color: #F3F4F6;
-  color: #4B5563;
+  background-color: #FFFFFF;
+  color: #555555;
+  border: 1px solid #EEEEEE;
 }
 
 .btn-edit:hover {
-  background-color: #E5E7EB;
+  background-color: #f9fafb;
 }
 
+/* '삭제' 버튼 전용 색상 (붉은색 계열) */
 .btn-delete {
-  background-color: #FEF2F2;
-  color: #EF4444;
+  background-color: #FFF0F0;
+  color: #FF6B6B;
 }
 
 .btn-delete:hover {
-  background-color: #FEE2E2;
+  background-color: #FFE3E3;
 }
 
-/* 타이틀 및 금액 영역 */
+/* =========================================================
+   3. 타이틀(제목) 및 금액 영역
+   ========================================================= */
+
+/* 제목과 금액이 나란히 좌우로 배치되도록 잡어주는 상자 */
 .detail-header-section {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
+/* 상세 페이지 메인 제목 글자 (예: 2월 MT 준비물) */
 .detail-main-title {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 500;
   color: #111111;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
 }
 
+/* 등록 날짜 안내 글자 (예: 등록 2026.02.05) */
 .detail-reg-date {
-  font-size: 14px;
-  color: #999999;
+  font-size: 16px;
+  color: #777777;
   margin: 0;
 }
 
+/* 우측에 크게 표시되는 지출 금액 (붉은색) */
 .detail-amount {
   font-size: 24px;
   font-weight: 700;
-  color: #EF4444;
+  color: #FF6B6B;
 }
 
-/* 상세 정보 카드 박스 */
+/* =========================================================
+   4. 상세 정보 카드 박스 (내용, 금액, 날짜, 행사, 메모 등)
+   ========================================================= */
+
+/* 정보들이 담기는 큰 하얀색 테두리 상자 */
 .detail-card {
   background-color: #ffffff;
   border: 1px solid #EEEEEE;
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 20px;
+  padding: 40px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
+/* 내부 항목들을 2열 격자(Grid) 구조로 배치 */
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  row-gap: 28px;
+  row-gap: 32px;
   column-gap: 40px;
 }
 
+/* 개별 항목 (라벨 + 값) 묶음 */
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* 메모처럼 칸을 가득 채워야 하는 항목 (2칸 병합) */
 .detail-item.full-width {
   grid-column: span 2;
 }
 
+/* 항목 제목 (예: 내용, 금액, 날짜 등) */
 .detail-item .label {
-  font-size: 14px;
-  color: #888888;
+  font-size: 16px;
+  font-weight: 400;
+  color: #555555;
 }
 
+/* 항목 실제 데이터 값 (예: 70,000원 등) */
 .detail-item .value {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 500;
   color: #111111;
 }
 
-/* 영수증 및 수정 이력 섹션 */
+
+/* =========================================================
+   5. 영수증 및 수정 이력 섹션
+   ========================================================= */
+
 .detail-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
+/* 영수증 / 수정 이력 타이틀 소제목 */
 .section-heading {
   font-size: 16px;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 10px;
+  font-weight: 400;
+  color: #555555;
+  margin-bottom: 4px;
 }
 
+/* 영수증이나 이력이 들어가는 하얀색 네모 박스 */
 .section-box {
   width: 100%;
-  height: 80px;
+  height: 75px;
   background-color: #ffffff;
-  border: 1px solid #EEEEEE;
-  border-radius: 16px;
+  border: 1px solid #FAFAFA;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  color: #AAAAAA;
+  font-size: 16px;
+  color: #999999;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
 }

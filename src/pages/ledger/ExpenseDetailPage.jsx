@@ -18,6 +18,8 @@ const ExpenseDetailPage = () => {
     history: [],
   };
 
+
+
   return (
     <div className="detail-container">
       {/* 상단 네비게이션 및 수정/삭제 버튼 */}
