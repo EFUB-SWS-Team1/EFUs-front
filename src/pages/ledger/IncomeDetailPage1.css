@@ -1,0 +1,284 @@
+/* 전체 레이아웃 */
+.detail-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #111111;
+}
+
+/* =========================================================
+   2. 상단 네비게이션 (뒤로 가기 버튼 & 수정/삭제 버튼 영역)
+   ========================================================= */
+
+/* 상단 영역을 좌우 끝으로 정렬해 주는 컨테이너 */
+.detail-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+/* '가계부 목록으로' 돌아가는 뒤로 가기 버튼 모양 */
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555555;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.2s;
+}
+
+/* 뒤로 가기 버튼에 마우스 올렸을 때 효과 */
+.btn-back:hover {
+  background-color: #f9fafb;
+}
+
+
+/* 추가: 뒤로 가기 버튼 안에 들어가는 화살표 SVG 크기 및 정렬 조절 */
+.btn-back img {
+  width: 6px;
+  height: auto;
+  display: block;
+}
+
+/* [수정] [삭제] 버튼 2개를 나란히 묶어주는 상자 */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+/* [수정] [삭제] 버튼 공통 디자인 */
+.btn-action {
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+/* '수정' 버튼 전용 색상 (회색빛) */
+.btn-edit {
+  background-color: #FFFFFF;
+  color: #555555;
+  border: 1px solid #EEEEEE;
+}
+
+.btn-edit:hover {
+  background-color: #f9fafb;
+}
+
+/* '삭제' 버튼 전용 색상 (붉은색 계열) */
+.btn-delete {
+  background-color: #FFF0F0;
+  color: #FF6B6B;
+}
+
+.btn-delete:hover {
+  background-color: #FFE3E3;
+}
+
+/* =========================================================
+   3. 타이틀(제목) 및 금액 영역
+   ========================================================= */
+
+/* 제목과 금액이 나란히 좌우로 배치되도록 잡어주는 상자 */
+.detail-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+/* 상세 페이지 메인 제목 글자 (예: 2월 MT 준비물) */
+.detail-main-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #111111;
+  margin: 0 0 4px 0;
+}
+
+/* 등록 날짜 안내 글자 (예: 등록 2026.02.05) */
+.detail-reg-date {
+  font-size: 16px;
+  color: #777777;
+  margin: 0;
+}
+
+/* 우측에 크게 표시되는 지출 금액 (붉은색) */
+.detail-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #25C189;
+}
+
+/* =========================================================
+   4. 상세 정보 카드 박스 (내용, 금액, 날짜, 행사, 메모 등)
+   ========================================================= */
+
+/* 정보들이 담기는 큰 하얀색 테두리 상자 */
+.detail-card {
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin-bottom: 32px;
+}
+
+/* 내부 항목들을 2열 격자(Grid) 구조로 배치 */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: 32px;
+  column-gap: 40px;
+}
+
+/* 개별 항목 (라벨 + 값) 묶음 */
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 메모처럼 칸을 가득 채워야 하는 항목 (2칸 병합) */
+.detail-item.full-width {
+  grid-column: span 2;
+}
+
+/* 항목 제목 (예: 내용, 금액, 날짜 등) */
+.detail-item .label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #555555;
+}
+
+/* 항목 실제 데이터 값 (예: 70,000원 등) */
+.detail-item .value {
+  font-size: 20px;
+  font-weight: 500;
+  color: #111111;
+}
+
+
+/* =========================================================
+   5. 영수증 및 수정 이력 섹션
+   ========================================================= */
+
+.detail-section {
+  margin-bottom: 32px;
+}
+
+/* 영수증 / 수정 이력 타이틀 소제목 */
+.section-heading {
+  font-size: 16px;
+  font-weight: 400;
+  color: #555555;
+  margin-bottom: 4px;
+}
+
+/* 영수증이나 이력이 들어가는 하얀색 네모 박스 */
+.section-box {
+  width: 100%;
+  min-height: 75px;
+  background-color: #ffffff;
+  border: 1px solid #FAFAFA;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #999999;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+
+
+
+
+
+
+/* 수정 이력 표 전체 스타일 */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background-color: #ffffff;
+}
+
+/* 테이블 제목(날짜, 이름, 수정 내용) 행 */
+.history-table th {
+  padding: 12px 20px;
+  color: #999999;
+  font-weight: 400;
+  font-size: 16px;
+  border-bottom: 1px solid #FAFAFA;
+  background-color: #FAFAFA;
+}
+
+/* 테이블 내용 행 */
+.history-table td {
+  padding: 16px 20px;
+  color: #555555;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+/* 열 간격 및 정렬 균형 맞추기 */
+.history-table th:nth-child(1),
+.history-table td:nth-child(1) {
+  width: 30%;
+}
+
+.history-table th:nth-child(2),
+.history-table td:nth-child(2) {
+  width: 30%;
+}
+
+.history-table th:nth-child(3),
+.history-table td:nth-child(3) {
+  width: 40%;
+}
+
+/* 수정 이력 표가 들어있을 때는 박스의 위아래 패딩을 줄이거나 표 자체에 여백을 줍니다 */
+.section-box:has(.history-table) {
+  padding: 0; /* 박스의 기본 패딩을 없애고 표가 꽉 차게 조절 */
+  align-items: stretch;
+}
+
+/* 표 내부의 행들이 박스 테두리 안에서 적당한 간격을 갖도록 조정 */
+.history-table th:first-child {
+  padding-left: 24px;
+}
+.history-table td:first-child {
+  padding-left: 24px;
+}
+.history-table th:last-child {
+  padding-right: 24px;
+}
+.history-table td:last-child {
+  padding-right: 24px;
+}
+
+/* 첫 번째 줄(th)과 마지막 줄의 상하 여백 확보 */
+.history-table th {
+  padding-top: 20px;
+  padding-bottom: 12px;
+}
+.history-table td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
