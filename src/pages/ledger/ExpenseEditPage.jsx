@@ -92,6 +92,49 @@ const ExpensePage = () => {
 
     const today = new Date();
     const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+    
+    
+    const newHistoryItems = [];
+
+    if (editingData) {
+      const cleanOldMemo = (!editingData.memo || editingData.memo === '-') ? '' : String(editingData.memo).trim();
+      const cleanNewMemo = (!formData.memo || formData.memo === '-') ? '' : String(formData.memo).trim();
+
+      if (cleanNewMemo !== '' && cleanOldMemo === '') {
+        newHistoryItems.push('메모 추가');
+      } else if (cleanNewMemo !== cleanOldMemo) {
+        newHistoryItems.push('메모 수정');
+      }
+      
+      if (formData.receipt && !editingData.receipt) {
+        newHistoryItems.push('영수증 추가');
+      } else if (formData.receipt && formData.receipt.name !== editingData.receipt) {
+        newHistoryItems.push('영수증 수정');
+      }
+
+      const cleanedOldAmount = editingData.amount.replace(/[^0-9]/g, '');
+      const cleanedNewAmount = formData.amount.replace(/[^0-9]/g, '');
+      if (cleanedOldAmount !== cleanedNewAmount) {
+        newHistoryItems.push('가격 수정');
+      }
+
+      if (formData.event !== editingData.event) {
+        newHistoryItems.push('행사 수정');
+      }
+
+      if (formData.title !== editingData.title) {
+        newHistoryItems.push('내용 수정');
+      }
+    }
+
+    const addedHistoryList = newHistoryItems.map(content => ({
+      date: formattedDate,
+      author: '홍길동',
+      content: content
+    }));
+
+
+
 
     const expenseData = {
       title: formData.title,
@@ -101,7 +144,7 @@ const ExpensePage = () => {
       event: formData.event || '-',
       memo: formData.memo ? formData.memo : '-',
       receipt: formData.receipt ? formData.receipt.name : (editingData ? editingData.receipt : null),
-      history: [],
+      history: [...(editingData?.history || []), ...addedHistoryList],
     };
 
     // 저장 후 상세 페이지로 다시 이동하면서 데이터 전달

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './ExpenseDetailPage.css';
+import backArrowIcon from '../../assets/화살표.svg';
 
 const ExpenseDetailPage = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ const ExpenseDetailPage = () => {
       {/* 상단 네비게이션 및 수정/삭제 버튼 */}
       <div className="detail-top-nav">
         <button className="btn-back" onClick={() => navigate(-1)}>
-          <span className="back-arrow">‹</span> 가계부 목록으로
+          <img src={backArrowIcon} alt="뒤로가기" className="back-arrow-svg" /> 가계부 목록으로
         </button>
       <div className="action-buttons">
         <button 
@@ -94,7 +95,24 @@ const ExpenseDetailPage = () => {
         <h3 className="section-heading">수정 이력</h3>
         <div className="section-box">
           {expenseData.history && expenseData.history.length > 0 ? (
-            <span>이력 있음</span>
+            <table className="history-table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>이름</th>
+                  <th>수정 내용</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenseData.history.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.date}</td>
+                    <td>{item.author}</td>
+                    <td>{item.content}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             '수정 이력이 없습니다'
           )}
