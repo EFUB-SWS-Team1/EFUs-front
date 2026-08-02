@@ -81,10 +81,11 @@
 }
 
 .code {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  line-height: 1.2;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  line-height: normal;
+  
 }
 
 .codeStaff {

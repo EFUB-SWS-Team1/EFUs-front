@@ -1,5 +1,5 @@
 .backdrop {
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
@@ -9,11 +9,11 @@
 }
 
 .panel {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 460px;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: #ffffff;
@@ -50,14 +50,14 @@
 /* ── 상단 섹션 (피그마) ── */
 .headerSection {
   display: flex;
-  width: 460px;
+  width: 100%;
   padding: 40px;
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
   box-sizing: border-box;
   flex-shrink: 0;
-  border-bottom: none; /* 피그마에 선 없으면 제거 */
+  border-bottom: none; 
 }
 
 .profileRow {
@@ -135,7 +135,7 @@
 /* ── 하단 섹션 (피그마) ── */
 .bodySection {
   display: flex;
-  width: 460px;
+  width: 100%;
   flex: 1;
   padding: 40px;
   flex-direction: column;
