@@ -41,8 +41,7 @@
   background-color: #f9fafb;
 }
 
-
-/* 추가: 뒤로 가기 버튼 안에 들어가는 화살표 SVG 크기 및 정렬 조절 */
+/* 뒤로 가기 버튼 안에 들어가는 화살표 SVG 크기 및 정렬 조절 */
 .btn-back img {
   width: 6px;
   height: auto;
@@ -91,7 +90,7 @@
    3. 타이틀(제목) 및 금액 영역
    ========================================================= */
 
-/* 제목과 금액이 나란히 좌우로 배치되도록 잡어주는 상자 */
+/* 제목과 금액이 나란히 좌우로 배치되도록 잡아주는 상자 */
 .detail-header-section {
   display: flex;
   justify-content: space-between;
@@ -99,7 +98,7 @@
   margin-bottom: 32px;
 }
 
-/* 상세 페이지 메인 제목 글자 (예: 2월 MT 준비물) */
+/* 상세 페이지 메인 제목 글자 */
 .detail-main-title {
   font-size: 24px;
   font-weight: 500;
@@ -107,14 +106,14 @@
   margin: 0 0 4px 0;
 }
 
-/* 등록 날짜 안내 글자 (예: 등록 2026.02.05) */
+/* 등록 날짜 안내 글자 */
 .detail-reg-date {
   font-size: 16px;
   color: #777777;
   margin: 0;
 }
 
-/* 우측에 크게 표시되는 지출 금액 (붉은색) */
+/* 우측에 크게 표시되는 수입 금액 (초록색) */
 .detail-amount {
   font-size: 24px;
   font-weight: 700;
@@ -162,13 +161,12 @@
   color: #555555;
 }
 
-/* 항목 실제 데이터 값 (예: 70,000원 등) */
+/* 항목 실제 데이터 값 */
 .detail-item .value {
   font-size: 20px;
   font-weight: 500;
   color: #111111;
 }
-
 
 /* =========================================================
    5. 영수증 및 수정 이력 섹션
@@ -203,12 +201,6 @@
   box-sizing: border-box;
   overflow: hidden;
 }
-
-
-
-
-
-
 
 /* 수정 이력 표 전체 스타일 */
 .history-table {
@@ -252,13 +244,12 @@
   width: 40%;
 }
 
-/* 수정 이력 표가 들어있을 때는 박스의 위아래 패딩을 줄이거나 표 자체에 여백을 줍니다 */
+/* 수정 이력 표가 들어있을 때는 박스의 위아래 패딩을 줄이고 표가 꽉 차게 조절 */
 .section-box:has(.history-table) {
-  padding: 0; /* 박스의 기본 패딩을 없애고 표가 꽉 차게 조절 */
+  padding: 0;
   align-items: stretch;
 }
 
-/* 표 내부의 행들이 박스 테두리 안에서 적당한 간격을 갖도록 조정 */
 .history-table th:first-child {
   padding-left: 24px;
 }
@@ -272,7 +263,6 @@
   padding-right: 24px;
 }
 
-/* 첫 번째 줄(th)과 마지막 줄의 상하 여백 확보 */
 .history-table th {
   padding-top: 20px;
   padding-bottom: 12px;
@@ -282,3 +272,113 @@
   padding-bottom: 16px;
 }
 
+/* =========================================================
+   6. 삭제 상태 및 모달 관련 스타일 (추가된 부분)
+   ========================================================= */
+
+/* 삭제 완료 시 제목 및 금액에 적용될 취소선 스타일 */
+.deleted-text {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  color: #777777 !important;
+  display: inline;
+}
+
+/* 등록일 대신 표시되는 '삭제된 날짜' 텍스트 색상 */
+.deleted-date-text {
+  color: #777777; 
+  margin-top: 4px; 
+  font-size: 16px;
+  margin: 0;
+}
+
+/* 모달이 뜰 때 뒷배경을 어둡게 처리해 주는 레이어 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 모달 박스 (위쪽 패딩 40px 고정) */
+.delete-modal {
+  background: #ffffff;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
+  border-radius: 20px;
+  width: 280px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: left;
+  border: 1px solid #EEEEEE;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 거래 삭제 제목 */
+.delete-modal h3 {
+  color: #111111;
+  margin-top: 0;
+  margin-bottom: 4px; 
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 본문 안내 텍스트 */
+.delete-modal p {
+  color: #555555;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 4px; 
+  line-height: 1.4;
+}
+
+/* 서브 안내 텍스트 */
+.delete-modal .modal-sub-text {
+  color: #999999;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* 모달 내부 버튼들을 나란히 배치하는 상자 */
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 0;
+}
+
+/* 모달 내부 [취소], [삭제] 버튼 공통 디자인 */
+.btn-modal-cancel,
+.btn-modal-confirm {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+}
+
+/* 모달 [취소] 버튼 색상 (회색톤) */
+.btn-modal-cancel {
+  background-color: #FFFFFF;
+  color: #555555;
+  border: 1px solid #E5E5E5;
+}
+
+/* 모달 [삭제] 버튼 색상 (붉은톤) */
+.btn-modal-confirm {
+  background-color: #FFF0F0;
+  color: #FF6B6B;
+}
