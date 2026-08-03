@@ -126,7 +126,7 @@ const IncomePage2 = () => {
       history: [],
     };
 
-    navigate('/income-detail', { state: { incomeData } });
+    navigate('/income-detail2', { state: { incomeData } });
   };
 
   return (
