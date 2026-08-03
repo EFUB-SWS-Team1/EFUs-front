@@ -68,14 +68,21 @@ const ExpenseDetailPage = () => {
 
       {/* 타이틀 및 금액 영역 */}
       <div className="detail-header-section">
-        <div className="title-area">
-          <h1 className="detail-main-title">{expenseData.title}</h1>
-          <p className="detail-reg-date">등록 {expenseData.registrationDate}</p>
+        <div className="title-area" style={{ display: 'flex', flexDirection: 'column' }}>
+          <h1 className={`detail-main-title ${expenseData.isDeleted ? 'deleted-text' : ''}`}>
+            {expenseData.title}
+          </h1>
+          {expenseData.isDeleted ? (
+            <p className="deleted-date-text" style={{ margin: 0 }}>삭제된 날짜 {expenseData.deletedDate}</p>
+          ) : (
+            <p className="detail-reg-date" style={{ margin: 0 }}>등록 {expenseData.registrationDate}</p>
+          )}
         </div>
-        <div className="detail-amount">
+        <div className={`detail-amount ${expenseData.isDeleted ? 'deleted-text' : ''}`}>
           {expenseData.amount}
         </div>
       </div>
+
 
       {/* 상세 정보 카드 상자 */}
       <div className="detail-card">
