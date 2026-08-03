@@ -76,9 +76,10 @@ input[type="text"]:focus,
 input[type="date"]:focus, 
 .custom-date-box:focus-within, 
 .custom-select:focus-within {
-  border-color: #25C189; /* 수입에 어울리는 초록색 포인트 */
-  box-shadow: 0 0 0 3px rgba(37, 193, 137, 0.1);
+  border-color: #5B6CF9;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
+
 
 /* =========================================================
    5. [날짜 *] 입력칸
@@ -156,12 +157,12 @@ input[type="date"]:focus,
 }
 
 .dropdown-menu li:hover {
-  background-color: #f2faf6;
+  background-color: #f5f5fc;
 }
 
 .dropdown-menu li.selected {
-  background-color: #e6f6ef;
-  color: #25C189;
+  background-color: #F0F1FF;
+  color: #4f46e5;
   font-weight: 500;
 }
 
