@@ -37,6 +37,19 @@ export default function LedgerCreatePage() {
   const [selectedType, setSelectedType] = useState('expense'); // 기본값 '지출 (-)'
   const [isFeeCollect, setIsFeeCollect] = useState(false);
 
+  // '다음' 버튼 클릭 시 실행될 함수
+  const handleNextClick = () => {
+    if (selectedType === 'income') {
+      if (isFeeCollect) {
+        navigate('/income2'); // 회비로 걷기가 체크되어 있으면 회비 걷기 페이지로!
+      } else {
+        navigate('/income'); // 일반 수입 페이지로!
+      }
+    } else {
+      navigate('/expense'); // 지출 페이지로!
+    }
+  };
+
   return (
     <div className="account-container">
       {/* 헤더 */}
@@ -177,7 +190,7 @@ export default function LedgerCreatePage() {
               <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
                 취소
               </button>
-              <button className="btn-next" onClick={() => navigate(selectedType === 'expense' ? '/expense' : '/income')}>
+              <button className="btn-next" onClick={handleNextClick}>
                 다음
               </button>
             </div>
