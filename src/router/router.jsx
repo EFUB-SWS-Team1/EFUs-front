@@ -17,13 +17,17 @@ export const router = createBrowserRouter([
     element: <Onboarding />,
   },
   {
-  path: "/org-select",
-  element: (
-    <ProtectedRoute>
-      <OrgSelectPage />
-    </ProtectedRoute>
-  ),
-},
+    path: "/kakao/login",
+    element: <Onboarding />,
+  },
+  {
+    path: "/org-select",
+    element: (
+      <ProtectedRoute>
+        <OrgSelectPage />
+      </ProtectedRoute>
+    ),
+  },
 
   // ── 메인 앱 (로그인 필요) ──
   {

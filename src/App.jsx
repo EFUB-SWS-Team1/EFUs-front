@@ -1,7 +1,7 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Onboarding from './pages/auth/Onboarding';
-import OrgSelect from './pages/auth/OrgSelect'; 
+import OrgSelect from './pages/orgSelect'; 
 
 export default function App() {
   return (
@@ -9,6 +9,7 @@ export default function App() {
       <Routes>
         {/* ── 인증/온보딩 (Layout 없음) ── */}
         <Route path="/" element={<Onboarding />} />
+        <Route path="/kakao/login" element={<Onboarding />} />
         <Route path="/org-select" element={<OrgSelect />} />
 
         {/* ── 메인 앱 (Layout + Sidebar) ── */}
