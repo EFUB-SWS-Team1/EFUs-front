@@ -7,7 +7,7 @@ import axiosInstance from "./axiosInstance";
  * USE_MOCK = false → 실제 API
  */
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 const MOCK_DATA = {
   "efub-6": {
