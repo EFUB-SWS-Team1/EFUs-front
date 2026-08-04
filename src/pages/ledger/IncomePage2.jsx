@@ -283,11 +283,13 @@ const IncomePage2 = () => {
                     <div className={`checkbox-custom ${isChecked ? 'checked' : ''}`}>
                       {isChecked && <Check size={12} color="#fff" />}
                     </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
                     <span className={`badge ${member.role === '운영진' ? 'admin' : 'general'}`}>
                       {member.role}
                     </span>
                     <span className="target-name">{member.name}</span>
                   </div>
+                </div>  
                 );
               })}
             </div>

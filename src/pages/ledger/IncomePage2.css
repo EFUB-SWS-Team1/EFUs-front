@@ -341,6 +341,7 @@ input[type="date"]:focus,
 .target-item {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   padding: 10px 14px;
   border: 1px solid #F3F4F6;
@@ -348,7 +349,9 @@ input[type="date"]:focus,
   cursor: pointer;
   background-color: #FFFFFF;
   transition: all 0.15s;
+  
 }
+
 
 /* 멤버 카드에 마우스 올렸을 때 */
 .target-item:hover {
