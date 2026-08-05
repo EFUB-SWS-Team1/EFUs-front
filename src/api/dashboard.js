@@ -1,29 +1,32 @@
+import axiosInstance from "./axiosInstance";
+
 /**
  * dashboard.js
  *
- * 백엔드 API가 아직 준비되지 않아 우선 mock 데이터를 반환.
- * USE_MOCK을 false로 바꾸면 실제 axiosInstance 호출로 전환됨.
- * axiosInstance.js가 준비되면 아래 실제 호출 코드의 주석을 해제
- * 상단에 `import axiosInstance from "./axiosInstance";`를 추가
+ * API: GET /api/terms/{termId}/dashboard
+ * - 총수입, 총지출, 잔액, 사용률
+ * - 최근 가계부 내역
+ * - 행사별 예산 현황
+ *
+ * USE_MOCK = true  → mock
+ * USE_MOCK = false → 실제 API
  */
- 
 
 const USE_MOCK = true;
 
-// 기수별 mock 응답 (generationId 기준)
 const MOCK_DASHBOARD = {
   "efub-6": {
     generation: {
       id: "efub-6",
       name: "EFUB 6기",
       isCurrent: true,
-      period: null, // 현재 기수는 기간 표시 없음
+      period: null,
     },
     summary: {
       totalIncome: 2000000,
       totalExpense: 600000,
       balance: 1400000,
-      usageRate: 30, // %
+      usageRate: 30,
     },
     recentTransactions: [
       { id: 1, date: "2026.06.23", eventName: "1학기 종강파티", description: "공간 대여", amount: -50000 },
@@ -64,21 +67,18 @@ const MOCK_DASHBOARD = {
 
 /**
  * 대시보드 요약 데이터 조회
- * @param {string} generationId - 조회할 기수 id (예: "efub-6")
+ * @param {string|number} termId - 기수 id (명세서: termId)
+ *   지금은 useGroup mock이 "efub-6"이라
+ *   실제 숫자 termId로 바꿔야 함
  */
-
-//USE_MOCK 이 true 이면 목 데이터 반환
-export async function getDashboardSummary(generationId) {
+export async function getDashboardSummary(termId) {
   if (USE_MOCK) {
-    const data = MOCK_DASHBOARD[generationId] ?? MOCK_DASHBOARD["efub-6"];
-    // 0.3초 기다리게. 로딩화면이 잘 뜨는지 체크
-    // await new Promise((resolve) => setTimeout(resolve, 300));
+    const data = MOCK_DASHBOARD[termId] ?? MOCK_DASHBOARD["efub-6"];
     return data;
   }
 
-  // TODO: axiosInstance.js 준비되면 아래 주석 해제 + 상단에 import 추가
-  // import axiosInstance from "./axiosInstance";
-  // const response = await axiosInstance.get(`/dashboard/${generationId}`);
-  // return response.data;
-  throw new Error("usemock 이 false 인데 백엔드가 없을 때를 대비한 throw error.");
+  const { data } = await axiosInstance.get(`/terms/${termId}/dashboard`);
+
+  
+  return data;
 }
