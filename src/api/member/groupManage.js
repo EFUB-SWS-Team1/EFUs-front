@@ -1,13 +1,6 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
-/**
- * groupManage.js
- *
- * USE_MOCK = true  → mock
- * USE_MOCK = false → 실제 API
- */
-
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const MOCK_DATA = {
   "efub-6": {
@@ -21,11 +14,6 @@ const MOCK_DATA = {
     currentUser: {
       id: 2,
       role: "staff",
-    },
-    inviteCodes: {
-      staff: "AB1C34",
-      general: "F2XC4L",
-      expiresInDays: 7,
     },
     members: [
       { id: 1, name: "홍길동", role: "staff", email: "hong@email.com" },
@@ -54,27 +42,9 @@ const MOCK_DATA = {
         paidTotal: 15000,
         unpaidTotal: 10000,
         dues: [
-          {
-            id: 1,
-            label: "5월 회비",
-            amount: 10000,
-            dueDate: "05.07",
-            status: "unpaid",
-          },
-          {
-            id: 2,
-            label: "4월 회비",
-            amount: 5000,
-            dueDate: "04.09",
-            status: "paid",
-          },
-          {
-            id: 3,
-            label: "3월 회비",
-            amount: 10000,
-            dueDate: "03.05",
-            status: "paid",
-          },
+          { id: 1, label: "5월 회비", amount: 10000, dueDate: "05.07", status: "unpaid" },
+          { id: 2, label: "4월 회비", amount: 5000, dueDate: "04.09", status: "paid" },
+          { id: 3, label: "3월 회비", amount: 10000, dueDate: "03.05", status: "paid" },
         ],
       },
     },
@@ -85,7 +55,6 @@ function getMockStore(termId) {
   return MOCK_DATA[termId] ?? MOCK_DATA["efub-6"];
 }
 
-/** STAFF/MEMBER → staff/general */
 function mapRole(role) {
   const value = String(role ?? "").toUpperCase();
   if (value === "STAFF") return "staff";
@@ -109,39 +78,6 @@ function mapGeneration(term) {
     startDate: term.startDate,
     endDate: term.endDate ?? null,
     isActive: term.isActive ?? term.endDate == null,
-  };
-}
-
-function daysUntil(dateStr) {
-  if (!dateStr) return 7;
-  const diff = new Date(dateStr).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
-
-function mapInviteCodes(data) {
-  // 응답이 배열인 경우: [{ role, code, expiresAt }, ...]
-  if (Array.isArray(data)) {
-    const staff = data.find(
-      (item) => String(item.role).toUpperCase() === "STAFF",
-    );
-    const member = data.find(
-      (item) => String(item.role).toUpperCase() === "MEMBER",
-    );
-    const expiresAt = staff?.expiresAt ?? member?.expiresAt ?? staff?.expiredAt;
-    return {
-      staff: staff?.code ?? "",
-      general: member?.code ?? "",
-      expiresInDays: daysUntil(expiresAt),
-    };
-  }
-
-  // 응답이 객체인 경우아님말고
-  return {
-    staff: data.staffCode ?? data.staff ?? data.STAFF ?? "",
-    general:
-      data.memberCode ?? data.general ?? data.MEMBER ?? data.member ?? "",
-    expiresInDays:
-      data.expiresInDays ?? daysUntil(data.expiresAt ?? data.expiredAt),
   };
 }
 
@@ -184,9 +120,6 @@ export async function getGroupManageOverview(termId) {
   ]);
 
   const members = unwrapList(membersRes.data).map(mapMember);
-
-  // TODO: 로그인 유저의 기수 역할 API 연결 후 교체
-  // 응답에 isMe 같은 필드가 있으면 그걸 사용
   const me = unwrapList(membersRes.data).find((item) => item.isMe || item.me);
   const currentUser = me
     ? { id: me.id ?? me.termMemberId, role: mapRole(me.role) }
@@ -198,15 +131,6 @@ export async function getGroupManageOverview(termId) {
     members,
     totalCount: membersRes.data?.totalElements ?? members.length,
   };
-}
-
-export async function getInviteCodes(termId) {
-  if (USE_MOCK) {
-    return getMockStore(termId).inviteCodes;
-  }
-
-  const { data } = await axiosInstance.get(`/terms/${termId}/invitations`);
-  return mapInviteCodes(data);
 }
 
 export async function getMemberDetail(termId, termMemberId) {
@@ -224,7 +148,6 @@ export async function getMemberDetail(termId, termMemberId) {
     return { member, ...detail };
   }
 
-  // 명세: 청구 완료 후 구현
   const [memberRes, chargesRes] = await Promise.all([
     axiosInstance.get(`/terms/${termId}/members/${termMemberId}`),
     axiosInstance.get(`/terms/${termId}/members/${termMemberId}/charges`),
@@ -238,16 +161,4 @@ export async function getMemberDetail(termId, termMemberId) {
     unpaidTotal: memberData.unpaidTotal ?? memberData.totalUnpaidAmount ?? 0,
     dues: unwrapList(chargesRes.data).map(mapDue),
   };
-}
-
-export async function closeGeneration(termId, endDate) {
-  if (USE_MOCK) {
-    const data = getMockStore(termId);
-    data.generation.endDate = endDate;
-    data.generation.isActive = false;
-    return { success: true };
-  }
-
-  await axiosInstance.patch(`/terms/${termId}/close`, { endDate });
-  return { success: true };
 }

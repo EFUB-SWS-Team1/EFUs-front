@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./IncomeEditPage.css";
 import FolderIcon from "../../assets/Folder plus.svg";
-import { updateTransaction, uploadReceipt } from "../../api/ledger";
+import { updateTransaction, uploadReceipt } from "../../api/transaction/ledger";
 
 function toInputDate(dateStr) {
   if (!dateStr) return "";
@@ -127,14 +127,13 @@ const IncomeEditPage = () => {
         id: editingData.id,
         title: formData.title,
         registrationDate: editingData.registrationDate || formattedDate,
-        amount:
-          `+${amountNumber}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원",
+        amount: `+${amountNumber}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원",
         date: formData.date.replaceAll("-", "."),
         event: formData.event || "-",
         memo: formData.memo ? formData.memo : "-",
         receipt: formData.receipt
           ? formData.receipt.name
-          : editingData.receipt ?? null,
+          : (editingData.receipt ?? null),
         history: editingData.history || [],
         isDeleted: false,
         deletedDate: null,

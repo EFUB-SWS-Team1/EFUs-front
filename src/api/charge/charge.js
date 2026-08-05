@@ -1,6 +1,6 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = true; // 백엔드/토큰 준비되면 false
+const USE_MOCK = false; // 백엔드/토큰 준비되면 false
 
 const MOCK_MEMBERS = [
   { id: 1, name: "홍길동", role: "staff" },
@@ -154,12 +154,48 @@ export async function getCharge(chargeId) {
 export async function getChargePaymentMembers(chargeId, params = {}) {
   if (USE_MOCK) {
     return [
-      { id: 1, name: "홍길동", role: "운영진", status: "pending", amount: 250000 },
-      { id: 2, name: "김민지", role: "운영진", status: "pending", amount: 250000 },
-      { id: 3, name: "이수진", role: "일반", status: "pending", amount: 250000 },
-      { id: 4, name: "박철수", role: "일반", status: "completed", amount: 250000 },
-      { id: 5, name: "최영희", role: "일반", status: "pending", amount: 250000 },
-      { id: 6, name: "정민호", role: "일반", status: "pending", amount: 250000 },
+      {
+        id: 1,
+        name: "홍길동",
+        role: "운영진",
+        status: "pending",
+        amount: 250000,
+      },
+      {
+        id: 2,
+        name: "김민지",
+        role: "운영진",
+        status: "pending",
+        amount: 250000,
+      },
+      {
+        id: 3,
+        name: "이수진",
+        role: "일반",
+        status: "pending",
+        amount: 250000,
+      },
+      {
+        id: 4,
+        name: "박철수",
+        role: "일반",
+        status: "completed",
+        amount: 250000,
+      },
+      {
+        id: 5,
+        name: "최영희",
+        role: "일반",
+        status: "pending",
+        amount: 250000,
+      },
+      {
+        id: 6,
+        name: "정민호",
+        role: "일반",
+        status: "pending",
+        amount: 250000,
+      },
     ];
   }
 
@@ -193,7 +229,11 @@ export async function payChargeMember(chargeId, chargeMemberId, paidAt) {
 }
 
 /** 납부 취소 */
-export async function reverseChargeMemberPayment(chargeId, chargeMemberId, reason = "잘못된 납부 처리") {
+export async function reverseChargeMemberPayment(
+  chargeId,
+  chargeMemberId,
+  reason = "잘못된 납부 처리",
+) {
   if (USE_MOCK) return { success: true };
   const { data } = await axiosInstance.post(
     `/charges/${chargeId}/members/${chargeMemberId}/payment/reversal`,
@@ -203,7 +243,10 @@ export async function reverseChargeMemberPayment(chargeId, chargeMemberId, reaso
 }
 
 /** 일괄 납부 처리 */
-export async function bulkPayCharge(chargeId, payload = { targetMode: "ALL_UNPAID" }) {
+export async function bulkPayCharge(
+  chargeId,
+  payload = { targetMode: "ALL_UNPAID" },
+) {
   if (USE_MOCK) return { success: true };
   const { data } = await axiosInstance.post(
     `/charges/${chargeId}/payments/bulk`,
@@ -222,9 +265,13 @@ export async function getChargeHistories(chargeId, params = {}) {
     params: { page: params.page, size: params.size },
   });
 
-  const list = Array.isArray(data) ? data : data?.content ?? data?.histories ?? [];
+  const list = Array.isArray(data)
+    ? data
+    : (data?.content ?? data?.histories ?? []);
   return list.map((item) => ({
-    date: String(item.changedAt ?? item.date ?? "").slice(0, 10).replaceAll("-", "."),
+    date: String(item.changedAt ?? item.date ?? "")
+      .slice(0, 10)
+      .replaceAll("-", "."),
     author: item.actorName ?? item.author ?? "-",
     content: item.summary ?? item.actionType ?? "-",
   }));

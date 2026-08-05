@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { createEvent } from '../../api/event';
+import { createEvent } from "../../api/funding/event";
 import EventForm from './components/EventForm';
 import styles from './components/EventForm.module.css';
 

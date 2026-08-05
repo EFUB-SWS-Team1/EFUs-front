@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./ExpensePage.css";
 import FolderIcon from "../../assets/Folder plus.svg";
-import { updateTransaction, uploadReceipt } from "../../api/ledger";
+import { updateTransaction, uploadReceipt } from "../../api/transaction/ledger";
 
 function toInputDate(dateStr) {
   if (!dateStr) return "";

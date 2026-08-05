@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 /**
  * event.js
@@ -8,7 +8,7 @@ import axiosInstance from "./axiosInstance";
  * USE_MOCK = false → 실제 API
  */
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const MOCK_EVENTS_BY_GENERATION = {
   "efub-6": {

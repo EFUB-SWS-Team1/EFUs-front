@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getEventDetail, updateEvent } from '../../api/event';
+import { getEventDetail, updateEvent } from "../../api/funding/event";
 import EventForm from './components/EventForm';
 import styles from './components/EventForm.module.css';
 

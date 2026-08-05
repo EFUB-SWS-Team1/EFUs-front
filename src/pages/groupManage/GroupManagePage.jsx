@@ -1,10 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  closeGeneration,
-  getGroupManageOverview,
-  getMemberDetail,
-} from "../../api/groupManage";
-
 import { Button } from "../../components/common";
 import groupIcon from "../../assets/efub로고2.svg";
 import usersIcon from "../../assets/Users.svg";
@@ -15,6 +9,8 @@ import GenerationCloseModal from "./components/GenerationCloseModal";
 import MemberDetailPanel from "./components/MemberDetailPanel";
 import SuccessModal from "./components/SuccessModal";
 import styles from "./GroupManagePage.module.css";
+import { getGroupManageOverview, getMemberDetail } from "../../api/member/groupManage";
+import { closeGeneration } from "../../api/term/term";
 
 /*loadOverview로 GroupManagePage에 데이터를 불러옴, formatShortDate 는 날짜 다듬기, 
 멤버를 검색 및 페이지 별로 보여줌 : filteredMembers, totalPages, pagedMembers, 
