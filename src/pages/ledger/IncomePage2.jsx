@@ -1,56 +1,76 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, ChevronDown, ChevronUp, Search, Check } from 'lucide-react';
-import './IncomePage2.css';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Calendar, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
+import "./IncomePage2.css";
+import { createCharge, getChargeMembers } from "../../api/charge";
+
+const TERM_ID = 1; // 나중에 실제 termId로
 
 const IncomePage2 = () => {
   const navigate = useNavigate();
 
-  // 1번 조건: 청구 방식 선택 ('individual' 또는 'nppang')
-  const [billingType, setBillingType] = useState('individual');
-
+  const [billingType, setBillingType] = useState("individual"); // individual | nppang
   const [formData, setFormData] = useState({
-    title: '',
-    amount: '', // 개별 청구일 때는 1인당 금액, N빵 청구일 때는 총 금액 역할
-    date: '',
-    event: '',
-    memo: '',
+    title: "",
+    amount: "",
+    date: "",
+    event: "",
+    memo: "",
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dateInputRef = useRef(null);
 
-  // 3번 조건 & 화면 이미지 참고: 청구 대상 관련 state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTargets, setSelectedTargets] = useState([]);
-
-  // 임시 회원 목록 데이터 (이미지 참고)
-  const memberList = [
-    { id: 1, name: '홍길동', role: '운영진' },
-    { id: 2, name: '홍길동', role: '운영진' },
-    { id: 3, name: '홍길동', role: '운영진' },
-    { id: 4, name: '홍길동', role: '일반' },
-    { id: 5, name: '홍길동', role: '일반' },
-    { id: 6, name: '홍길동', role: '일반' },
-    { id: 7, name: '홍길동', role: '일반' },
-    { id: 8, name: '홍길동', role: '일반' },
-    { id: 9, name: '홍길동', role: '일반' },
-    { id: 10, name: '홍길동', role: '일반' },
-  ];
-
-  // ⭐ '운영진'이 일반보다 앞으로 오도록 정렬하는 로직 추가
-  const sortedMemberList = [...memberList].sort((a, b) => {
-    if (a.role === '운영진' && b.role !== '운영진') return -1;
-    if (a.role !== '운영진' && b.role === '운영진') return 1;
-    return 0;
-  });
+  const [memberList, setMemberList] = useState([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const eventOptions = [
-    '2월 MT',
-    '1학기 종강파티',
-    '8월 MT',
-    '여름방학 해커톤'
+    "2월 MT",
+    "1학기 종강파티",
+    "8월 MT",
+    "여름방학 해커톤",
   ];
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadMembers() {
+      setIsLoadingMembers(true);
+      try {
+        const members = await getChargeMembers(TERM_ID);
+        if (!ignore) setMemberList(members);
+      } catch (err) {
+        if (!ignore) {
+          setMemberList([]);
+          setSubmitError(err.message ?? "멤버 목록을 불러오지 못했습니다.");
+        }
+      } finally {
+        if (!ignore) setIsLoadingMembers(false);
+      }
+    }
+
+    loadMembers();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const sortedMemberList = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase();
+    const filtered = keyword
+      ? memberList.filter((m) => m.name.toLowerCase().includes(keyword))
+      : memberList;
+
+    return [...filtered].sort((a, b) => {
+      if (a.role === "staff" && b.role !== "staff") return -1;
+      if (a.role !== "staff" && b.role === "staff") return 1;
+      return 0;
+    });
+  }, [memberList, searchTerm]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +84,7 @@ const IncomePage2 = () => {
 
   const handleDateClick = () => {
     if (dateInputRef.current) {
-      if (typeof dateInputRef.current.showPicker === 'function') {
+      if (typeof dateInputRef.current.showPicker === "function") {
         dateInputRef.current.showPicker();
       } else {
         dateInputRef.current.focus();
@@ -72,14 +92,12 @@ const IncomePage2 = () => {
     }
   };
 
-  // 청구 대상 선택 토글 함수
   const handleTargetToggle = (id) => {
     setSelectedTargets((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
-  // 전체 일괄 청구 버튼
   const handleSelectAll = () => {
     if (selectedTargets.length === memberList.length) {
       setSelectedTargets([]);
@@ -88,56 +106,93 @@ const IncomePage2 = () => {
     }
   };
 
-  // 4번 조건: 전체 청구 금액 계산
   const calculateTotalAmount = () => {
-    const rawAmount = parseInt(formData.amount.replace(/[^0-9]/g, ''), 10) || 0;
-    if (billingType === 'individual') {
+    const rawAmount =
+      parseInt(String(formData.amount).replace(/[^0-9]/g, ""), 10) || 0;
+    if (billingType === "individual") {
       return rawAmount * selectedTargets.length;
-    } else {
-      return rawAmount;
     }
+    return rawAmount;
   };
 
   const totalCalculated = calculateTotalAmount();
-  const formattedTotalAmount = totalCalculated > 0 
-    ? `${totalCalculated.toLocaleString()}원` 
-    : '- 원';
+  const formattedTotalAmount =
+    totalCalculated > 0 ? `${totalCalculated.toLocaleString()}원` : "- 원";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.title || !formData.amount || !formData.date) {
       alert("내용, 금액, 날짜는 필수 입력입니다.");
       return;
     }
+    if (selectedTargets.length === 0) {
+      alert("청구 대상을 선택해주세요.");
+      return;
+    }
 
-    const today = new Date();
-    const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+    const rawAmount =
+      parseInt(String(formData.amount).replace(/[^0-9]/g, ""), 10) || 0;
 
-    const incomeData = {
-      billingType,
-      title: formData.title,
-      registrationDate: formattedDate,
-      amount: formattedTotalAmount,
-      date: formData.date,
-      event: formData.event || '-',
-      memo: formData.memo || '-',
-      targetCount: selectedTargets.length,
-      history: [],
+    const isAllSelected =
+      memberList.length > 0 && selectedTargets.length === memberList.length;
+
+    const payload = {
+      title: formData.title.trim(),
+      chargeMethod: billingType === "individual" ? "PER_PERSON" : "EQUAL_SPLIT",
+      dueDate: formData.date,
+      fundingId: null, // TODO: 행사 → fundingId
+      memo: formData.memo || null,
+      targetMode: isAllSelected ? "ALL_ACTIVE" : "SELECTED",
+      ...(isAllSelected
+        ? {}
+        : { targetTermMemberIds: selectedTargets }),
+      ...(billingType === "individual"
+        ? { perPersonAmount: rawAmount }
+        : { totalAmount: rawAmount }),
     };
 
-    navigate('/income-detail2', { state: { incomeData } });
+    try {
+      setIsSubmitting(true);
+      setSubmitError("");
+
+      const created = await createCharge(TERM_ID, payload);
+      const chargeId = created.id ?? created.chargeId;
+
+      const today = new Date();
+      const formattedDate = `${today.getFullYear()}.${String(
+        today.getMonth() + 1,
+      ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
+
+      const incomeData = {
+        id: chargeId,
+        billingType,
+        title: formData.title,
+        registrationDate: formattedDate,
+        amount: formattedTotalAmount,
+        date: formData.date,
+        event: formData.event || "-",
+        memo: formData.memo || "-",
+        targetCount: selectedTargets.length,
+        history: [],
+      };
+
+      navigate("/income-detail2", { state: { incomeData } });
+    } catch (err) {
+      setSubmitError(err.message ?? "회비 청구 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="expense-container">
       <h2 className="expense-title">수입 (+)</h2>
 
-      {/* 1번 조건: 개별 청구 / N빵 청구 탭 영역 */}
       <div className="billing-type-container">
-        <div 
-          className={`billing-card ${billingType === 'individual' ? 'active' : ''}`}
-          onClick={() => setBillingType('individual')}
+        <div
+          className={`billing-card ${billingType === "individual" ? "active" : ""}`}
+          onClick={() => setBillingType("individual")}
         >
           <div className="billing-card-header">
             <span className="custom-radio"></span>
@@ -146,9 +201,9 @@ const IncomePage2 = () => {
           <p className="billing-card-desc">1인당 금액을 직접 지정</p>
         </div>
 
-        <div 
-          className={`billing-card ${billingType === 'nppang' ? 'active' : ''}`}
-          onClick={() => setBillingType('nppang')}
+        <div
+          className={`billing-card ${billingType === "nppang" ? "active" : ""}`}
+          onClick={() => setBillingType("nppang")}
         >
           <div className="billing-card-header">
             <span className="custom-radio"></span>
@@ -159,7 +214,6 @@ const IncomePage2 = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="expense-form">
-        {/* 내용 & 금액 */}
         <div className="form-row">
           <div className="form-group">
             <label>내용 *</label>
@@ -173,7 +227,9 @@ const IncomePage2 = () => {
           </div>
 
           <div className="form-group">
-            <label>{billingType === 'individual' ? '1인당 금액 *' : '총 금액 *'}</label>
+            <label>
+              {billingType === "individual" ? "1인당 금액 *" : "총 금액 *"}
+            </label>
             <input
               type="text"
               name="amount"
@@ -184,7 +240,6 @@ const IncomePage2 = () => {
           </div>
         </div>
 
-        {/* 날짜 & 행사 */}
         <div className="form-row">
           <div className="form-group">
             <label>날짜 *</label>
@@ -204,8 +259,8 @@ const IncomePage2 = () => {
 
           <div className="form-group relative">
             <label>행사</label>
-            <div 
-              className={`custom-select ${isDropdownOpen ? 'open' : ''}`} 
+            <div
+              className={`custom-select ${isDropdownOpen ? "open" : ""}`}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <span>{formData.event}</span>
@@ -219,9 +274,9 @@ const IncomePage2 = () => {
             {isDropdownOpen && (
               <ul className="dropdown-menu">
                 {eventOptions.map((option) => (
-                  <li 
-                    key={option} 
-                    className={formData.event === option ? 'selected' : ''}
+                  <li
+                    key={option}
+                    className={formData.event === option ? "selected" : ""}
                     onClick={() => handleSelectEvent(option)}
                   >
                     {option}
@@ -232,7 +287,6 @@ const IncomePage2 = () => {
           </div>
         </div>
 
-        {/* 메모 */}
         <div className="form-group full-width">
           <label>메모</label>
           <input
@@ -244,11 +298,9 @@ const IncomePage2 = () => {
           />
         </div>
 
-        {/* 3번 조건: 청구 대상 칸 (검색창은 박스 밖으로 분리됨) */}
         <div className="form-group full-width">
           <label>청구 대상 *</label>
-          
-          {/* 검색창과 일괄 청구 버튼은 박스 위쪽으로 분리 */}
+
           <div className="target-search-row">
             <div className="target-search-input-wrap">
               <Search size={16} className="search-icon" />
@@ -260,65 +312,95 @@ const IncomePage2 = () => {
                 className="target-search-input"
               />
             </div>
-            <button type="button" className="btn-bulk-select" onClick={handleSelectAll}>
+            <button
+              type="button"
+              className="btn-bulk-select"
+              onClick={handleSelectAll}
+            >
               전체 일괄 청구
             </button>
           </div>
 
-          {/* 하단 목록 영역만 target-select-box 안으로 감싸기 */}
           <div className="target-select-box">
             <div className="target-count-text">
               <strong>{selectedTargets.length}명</strong> 선택됨
             </div>
 
-            <div className="target-list-grid">
-              {sortedMemberList.map((member) => {
-                const isChecked = selectedTargets.includes(member.id);
-                return (
-                  <div
-                    key={member.id}
-                    className={`target-item ${isChecked ? 'checked' : ''}`}
-                    onClick={() => handleTargetToggle(member.id)}
-                  >
-                    <div className={`checkbox-custom ${isChecked ? 'checked' : ''}`}>
-                      {isChecked && <Check size={12} color="#fff" />}
+            {isLoadingMembers ? (
+              <p>멤버 불러오는 중...</p>
+            ) : (
+              <div className="target-list-grid">
+                {sortedMemberList.map((member) => {
+                  const isChecked = selectedTargets.includes(member.id);
+                  const roleLabel =
+                    member.role === "staff" ? "운영진" : "일반";
+                  return (
+                    <div
+                      key={member.id}
+                      className={`target-item ${isChecked ? "checked" : ""}`}
+                      onClick={() => handleTargetToggle(member.id)}
+                    >
+                      <div
+                        className={`checkbox-custom ${isChecked ? "checked" : ""}`}
+                      >
+                        {isChecked && <Check size={12} color="#fff" />}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          marginRight: "auto",
+                        }}
+                      >
+                        <span
+                          className={`badge ${member.role === "staff" ? "admin" : "general"}`}
+                        >
+                          {roleLabel}
+                        </span>
+                        <span className="target-name">{member.name}</span>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
-                    <span className={`badge ${member.role === '운영진' ? 'admin' : 'general'}`}>
-                      {member.role}
-                    </span>
-                    <span className="target-name">{member.name}</span>
-                  </div>
-                </div>  
-                );
-              })}
-            </div>
-            
+                  );
+                })}
+              </div>
+            )}
+
             <div className="pagination-mock">
-              <span>1 / 2</span>
+              <span>1 / 1</span>
               <span className="page-arrow">&gt;</span>
             </div>
           </div>
         </div>
 
-        {/* 4번 조건: 전체 청구 금액 칸 */}
         <div className="total-billing-summary-box">
           <div className="total-billing-left">
             <div className="total-billing-title">전체 청구 금액</div>
             <div className="total-billing-formula">
-              {billingType === 'individual' ? '1인당 금액 × 인원 수' : 'N빵 총 분할 금액'}
+              {billingType === "individual"
+                ? "1인당 금액 × 인원 수"
+                : "N빵 총 분할 금액"}
             </div>
           </div>
           <div className="total-billing-value">{formattedTotalAmount}</div>
         </div>
 
-        {/* 버튼 그룹 */}
+        {submitError && <p style={{ color: "red" }}>{submitError}</p>}
+
         <div className="button-group">
-          <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="btn btn-cancel"
+            onClick={() => navigate(-1)}
+          >
             취소
           </button>
-          <button type="submit" className="btn btn-submit register-mode">
-            등록
+          <button
+            type="submit"
+            className="btn btn-submit register-mode"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "등록 중..." : "등록"}
           </button>
         </div>
       </form>
