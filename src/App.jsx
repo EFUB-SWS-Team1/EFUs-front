@@ -1,10 +1,10 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import Onboarding from './pages/auth/Onboarding';
-import OrgSelect from './pages/auth/OrgSelect'; 
-import Dashboard from './pages/dashboard/Dashboard';
-import Event from './pages/event/Event';
-import GroupManage from './pages/group/GroupManage';
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Layout from "./components/layout/Layout";
+import Onboarding from "./pages/auth/Onboarding";
+import OrgSelectPage from "./pages/orgSelect/OrgSelectPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
+import EventPage from "./pages/event/EventPage";
+import GroupManagePage from "./pages/groupManage/GroupManagePage";
 import LedgerCreatePage from "./pages/ledger/LedgerCreatePage";
 import ExpensePage from "./pages/ledger/ExpensePage";
 import ExpenseDetailPage from "./pages/ledger/ExpenseDetailPage";
@@ -19,25 +19,23 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ── 인증/온보딩 (Layout 없음) ── */}
         <Route path="/" element={<Onboarding />} />
-        <Route path="/org-select" element={<OrgSelect />} />
+        <Route path="/kakao/login" element={<Onboarding />} />
+        <Route path="/org-select" element={<OrgSelectPage />} />
 
-        {/* ── 메인 앱 (Layout + Sidebar) ── */}
         <Route element={<Layout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="event" element={<Event />} />
-          <Route path="group-manage" element={<GroupManage />} />
-          <Route index element={<LedgerCreatePage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="events" element={<EventPage />} />
+          <Route path="group-manage" element={<GroupManagePage />} />
           <Route path="ledger" element={<LedgerCreatePage />} />
           <Route path="expense" element={<ExpensePage />} />
-          <Route path="/expense-detail" element={<ExpenseDetailPage />} />
-          <Route path="/expense-edit" element={<ExpenseEditPage />} />
-          <Route path="/income" element={<IncomePage1 />} />
-          <Route path="/income-detail" element={<IncomeDetailPage1 />} />
-          <Route path="/income-edit" element={<IncomeEditPage />} />
-          <Route path="/income2" element={<IncomePage2 />} />
-          <Route path="/income-detail2" element={<IncomeDetailPage2 />} />
+          <Route path="expense-detail" element={<ExpenseDetailPage />} />
+          <Route path="expense-edit" element={<ExpenseEditPage />} />
+          <Route path="income" element={<IncomePage1 />} />
+          <Route path="income-detail" element={<IncomeDetailPage1 />} />
+          <Route path="income-edit" element={<IncomeEditPage />} />
+          <Route path="income2" element={<IncomePage2 />} />
+          <Route path="income-detail2" element={<IncomeDetailPage2 />} />
         </Route>
       </Routes>
     </BrowserRouter>
