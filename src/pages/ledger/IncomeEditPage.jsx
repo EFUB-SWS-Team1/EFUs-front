@@ -1,37 +1,43 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import './IncomeEditPage.css';
-import FolderIcon from '../../assets/Folder plus.svg';
+import React, { useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import "./IncomeEditPage.css";
+import FolderIcon from "../../assets/Folder plus.svg";
+import { updateTransaction, uploadReceipt } from "../../api/ledger";
+
+function toInputDate(dateStr) {
+  if (!dateStr) return "";
+  return String(dateStr).slice(0, 10).replaceAll(".", "-");
+}
 
 const IncomeEditPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 상세 페이지에서 '수정'을 눌러서 넘어온 수입 데이터 확인
   const editingData = location.state?.incomeData || null;
 
   const [formData, setFormData] = useState({
-    title: editingData ? editingData.title : '',
-    amount: editingData ? editingData.amount.replace(/[^0-9]/g, '') : '', // '+100,000원' -> '100000' 변환
-    date: editingData ? editingData.date : '',
-    event: editingData ? editingData.event : '',
-    memo: editingData && editingData.memo !== '-' ? editingData.memo : '',
-    receipt: null
+    title: editingData ? editingData.title : "",
+    amount: editingData
+      ? String(editingData.amount).replace(/[^0-9]/g, "")
+      : "",
+    date: editingData ? toInputDate(editingData.date) : "",
+    event: editingData ? editingData.event : "",
+    memo: editingData && editingData.memo !== "-" ? editingData.memo : "",
+    receipt: null,
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // 수정 모드로 들어온 경우 처음부터 등록 단계(true)로 시작
-  const [isEventAdded, setIsEventAdded] = useState(editingData ? true : false);
-
+  const [isEventAdded, setIsEventAdded] = useState(!!editingData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const dateInputRef = useRef(null);
 
   const eventOptions = [
-    '2월 MT',
-    '1학기 종강파티',
-    '8월 MT',
-    '여름방학 해커톤'
+    "2월 MT",
+    "1학기 종강파티",
+    "8월 MT",
+    "여름방학 해커톤",
   ];
 
   const handleChange = (e) => {
@@ -53,7 +59,7 @@ const IncomeEditPage = () => {
 
   const handleDateClick = () => {
     if (dateInputRef.current) {
-      if (typeof dateInputRef.current.showPicker === 'function') {
+      if (typeof dateInputRef.current.showPicker === "function") {
         dateInputRef.current.showPicker();
       } else {
         dateInputRef.current.focus();
@@ -61,7 +67,7 @@ const IncomeEditPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isEventAdded) {
@@ -69,18 +75,17 @@ const IncomeEditPage = () => {
         alert("행사를 선택해주세요.");
         return;
       }
-      
+
       setFormData((prev) => ({
-        title: '',
-        amount: '',
-        date: '',
-        event: prev.event, 
-        memo: '',
-        receipt: null
+        title: "",
+        amount: "",
+        date: "",
+        event: prev.event,
+        memo: "",
+        receipt: null,
       }));
-  
       setIsEventAdded(true);
-      return; 
+      return;
     }
 
     if (!formData.title || !formData.amount || !formData.date) {
@@ -88,67 +93,64 @@ const IncomeEditPage = () => {
       return;
     }
 
-    const today = new Date();
-    const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
-    
-    const newHistoryItems = [];
-
-    if (editingData) {
-      const cleanOldMemo = (!editingData.memo || editingData.memo === '-') ? '' : String(editingData.memo).trim();
-      const cleanNewMemo = (!formData.memo || formData.memo === '-') ? '' : String(formData.memo).trim();
-
-      if (cleanNewMemo !== '' && cleanOldMemo === '') {
-        newHistoryItems.push('메모 추가');
-      } else if (cleanNewMemo !== cleanOldMemo) {
-        newHistoryItems.push('메모 수정');
-      }
-      
-      if (formData.receipt && !editingData.receipt) {
-        newHistoryItems.push('영수증 추가');
-      } else if (formData.receipt && formData.receipt.name !== editingData.receipt) {
-        newHistoryItems.push('영수증 수정');
-      }
-
-      const cleanedOldAmount = editingData.amount.replace(/[^0-9]/g, '');
-      const cleanedNewAmount = formData.amount.replace(/[^0-9]/g, '');
-      if (cleanedOldAmount !== cleanedNewAmount) {
-        newHistoryItems.push('가격 수정');
-      }
-
-      if (formData.event !== editingData.event) {
-        newHistoryItems.push('행사 수정');
-      }
-
-      if (formData.title !== editingData.title) {
-        newHistoryItems.push('내용 수정');
-      }
+    if (!editingData?.id) {
+      setSubmitError("수정할 거래 id가 없습니다. 상세에서 다시 들어와 주세요.");
+      return;
     }
 
-    const addedHistoryList = newHistoryItems.map(content => ({
-      date: formattedDate,
-      author: '홍길동',
-      content: content
-    }));
+    try {
+      setIsSubmitting(true);
+      setSubmitError("");
 
-    const incomeData = {
-      title: formData.title,
-      registrationDate: editingData ? editingData.registrationDate : formattedDate,
-      amount: `+${formData.amount.replace(/[^0-9]/g, '')}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원', // 수입이므로 + 부호 붙임
-      date: formData.date,
-      event: formData.event || '-',
-      memo: formData.memo ? formData.memo : '-',
-      receipt: formData.receipt ? formData.receipt.name : (editingData ? editingData.receipt : null),
-      history: [...(editingData?.history || []), ...addedHistoryList],
-    };
+      const amountNumber =
+        Number(String(formData.amount).replace(/[^0-9]/g, "")) || 0;
 
-    // 저장 후 수입 상세 페이지로 다시 이동하면서 데이터 전달
-    navigate('/income-detail', { state: { incomeData } }); 
+      await updateTransaction(editingData.id, {
+        transactionType: "INCOME",
+        title: formData.title.trim(),
+        amount: amountNumber,
+        transactionDate: formData.date,
+        fundingId: null,
+        memo: formData.memo || null,
+      });
+
+      if (formData.receipt) {
+        await uploadReceipt(editingData.id, formData.receipt);
+      }
+
+      const today = new Date();
+      const formattedDate = `${today.getFullYear()}.${String(
+        today.getMonth() + 1,
+      ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
+
+      const incomeData = {
+        id: editingData.id,
+        title: formData.title,
+        registrationDate: editingData.registrationDate || formattedDate,
+        amount:
+          `+${amountNumber}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원",
+        date: formData.date.replaceAll("-", "."),
+        event: formData.event || "-",
+        memo: formData.memo ? formData.memo : "-",
+        receipt: formData.receipt
+          ? formData.receipt.name
+          : editingData.receipt ?? null,
+        history: editingData.history || [],
+        isDeleted: false,
+        deletedDate: null,
+      };
+
+      navigate("/income-detail", { state: { incomeData } });
+    } catch (err) {
+      setSubmitError(err.message ?? "수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="income-edit-container">
       <form onSubmit={handleSubmit} className="income-edit-form">
-        {/* 1열: 내용 & 금액 */}
         <div className="form-row">
           <div className="form-group">
             <label>내용 *</label>
@@ -173,7 +175,6 @@ const IncomeEditPage = () => {
           </div>
         </div>
 
-        {/* 2열: 날짜 & 행사 */}
         <div className="form-row">
           <div className="form-group">
             <label>날짜 *</label>
@@ -193,8 +194,8 @@ const IncomeEditPage = () => {
 
           <div className="form-group relative">
             <label>행사</label>
-            <div 
-              className={`custom-select ${isDropdownOpen ? 'open' : ''}`} 
+            <div
+              className={`custom-select ${isDropdownOpen ? "open" : ""}`}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <span>{formData.event}</span>
@@ -208,9 +209,9 @@ const IncomeEditPage = () => {
             {isDropdownOpen && (
               <ul className="dropdown-menu">
                 {eventOptions.map((option) => (
-                  <li 
-                    key={option} 
-                    className={formData.event === option ? 'selected' : ''}
+                  <li
+                    key={option}
+                    className={formData.event === option ? "selected" : ""}
                     onClick={() => handleSelectEvent(option)}
                   >
                     {option}
@@ -221,7 +222,6 @@ const IncomeEditPage = () => {
           </div>
         </div>
 
-        {/* 3열: 메모 */}
         <div className="form-group full-width">
           <label>메모</label>
           <input
@@ -233,33 +233,43 @@ const IncomeEditPage = () => {
           />
         </div>
 
-        {/* 4열: 영수증 업로드 */}
         <div className="form-group full-width">
           <label>영수증</label>
           <label htmlFor="receipt-upload" className="file-upload-area">
             <div className="folder-icon-wrapper">
-                <img src={FolderIcon} alt="폴더 아이콘" className="folder-svg" />
+              <img src={FolderIcon} alt="폴더 아이콘" className="folder-svg" />
             </div>
             <span className="upload-text">
-              {formData.receipt ? formData.receipt.name : 'OCR 금액 자동 인식 · JPG, PNG'}
+              {formData.receipt
+                ? formData.receipt.name
+                : "OCR 금액 자동 인식 · JPG, PNG"}
             </span>
             <input
               id="receipt-upload"
               type="file"
               accept="image/jpeg, image/png"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           </label>
         </div>
 
-        {/* 하단 버튼 그룹 */}
+        {submitError && <p style={{ color: "red" }}>{submitError}</p>}
+
         <div className="button-group">
-          <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="btn btn-cancel"
+            onClick={() => navigate(-1)}
+          >
             취소
           </button>
-          <button type="submit" className="btn btn-submit register-mode">
-            {isEventAdded ? '저장' : '추가'}
+          <button
+            type="submit"
+            className="btn btn-submit register-mode"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "저장 중..." : isEventAdded ? "저장" : "추가"}
           </button>
         </div>
       </form>
