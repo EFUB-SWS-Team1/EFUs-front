@@ -78,8 +78,8 @@ export default function TransactionDetail({
 
         if (ignore) return;
 
-        setTransaction(transactionData);
-        setReceipt(receiptData);
+        setTransaction(transactionData ?? null);
+        setReceipt(receiptData ?? null);
       } catch (requestError) {
         if (!ignore) {
           setError(
@@ -126,8 +126,15 @@ export default function TransactionDetail({
 
         if (ignore) return;
 
-        setHistories(historyData.histories);
-        setHistoryPageInfo(historyData.pageInfo);
+        setHistories(
+          Array.isArray(historyData?.histories)
+            ? historyData.histories
+            : [],
+        );
+        setHistoryPageInfo((currentPageInfo) => ({
+          ...currentPageInfo,
+          ...(historyData?.pageInfo ?? {}),
+        }));
       } catch (requestError) {
         if (!ignore) {
           setError(
@@ -323,8 +330,8 @@ export default function TransactionDetail({
                 </tr>
               </thead>
               <tbody>
-                {histories.map((history) => (
-                  <tr key={history.id}>
+                {histories.map((history, index) => (
+                  <tr key={history.id ?? `${history.date}-${index}`}>
                     <td>{history.date}</td>
                     <td>{history.author}</td>
                     <td>{history.content}</td>
