@@ -39,8 +39,9 @@ function mapMember(item) {
 function mapCharge(item) {
   return {
     id: item.chargeId,
-    label: item.name ?? item.chargeName,
-    amount: item.amount ?? item.individualAmount,
+    label: item.title ?? item.name ?? item.chargeName ?? "-",
+    amount:
+      item.assignedAmount ?? item.amount ?? item.individualAmount ?? 0,
     dueDate: item.dueDate,
     status: String(item.paymentStatus).toLowerCase(),
   };
@@ -66,8 +67,9 @@ export async function getMemberDetail(termId, termMemberId) {
   const data = unwrapPayload(response);
   return {
     member: mapMember(data),
-    paidTotal: data.totalPaidAmount ?? data.paidTotal,
-    unpaidTotal: data.totalUnpaidAmount ?? data.unpaidTotal,
+    paidTotal: data.paidAmount ?? data.totalPaidAmount ?? data.paidTotal ?? 0,
+    unpaidTotal:
+      data.unpaidAmount ?? data.totalUnpaidAmount ?? data.unpaidTotal ?? 0,
   };
 }
 
