@@ -163,8 +163,16 @@ const IncomePage2 = () => {
   const activePreview = canPreview && preview?.key === previewKey
     ? preview.data
     : null;
-  const formattedTotalAmount = activePreview
-    ? `${Number(activePreview.requestedAmount ?? activePreview.totalAmount ?? 0).toLocaleString()}원`
+  const equalSplitAssignedAmounts = activePreview?.members
+    ?.map((member) => Number(member.assignedAmount))
+    .filter(Number.isFinite);
+  const previewDisplayAmount = billingType === "nppang"
+    ? equalSplitAssignedAmounts?.length > 0
+      ? Math.min(...equalSplitAssignedAmounts)
+      : null
+    : activePreview?.requestedAmount ?? activePreview?.totalAmount;
+  const formattedTotalAmount = previewDisplayAmount != null
+    ? `${Number(previewDisplayAmount).toLocaleString()}원`
     : "- 원";
 
   const handleSubmit = async (e) => {
@@ -421,11 +429,13 @@ const IncomePage2 = () => {
 
         <div className="total-billing-summary-box">
           <div className="total-billing-left">
-            <div className="total-billing-title">전체 청구 금액</div>
+            <div className="total-billing-title">
+              {billingType === "nppang" ? "1인당 청구 금액" : "전체 청구 금액"}
+            </div>
             <div className="total-billing-formula">
               {billingType === "individual"
                 ? "1인당 금액 × 인원 수"
-                : "N빵 총 분할 금액"}
+                : `${rawAmount.toLocaleString()}원 ÷ ${activePreview?.targetCount ?? selectedTargets.length}명`}
             </div>
           </div>
           <div className="total-billing-value">{formattedTotalAmount}</div>
