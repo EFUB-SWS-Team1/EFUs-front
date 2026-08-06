@@ -21,9 +21,12 @@ import IncomePage2 from "../pages/ledger/IncomePage2";
 import IncomeDetailPage2 from "../pages/ledger/IncomeDetailPage2";
 
 export const router = createBrowserRouter([
-  // ── 공개 라우트 (Layout 없음) ──
   {
     path: "/",
+    element: <Onboarding />,
+  },
+  {
+    path: "/kakao/login",
     element: <Onboarding />,
   },
   {
@@ -35,7 +38,6 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // ── 메인 앱 (로그인 필요) ──
   {
     element: (
       <ProtectedRoute>
@@ -43,64 +45,22 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      {
-        path: "dashboard",
-        element: <DashboardPage />,
-      },
-      {
-        path: "events",
-        element: <EventPage />,
-      },
-      {
-        path: "events/:eventId",
-        element: <EventDetailPage />,
-      },
-      {
-        path: "group-manage",
-        element: <GroupManagePage />,
-      },
-
-      // ── 가계부 (페이지 내부 navigate 경로와 맞춤) ──
-      {
-        path: "ledger",
-        element: <LedgerCreatePage />,
-      },
-      {
-        path: "expense",
-        element: <ExpensePage />,
-      },
-      {
-        path: "expense-detail",
-        element: <ExpenseDetailPage />,
-      },
-      {
-        path: "expense-edit",
-        element: <ExpenseEditPage />,
-      },
-      {
-        path: "income",
-        element: <IncomePage1 />,
-      },
-      {
-        path: "income-detail",
-        element: <IncomeDetailPage1 />,
-      },
-      {
-        path: "income-edit",
-        element: <IncomeEditPage />,
-      },
-      {
-        path: "income2",
-        element: <IncomePage2 />,
-      },
-      {
-        path: "income-detail2",
-        element: <IncomeDetailPage2 />,
-      },
+      { path: "dashboard", element: <DashboardPage /> },
+      { path: "events", element: <EventPage /> },
+      { path: "events/:eventId", element: <EventDetailPage /> },
+      { path: "group-manage", element: <GroupManagePage /> },
+      { path: "ledger", element: <LedgerCreatePage /> },
+      { path: "expense", element: <ExpensePage /> },
+      { path: "expense-detail", element: <ExpenseDetailPage /> },
+      { path: "expense-edit", element: <ExpenseEditPage /> },
+      { path: "income", element: <IncomePage1 /> },
+      { path: "income-detail", element: <IncomeDetailPage1 /> },
+      { path: "income-edit", element: <IncomeEditPage /> },
+      { path: "income2", element: <IncomePage2 /> },
+      { path: "income-detail2", element: <IncomeDetailPage2 /> },
     ],
   },
 
-  // 존재하지 않는 경로 → 온보딩으로
   {
     path: "*",
     element: <Navigate to="/" replace />,
