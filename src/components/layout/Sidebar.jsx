@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import GenerationItem from "./components/GenerationItem";
@@ -22,9 +21,12 @@ export default function Sidebar() {
     currentTermId,
     selectTerm,
   } = useGroup();
+
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const clubName = currentOrganization?.name ?? "";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,6 +47,14 @@ export default function Sidebar() {
     await selectTerm(id);
     setDropdownOpen(false);
   };
+
+  useEffect(() => {
+  const width = collapsed ? "56px" : "240px";
+  document.documentElement.style.setProperty("--sidebar-width", width);
+  return () => {
+    document.documentElement.style.removeProperty("--sidebar-width");
+  };
+}, [collapsed]);
 
   return (
     <aside
@@ -71,9 +81,13 @@ export default function Sidebar() {
             type="button"
             className={styles.groupBtn}
             onClick={() => setDropdownOpen((prev) => !prev)}
+            aria-expanded={dropdownOpen}
+            aria-haspopup="listbox"
           >
             <img src={groupLogoIcon} alt="" className={styles.groupLogo} />
-            <span className={styles.groupName}>{currentOrganization?.name}</span>
+            <span className={styles.groupName} title={clubName}>
+              {clubName}
+            </span>
             <span
               className={[
                 styles.chevron,
@@ -81,21 +95,22 @@ export default function Sidebar() {
               ]
                 .filter(Boolean)
                 .join(" ")}
+              aria-hidden="true"
             />
           </button>
 
           {dropdownOpen && (
-            <ul className={styles.dropdown}>
+            <ul className={styles.dropdown} role="listbox">
               {terms.map((term) => {
                 const termId = term.termId ?? term.id;
                 return (
-                <GenerationItem
-                  key={termId}
-                  label={term.name}
-                  logo={groupLogoIcon}
-                  isActive={String(termId) === String(currentTermId)}
-                  onClick={() => handleGenerationSelect(termId)}
-                />
+                  <GenerationItem
+                    key={termId}
+                    label={term.name}
+                    logo={groupLogoIcon}
+                    isActive={String(termId) === String(currentTermId)}
+                    onClick={() => handleGenerationSelect(termId)}
+                  />
                 );
               })}
             </ul>
