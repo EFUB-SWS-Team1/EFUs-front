@@ -1,6 +1,6 @@
 import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 export async function closeGeneration(termId, endDate) {
   if (USE_MOCK) {
