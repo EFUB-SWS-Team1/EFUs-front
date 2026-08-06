@@ -14,6 +14,7 @@ import {
   createOrganization,
   getMyOrganizations,
   joinOrganizationByCode,
+  validateInvitation,
 } from "../../api";
 
 export default function OrgSelectPage() {
@@ -55,8 +56,8 @@ export default function OrgSelectPage() {
   };
 
   const handleJoinByCode = async (code) => {
-    const joined = await joinOrganizationByCode(code);
-    setOrganizations((prev) => [...prev, joined]);
+    await joinOrganizationByCode(code);
+    setOrganizations(await getMyOrganizations());
     setActiveModal(null);
   };
 
@@ -94,6 +95,7 @@ export default function OrgSelectPage() {
         isOpen={activeModal === "invite"}
         onClose={() => setActiveModal(null)}
         onSubmit={handleJoinByCode}
+        onValidate={validateInvitation}
       />
 
       <CreateOrgModal

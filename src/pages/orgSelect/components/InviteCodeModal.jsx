@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import modalStyles from "./orgSelectModal.module.css";
-import { getInviteCodes } from "../../../api";
 
-export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
+export default function InviteCodeModal({ isOpen, onClose, onSubmit, onValidate }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validation, setValidation] = useState(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") onClose();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -21,13 +21,14 @@ export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   const handleClose = () => {
     setCode("");
     setError("");
+    setValidation(null);
     onClose();
   };
 
@@ -39,6 +40,19 @@ export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
       setCode("");
     } catch (err) {
       setError(err.message ?? "오류가 발생했습니다");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleValidate = async () => {
+    try {
+      setIsSubmitting(true);
+      setError("");
+      setValidation(await onValidate(code));
+    } catch (err) {
+      setValidation(null);
+      setError(err.response?.data?.message ?? err.message ?? "유효하지 않은 초대 코드입니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -62,6 +76,7 @@ export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
           placeholder="초대 코드"
         />
         {error && <p className={modalStyles.errorText}>{error}</p>}
+        {validation && <p className={modalStyles.description}>{validation.organizationName ?? validation.organization?.name} · {validation.termName ?? validation.term?.name} · {validation.role}</p>}
 
         <div className={modalStyles.actions}>
           <button type="button" className={modalStyles.cancelBtn} onClick={handleClose}>
@@ -69,9 +84,17 @@ export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
           </button>
           <button
             type="button"
+            className={modalStyles.cancelBtn}
+            onClick={handleValidate}
+            disabled={isSubmitting || !code.trim()}
+          >
+            코드 확인
+          </button>
+          <button
+            type="button"
             className={modalStyles.primaryBtn}
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !validation}
           >
             입장
           </button>
