@@ -227,6 +227,19 @@ export default function LedgerCreatePage() {
     navigate("/expense");
   }
 
+  function handleEntryClick(item) {
+    if (item.entryType !== "TRANSACTION" || item.deleted) {
+      return;
+    }
+
+    const detailPath =
+      item.type === "expense"
+        ? "/expense-detail"
+        : "/income-detail";
+
+    navigate(`${detailPath}?transactionId=${item.id}`);
+  }
+
   const errorMessage =
     error?.response?.data?.message ??
     error?.message ??
@@ -436,6 +449,23 @@ export default function LedgerCreatePage() {
                   <div
                     key={`${item.entryType}-${item.id}`}
                     className="table-row"
+                    role={
+                      item.entryType === "TRANSACTION" && !item.deleted
+                        ? "button"
+                        : undefined
+                    }
+                    tabIndex={
+                      item.entryType === "TRANSACTION" && !item.deleted
+                        ? 0
+                        : undefined
+                    }
+                    onClick={() => handleEntryClick(item)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleEntryClick(item);
+                      }
+                    }}
                   >
                     <span className="col-event">
                       {item.event}
