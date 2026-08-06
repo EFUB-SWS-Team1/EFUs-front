@@ -1,6 +1,9 @@
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #eeeeee;
   padding: 16px 14px;
