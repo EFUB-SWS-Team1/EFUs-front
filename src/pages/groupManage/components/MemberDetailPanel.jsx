@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { PermissionBadge, Card } from "../../../components/common";
 import { formatCurrency } from "../../../utils/format";
-import { getMemberCharges } from "../../../api";
 import styles from "./MemberDetailPanel.module.css";
 
 const ROLE_LABEL = {
@@ -17,44 +15,18 @@ const DUE_STATUS = {
 export default function MemberDetailPanel({
   isOpen,
   detail,
-  termId,
-  termMemberId,
   loading,
-  error,
   onClose,
 }) {
-  const [charges, setCharges] = useState([]);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [chargesLoading, setChargesLoading] = useState(false);
-  const [chargesError, setChargesError] = useState("");
-
-  useEffect(() => {
-    if (!isOpen || termId == null || termMemberId == null) return;
-    let active = true;
-    // Async API synchronization intentionally starts when query state changes.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setChargesLoading(true);
-    setChargesError("");
-    getMemberCharges(termId, termMemberId, { page, size: 7 })
-      .then((result) => {
-        if (!active) return;
-        setCharges(result.content);
-        setTotalPages(result.totalPages);
-      })
-      .catch((requestError) => {
-        if (active) setChargesError(requestError.response?.data?.message ?? requestError.message);
-      })
-      .finally(() => { if (active) setChargesLoading(false); });
-    return () => { active = false; };
-  }, [isOpen, page, termId, termMemberId]);
-
   if (!isOpen) return null;
 
   const member = detail?.member;
 
   return (
-      <aside className={styles.panel} aria-label="구성원 상세">
+    <>
+      <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
+
+      <aside className={styles.panel}>
         <button
           type="button"
           className={styles.closeBtn}
@@ -65,22 +37,13 @@ export default function MemberDetailPanel({
         </button>
 
         {loading && <p className={styles.loading}>불러오는 중...</p>}
-        {!loading && error && <p className={styles.loading}>{error}</p>}
 
         {!loading && member && (
           <>
             {/* 상단: 프로필 (460 × padding 40, gap 12) */}
             <div className={styles.headerSection}>
               <div className={styles.profileRow}>
-                {member.profileImageUrl ? (
-                  <img
-                    className={styles.avatar}
-                    src={member.profileImageUrl}
-                    alt=""
-                  />
-                ) : (
-                  <div className={styles.avatar} aria-hidden="true" />
-                )}
+                <div className={styles.avatar} aria-hidden="true" />
 
                 <div className={styles.profileInfo}>
                   <div className={styles.nameRow}>
@@ -125,10 +88,8 @@ export default function MemberDetailPanel({
               </div>
 
               <h3 className={styles.duesTitle}>회비 납부 현황</h3>
-              {chargesLoading && <p className={styles.message}>불러오는 중...</p>}
-              {!chargesLoading && chargesError && <p className={styles.message}>{chargesError}</p>}
               <ul className={styles.duesList}>
-                {charges.map((due) => {
+                {detail.dues.map((due) => {
                   const status = DUE_STATUS[due.status] ?? DUE_STATUS.unpaid;
                   return (
                     <li key={due.id}>
@@ -138,13 +99,10 @@ export default function MemberDetailPanel({
                             <p className={styles.dueLabel}>{due.label}</p>
                             <p className={styles.dueMeta}>
                               1인당 {formatCurrency(due.amount)} · 기한{" "}
-                              {formatDueDate(due.dueDate)}
+                              {due.dueDate}
                             </p>
                           </div>
-                          <PermissionBadge
-                            variant={status.variant}
-                            className={styles.dueStatusBadge}
-                          >
+                          <PermissionBadge variant={status.variant}>
                             {status.label}
                           </PermissionBadge>
                         </div>
@@ -153,17 +111,10 @@ export default function MemberDetailPanel({
                   );
                 })}
               </ul>
-              {!chargesLoading && !chargesError && charges.length === 0 && <p className={styles.message}>회비 내역이 없습니다.</p>}
-              {totalPages > 1 && <div className={styles.pagination}><button type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>이전</button><span>{page + 1} / {totalPages}</span><button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage((value) => value + 1)}>다음</button></div>}
             </div>
           </>
         )}
       </aside>
+    </>
   );
-}
-
-function formatDueDate(dateValue) {
-  if (!dateValue) return "-";
-  const parts = String(dateValue).split("-");
-  return parts.length >= 3 ? `${parts[1]}.${parts[2].slice(0, 2)}` : dateValue;
 }

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import GenerationItem from "./components/GenerationItem";
@@ -5,7 +6,6 @@ import styles from "./Sidebar.module.css";
 
 import sidebarToggleIcon from "../../assets/Bar_Left.svg";
 import groupLogoIcon from "../../assets/efub로고2.svg";
-import useGroup from "../../hooks/useGroup";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "대시보드" },
@@ -14,19 +14,22 @@ const NAV_ITEMS = [
   { to: "/group-manage", label: "단체" },
 ];
 
-export default function Sidebar() {
-  const {
-    currentOrganization,
-    terms,
-    currentTermId,
-    selectTerm,
-  } = useGroup();
-
+export default function Sidebar({
+  generations = [
+    { id: 6, label: "EFUB 6기" },
+    { id: 5, label: "EFUB 5기" },
+    { id: 4, label: "EFUB 4기" },
+    { id: 3, label: "EFUB 3기" },
+  ],
+  activeGenerationId = 6,
+  onGenerationChange,
+}) {
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const clubName = currentOrganization?.name ?? "";
+  const activeGeneration =
+    generations.find((g) => g.id === activeGenerationId) ?? generations[0];
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -38,23 +41,14 @@ export default function Sidebar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleToggle = () => {
-    setCollapsed((prev) => !prev);
-    setDropdownOpen(false);
-  };
-
-  const handleGenerationSelect = async (id) => {
-    await selectTerm(id);
-    setDropdownOpen(false);
-  };
-
   useEffect(() => {
-  const width = collapsed ? "56px" : "240px";
-  document.documentElement.style.setProperty("--sidebar-width", width);
-  return () => {
-    document.documentElement.style.removeProperty("--sidebar-width");
+    if (collapsed) setDropdownOpen(false);
+  }, [collapsed]);
+
+  const handleGenerationSelect = (id) => {
+    onGenerationChange?.(id);
+    setDropdownOpen(false);
   };
-}, [collapsed]);
 
   return (
     <aside
@@ -68,7 +62,7 @@ export default function Sidebar() {
         <button
           type="button"
           className={styles.toggleBtn}
-          onClick={handleToggle}
+          onClick={() => setCollapsed((prev) => !prev)}
           aria-label={collapsed ? "사이드바 펼치기" : "사이드바 접기"}
         >
           <img src={sidebarToggleIcon} alt="" className={styles.toggleIcon} />
@@ -81,13 +75,9 @@ export default function Sidebar() {
             type="button"
             className={styles.groupBtn}
             onClick={() => setDropdownOpen((prev) => !prev)}
-            aria-expanded={dropdownOpen}
-            aria-haspopup="listbox"
           >
             <img src={groupLogoIcon} alt="" className={styles.groupLogo} />
-            <span className={styles.groupName} title={clubName}>
-              {clubName}
-            </span>
+            <span className={styles.groupName}>EFUB</span>
             <span
               className={[
                 styles.chevron,
@@ -95,24 +85,20 @@ export default function Sidebar() {
               ]
                 .filter(Boolean)
                 .join(" ")}
-              aria-hidden="true"
             />
           </button>
 
           {dropdownOpen && (
-            <ul className={styles.dropdown} role="listbox">
-              {terms.map((term) => {
-                const termId = term.termId ?? term.id;
-                return (
-                  <GenerationItem
-                    key={termId}
-                    label={term.name}
-                    logo={groupLogoIcon}
-                    isActive={String(termId) === String(currentTermId)}
-                    onClick={() => handleGenerationSelect(termId)}
-                  />
-                );
-              })}
+            <ul className={styles.dropdown}>
+              {generations.map((gen) => (
+                <GenerationItem
+                  key={gen.id}
+                  label={gen.label}
+                  logo={groupLogoIcon}
+                  isActive={gen.id === activeGenerationId}
+                  onClick={() => handleGenerationSelect(gen.id)}
+                />
+              ))}
             </ul>
           )}
         </div>
