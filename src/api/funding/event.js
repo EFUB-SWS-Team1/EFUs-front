@@ -129,24 +129,38 @@ function toFundingBody(payload) {
   };
 }
 
-export async function getEvents(termId) {
-  if (USE_MOCK) return getMockData(termId);
+  export async function getEvents(termId) {
+    const [summaryResponse, listResponse] =
+      await Promise.all([
+        axiosInstance.get(
+          `/terms/${termId}/fundings/summary`,
+        ),
+        axiosInstance.get(
+          `/terms/${termId}/fundings`,
+          {
+            params: {
+              page: 0,
+              size: 100,
+            },
+          },
+        ),
+      ]);
 
-  const [summaryRes, listRes] = await Promise.all([
-    axiosInstance.get(`/terms/${termId}/fundings/summary`),
-    axiosInstance.get(`/terms/${termId}/fundings`),
-  ]);
+    const summaryPayload =
+      summaryResponse.data?.data ?? {};
 
-  const listData = listRes.data;
-  const events = Array.isArray(listData)
-    ? listData
-    : listData?.content ?? listData?.fundings ?? listData?.events ?? [];
+    const listPayload =
+      listResponse.data?.data ?? {};
 
-  return {
-    summary: mapSummary(summaryRes.data),
-    events: events.map(mapEvent),
-  };
-}
+    const events = Array.isArray(listPayload)
+      ? listPayload
+      : listPayload.fundings ?? [];
+
+    return {
+      summary: mapSummary(summaryPayload),
+      events: events.map(mapEvent),
+    };
+  }
 
 export async function getEventDetail(termId, fundingId) {
   if (USE_MOCK) {
@@ -175,25 +189,24 @@ export async function getEventDetail(termId, fundingId) {
   };
 }
 
-export async function createEvent(termId, payload) {
-  if (USE_MOCK) {
-    const data = getMockData(termId);
-    const newEvent = {
-      id: Date.now(),
-      status: "ongoing",
-      spent: 0,
-      percent: 0,
-      ...payload,
-    };
-    data.events.unshift(newEvent);
-    return newEvent;
-  }
-
-  const { data } = await axiosInstance.post(
+export async function createEvent(
+  termId,
+  payload,
+) {
+  const response = await axiosInstance.post(
     `/terms/${termId}/fundings`,
     toFundingBody(payload),
   );
-  return mapEvent(data);
+
+  const funding = response.data?.data;
+
+  if (!funding) {
+    throw new Error(
+      "등록된 행사 정보를 받지 못했습니다.",
+    );
+  }
+
+  return mapEvent(funding);
 }
 
 export async function updateEvent(termId, fundingId, payload) {
