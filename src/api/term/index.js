@@ -1,2 +1,2 @@
 export { getDashboard } from "./dashboard";
-export { closeGeneration, getOrganizationTerms, getTerm } from "./term";
+export { closeGeneration, getOrganizationTerms, getTerm, createTerm, updateTerm } from "./term";
