@@ -614,6 +614,8 @@ input[type="date"]:focus,
   padding: 20px 24px 16px;
   border-radius: 20px;
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .income-charge-container .target-count-text {
@@ -651,7 +653,8 @@ input[type="date"]:focus,
 }
 
 .income-charge-container .pagination-mock {
-  margin-top: 0;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .income-charge-container .total-billing-summary-box {
