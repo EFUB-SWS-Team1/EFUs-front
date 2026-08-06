@@ -1,17 +1,5 @@
 import axiosInstance from "../axiosInstance";
 
-export const USE_MOCK_AUTH = import.meta.env.VITE_USE_MOCK_AUTH === "true";
-
-/**
- * mock 로그인 (백엔드/카카오 생략)
- */
-export async function mockKakaoLogin() {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return {
-    accessToken: "mock_access_token_for_dev",
-  };
-}
-
 /**
  * 카카오 OAuth authorize URL 생성
  */
@@ -35,12 +23,14 @@ export function getKakaoAuthorizeUrl() {
 
 
 export async function loginWithKakaoCode(authorizationCode) {
-  if (USE_MOCK_AUTH) {
-    return mockKakaoLogin();
-  }
-
-  const { data } = await axiosInstance.post("/auth/kakao/login", {
+  const response = await axiosInstance.post("/auth/kakao/login", {
     authorizationCode,
   });
-  return data;
+
+  const loginData = response.data?.data;
+  if (typeof loginData?.accessToken !== "string" || !loginData.accessToken) {
+    throw new Error("로그인 응답에 유효한 accessToken이 없습니다.");
+  }
+
+  return loginData;
 }

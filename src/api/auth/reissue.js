@@ -14,10 +14,9 @@ export async function reissue() {
     { withCredentials: true },
   );
 
-  const newAccessToken =
-    data.accessToken ?? data.access_token ?? data?.data?.accessToken;
+  const newAccessToken = data?.data?.accessToken;
 
-  if (!newAccessToken) {
+  if (typeof newAccessToken !== "string" || !newAccessToken) {
     throw new Error("accessToken이 응답에 없습니다.");
   }
 
