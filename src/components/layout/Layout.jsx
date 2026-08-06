@@ -1,17 +1,17 @@
-import { Navigate, Outlet } from "react-router-dom";
-import useGroup from "../../hooks/useGroup";
+import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import styles from './Layout.module.css';
 
 export default function Layout() {
-  const { currentOrganization, isGroupLoading } = useGroup();
-
-  if (isGroupLoading) return <div>단체 정보를 불러오는 중...</div>;
-  if (!currentOrganization) return <Navigate to="/org-select" replace />;
+  const [activeGenerationId, setActiveGenerationId] = useState(6);
 
   return (
     <div className={styles.layout}>
-      <Sidebar />
+      <Sidebar
+        activeGenerationId={activeGenerationId}
+        onGenerationChange={setActiveGenerationId}
+      />
       <main className={styles.main}>
         <Outlet />
       </main>

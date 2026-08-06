@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createEvent, getEvents } from "../../api/event";
 import { formatCurrency } from "../../utils/format";
 import { Button } from "../../components/common";
 import SummaryCard from "./components/SummaryCard";
@@ -7,7 +8,7 @@ import EventFormModal from "./components/EventFormModal";
 import styles from "./EventPage.module.css";
 import eventIcon from "../../assets/efub로고2.svg";
 import plusIcon from "../../assets/plusIcon.svg";
-import { createEvent, getEvents } from "../../api";
+
 const GENERATION_ID = "efub-6";
 
 export default function EventPage() {
