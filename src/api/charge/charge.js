@@ -2,19 +2,6 @@ import axiosInstance from "../axiosInstance";
 
 const USE_MOCK = true; 
 
-const MOCK_MEMBERS = [
-  { id: 1, name: "홍길동", role: "staff" },
-  { id: 2, name: "김민지", role: "staff" },
-  { id: 3, name: "이수진", role: "general" },
-  { id: 4, name: "박철수", role: "general" },
-  { id: 5, name: "최영희", role: "general" },
-  { id: 6, name: "정민호", role: "general" },
-  { id: 7, name: "한지우", role: "general" },
-  { id: 8, name: "오세훈", role: "general" },
-  { id: 9, name: "윤서연", role: "general" },
-  { id: 10, name: "강다은", role: "general" },
-];
-
 function unwrapList(data) {
   if (Array.isArray(data)) return data;
   return data?.content ?? data?.members ?? [];
@@ -28,7 +15,7 @@ function mapRole(role) {
 
 function mapMember(item) {
   return {
-    id: item.id ?? item.termMemberId,
+    id: item.termMemberId ?? item.id,
     name: item.name,
     role: mapRole(item.role),
   };
@@ -36,14 +23,6 @@ function mapMember(item) {
 
 /** 청구 대상 멤버 목록 */
 export async function getChargeMembers(termId, params = {}) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 200));
-    const keyword = (params.keyword ?? "").trim().toLowerCase();
-    return MOCK_MEMBERS.filter((m) =>
-      keyword ? m.name.toLowerCase().includes(keyword) : true,
-    );
-  }
-
   const { data } = await axiosInstance.get(`/terms/${termId}/members`, {
     params: {
       keyword: params.keyword,
@@ -52,7 +31,7 @@ export async function getChargeMembers(termId, params = {}) {
     },
   });
 
-  return unwrapList(data).map(mapMember);
+  return unwrapList(data?.data ?? data).map(mapMember);
 }
 
 /**
@@ -83,21 +62,11 @@ export async function createCharge(termId, payload) {
 
 /** (선택) 금액 미리 계산 */
 export async function previewCharge(termId, payload) {
-  if (USE_MOCK) {
-    const count = payload.targetTermMemberIds?.length ?? 0;
-    if (payload.chargeMethod === "PER_PERSON") {
-      return {
-        requestedAmount: (payload.perPersonAmount ?? 0) * count,
-      };
-    }
-    return { requestedAmount: payload.totalAmount ?? 0 };
-  }
-
   const { data } = await axiosInstance.post(
     `/terms/${termId}/charges/preview`,
     payload,
   );
-  return data;
+  return data?.data ?? data;
 }
 
 function unwrapChargeMembers(data) {

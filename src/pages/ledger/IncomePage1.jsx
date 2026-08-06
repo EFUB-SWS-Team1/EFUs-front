@@ -4,11 +4,11 @@ import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./IncomePage1.css";
 import FolderIcon from "../../assets/Folder plus.svg";
 import { createTransaction, uploadReceipt } from "../../api";
-
-const TERM_ID = 1; // 나중에 실제 termId로 교체
+import useGroup from "../../hooks/useGroup";
 
 const IncomePage1 = () => {
   const navigate = useNavigate();
+  const { currentTermId } = useGroup();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -86,6 +86,10 @@ const IncomePage1 = () => {
       alert("내용, 금액, 날짜는 필수 입력입니다.");
       return;
     }
+    if (currentTermId == null) {
+      setSubmitError("선택된 기수 정보를 확인해주세요.");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
@@ -94,7 +98,7 @@ const IncomePage1 = () => {
       const amountNumber =
         Number(String(formData.amount).replace(/[^0-9]/g, "")) || 0;
 
-      const created = await createTransaction(TERM_ID, {
+      const created = await createTransaction(currentTermId, {
         transactionType: "INCOME",
         title: formData.title.trim(),
         amount: amountNumber,
