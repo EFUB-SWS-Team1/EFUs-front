@@ -1,5 +1,9 @@
 import axiosInstance from "../axiosInstance";
 
+/**
+ * ledger.js — 가계부 (transaction + receipt)
+ */
+
 function formatDisplayDate(dateString) {
   if (!dateString) return "";
 
@@ -18,15 +22,19 @@ function mapLedgerItem(item) {
   const entryType = String(
     item.entryType ?? "TRANSACTION",
   ).toUpperCase();
+
   const cashFlow = mapCashFlowType(
     item.cashFlowType ?? item.transactionType,
   );
+
   const amount =
     entryType === "CHARGE"
-      ? (item.paidAmount ??
-        item.requestedAmount ??
-        item.amount ??
-        0)
+      ? (
+          item.paidAmount ??
+          item.requestedAmount ??
+          item.amount ??
+          0
+        )
       : (item.amount ?? 0);
 
   return {
@@ -80,14 +88,19 @@ function toTransactionBody(payload) {
   return {
     transactionType:
       normalizedType === "INCOME" ? "INCOME" : "EXPENSE",
+
     title: payload.title?.trim(),
+
     amount: Math.abs(Number(payload.amount) || 0),
+
     fundingId:
       payload.fundingId == null || payload.fundingId === ""
         ? null
         : Number(payload.fundingId),
+
     transactionDate:
       payload.transactionDate ?? payload.date,
+
     memo: payload.memo?.trim() || null,
   };
 }
@@ -96,6 +109,9 @@ function unwrapResponse(response) {
   return response.data?.data ?? response.data;
 }
 
+/**
+ * 통합 가계부 목록 조회
+ */
 export async function getLedgerEntries(termId, params = {}) {
   const response = await axiosInstance.get(
     `/terms/${termId}/ledger-entries`,
@@ -111,7 +127,9 @@ export async function getLedgerEntries(termId, params = {}) {
       },
     },
   );
+
   const payload = unwrapResponse(response) ?? {};
+
   const entries = Array.isArray(payload.entries)
     ? payload.entries
     : [];
@@ -121,7 +139,9 @@ export async function getLedgerEntries(termId, params = {}) {
     totalIncome: payload.totalIncome ?? 0,
     totalExpense: payload.totalExpense ?? 0,
     balance: payload.balance ?? 0,
+
     groups: groupByDate(entries.map(mapLedgerItem)),
+
     pageInfo: {
       page: payload.pageInfo?.page ?? params.page ?? 0,
       size: payload.pageInfo?.size ?? params.size ?? 20,
@@ -132,6 +152,9 @@ export async function getLedgerEntries(termId, params = {}) {
   };
 }
 
+/**
+ * 일반 거래 등록
+ */
 export async function createTransaction(termId, payload) {
   const response = await axiosInstance.post(
     `/terms/${termId}/transactions`,
@@ -141,33 +164,44 @@ export async function createTransaction(termId, payload) {
   return unwrapResponse(response);
 }
 
-export async function getTransaction(termId, transactionId) {
+/**
+ * 거래 상세 조회
+ */
+export async function getTransaction(transactionId) {
   const response = await axiosInstance.get(
-    `/terms/${termId}/transactions/${transactionId}`,
+    `/transactions/${transactionId}`,
   );
 
   return unwrapResponse(response);
 }
 
+/**
+ * 거래 수정
+ */
 export async function updateTransaction(
-  termId,
   transactionId,
   payload,
 ) {
   const response = await axiosInstance.patch(
-    `/terms/${termId}/transactions/${transactionId}`,
+    `/transactions/${transactionId}`,
     toTransactionBody(payload),
   );
 
   return unwrapResponse(response);
 }
 
-export async function deleteTransaction(termId, transactionId) {
+/**
+ * 거래 삭제
+ */
+export async function deleteTransaction(transactionId) {
   await axiosInstance.delete(
-    `/terms/${termId}/transactions/${transactionId}`,
+    `/transactions/${transactionId}`,
   );
 }
 
+/**
+ * 영수증 조회
+ */
 export async function getReceipt(transactionId) {
   const response = await axiosInstance.get(
     `/transactions/${transactionId}/receipt`,
@@ -176,8 +210,13 @@ export async function getReceipt(transactionId) {
   return unwrapResponse(response);
 }
 
+/**
+ * 영수증 업로드
+ */
 export async function uploadReceipt(transactionId, file) {
-  const contentType = file.type || "application/octet-stream";
+  const contentType =
+    file.type || "application/octet-stream";
+
   const metadataResponse = await axiosInstance.put(
     `/transactions/${transactionId}/receipt/presigned-url`,
     {
@@ -186,33 +225,47 @@ export async function uploadReceipt(transactionId, file) {
       fileSize: file.size,
     },
   );
+
   const receipt = unwrapResponse(metadataResponse);
 
   if (!receipt?.presignedUrl) {
-    throw new Error("영수증 업로드 URL을 받지 못했습니다.");
+    throw new Error(
+      "영수증 업로드 URL을 받지 못했습니다.",
+    );
   }
 
-  const uploadResponse = await fetch(receipt.presignedUrl, {
-    method: "PUT",
-    headers: {
-      "Content-Type": contentType,
+  const uploadResponse = await fetch(
+    receipt.presignedUrl,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": contentType,
+      },
+      body: file,
     },
-    body: file,
-  });
+  );
 
   if (!uploadResponse.ok) {
-    throw new Error("영수증 파일 업로드에 실패했습니다.");
+    throw new Error(
+      "영수증 파일 업로드에 실패했습니다.",
+    );
   }
 
   return receipt;
 }
 
+/**
+ * 영수증 삭제
+ */
 export async function deleteReceipt(transactionId) {
   await axiosInstance.delete(
     `/transactions/${transactionId}/receipt`,
   );
 }
 
+/**
+ * 거래 수정/삭제 이력 조회
+ */
 export async function getTransactionHistories(
   transactionId,
   params = {},
@@ -226,27 +279,24 @@ export async function getTransactionHistories(
       },
     },
   );
+
   const payload = unwrapResponse(response);
+
   const histories = Array.isArray(payload)
     ? payload
     : (payload?.histories ?? []);
 
-  return {
-    histories: histories.map((item) => ({
-      id: item.historyId,
-      date: formatDisplayDate(item.changedAt ?? item.date),
-      author: item.actorName ?? item.author ?? "-",
-      content: item.summary ?? item.actionType ?? "-",
-      actionType: item.actionType,
-      beforeData: item.beforeData ?? null,
-      afterData: item.afterData ?? null,
-    })),
-    pageInfo: {
-      page: payload?.page ?? params.page ?? 0,
-      size: payload?.size ?? params.size ?? 20,
-      totalElements: payload?.totalElements ?? histories.length,
-      totalPages: payload?.totalPages ?? 0,
-      hasNext: payload?.hasNext ?? false,
-    },
-  };
+  return histories.map((item) => ({
+    date: String(
+      item.changedAt ?? item.date ?? "",
+    )
+      .slice(0, 10)
+      .replaceAll("-", "."),
+
+    author:
+      item.actorName ?? item.author ?? "-",
+
+    content:
+      item.summary ?? item.actionType ?? "-",
+  }));
 }

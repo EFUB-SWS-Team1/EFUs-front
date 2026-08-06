@@ -201,6 +201,18 @@
 .table-row {
   border-bottom: 1px solid #EEEEEE; /* 줄 사이 구분선 */
   color: #555555;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table-row:hover,
+.table-row:focus-visible {
+  background-color: #fafafa;
+}
+
+.table-row:focus-visible {
+  outline: 2px solid #5b6cf9;
+  outline-offset: -2px;
 }
 
 /* 마지막 내역은 밑줄 제거 */

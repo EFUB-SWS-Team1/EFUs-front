@@ -28,17 +28,17 @@ export default function LedgerCreatePage() {
   const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
   const [groups, setGroups] = useState([]);
-  const [paginationState, setPaginationState] =
-    useState({
-      termId: null,
-      page: 0,
-    });
+
+  const [paginationState, setPaginationState] = useState({
+    termId: null,
+    page: 0,
+  });
 
   const page =
-    String(paginationState.termId) ===
-    String(currentTermId)
+    String(paginationState.termId) === String(currentTermId)
       ? paginationState.page
       : 0;
+
   const [pageInfo, setPageInfo] = useState(
     EMPTY_PAGE_INFO,
   );
@@ -46,8 +46,7 @@ export default function LedgerCreatePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [isModalOpen, setIsModalOpen] =
-    useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedType, setSelectedType] =
     useState("expense");
   const [isFeeCollect, setIsFeeCollect] =
@@ -60,10 +59,7 @@ export default function LedgerCreatePage() {
       return undefined;
     }
 
-    if (
-      isGroupLoading ||
-      currentTermId == null
-    ) {
+    if (currentTermId == null) {
       return undefined;
     }
 
@@ -81,9 +77,11 @@ export default function LedgerCreatePage() {
             "시작 날짜는 종료 날짜보다 늦을 수 없습니다.",
           ),
         );
+
         setGroups([]);
         setPageInfo(EMPTY_PAGE_INFO);
         setIsLoading(false);
+
         return;
       }
 
@@ -109,7 +107,6 @@ export default function LedgerCreatePage() {
         if (ignore) return;
 
         setGroups(data.groups);
-
         setPageInfo(data.pageInfo);
       } catch (requestError) {
         if (ignore) return;
@@ -187,13 +184,17 @@ export default function LedgerCreatePage() {
   }
 
   function handlePreviousPage() {
-    updatePage((currentPage) => currentPage - 1);
+    updatePage(
+      (currentPage) => currentPage - 1,
+    );
   }
 
   function handleNextPage() {
     if (!pageInfo.hasNext) return;
 
-    updatePage((currentPage) => currentPage + 1);
+    updatePage(
+      (currentPage) => currentPage + 1,
+    );
   }
 
   function handleNextClick() {
@@ -213,16 +214,50 @@ export default function LedgerCreatePage() {
   }
 
   function handleEntryClick(item) {
-    if (item.entryType !== "TRANSACTION" || item.deleted) {
+    if (!item?.id) return;
+
+    /*
+     * 회비 청구 상세
+     *
+     * IncomeDetailPage2가 state의 incomeData.id를
+     * chargeId로 사용하고 이후 실제 상세 API를 조회한다.
+     */
+    if (item.entryType === "CHARGE") {
+      navigate("/income-detail2", {
+        state: {
+          incomeData: {
+            id: item.id,
+            title: item.desc,
+            date: item.date,
+            event: item.event,
+            isDeleted: item.deleted,
+            registrationDate: item.createdAt,
+            rawAmount: item.requestedAmount,
+            paidAmount: item.paidAmount,
+            unpaidAmount: item.unpaidAmount,
+            paymentStatus: item.paymentStatus,
+          },
+        },
+      });
+
       return;
     }
 
-    const detailPath =
-      item.type === "expense"
-        ? "/expense-detail"
-        : "/income-detail";
+    /*
+     * 일반 거래 상세
+     *
+     * transactionId를 실제 상세 API 조회용 ID로 전달한다.
+     */
+    if (item.entryType === "TRANSACTION") {
+      const detailPath =
+        item.type === "expense"
+          ? "/expense-detail"
+          : "/income-detail";
 
-    navigate(`${detailPath}?transactionId=${item.id}`);
+      navigate(
+        `${detailPath}?transactionId=${item.id}`,
+      );
+    }
   }
 
   const errorMessage =
@@ -230,17 +265,28 @@ export default function LedgerCreatePage() {
     error?.message ??
     "가계부 내역을 불러오지 못했습니다.";
 
-  const hasSelectedTerm = currentTermId != null;
+  const hasSelectedTerm =
+    currentTermId != null;
 
   const visibleGroups = hasSelectedTerm
     ? groups
     : [];
 
-  const hasEntries = visibleGroups.length > 0;
-  const periodLabel = fromDate || toDate
-    ? `${fromDate ? fromDate.replaceAll("-", ".") : "시작일"} – ${toDate ? toDate.replaceAll("-", ".") : "종료일"}`
-    : "전체";
+  const hasEntries =
+    visibleGroups.length > 0;
 
+  const periodLabel =
+    fromDate || toDate
+      ? `${
+          fromDate
+            ? fromDate.replaceAll("-", ".")
+            : "시작일"
+        } – ${
+          toDate
+            ? toDate.replaceAll("-", ".")
+            : "종료일"
+        }`
+      : "전체";
 
   return (
     <div className="account-container">
@@ -261,7 +307,9 @@ export default function LedgerCreatePage() {
           type="button"
           className="add-btn"
           disabled={currentTermId == null}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() =>
+            setIsModalOpen(true)
+          }
         >
           + 내역 추가
         </button>
@@ -276,40 +324,84 @@ export default function LedgerCreatePage() {
           <button
             type="button"
             className="period-select-trigger"
-            onClick={() => setIsPeriodOpen((value) => !value)}
+            onClick={() =>
+              setIsPeriodOpen(
+                (value) => !value,
+              )
+            }
             aria-expanded={isPeriodOpen}
             aria-controls="period-picker"
           >
-            <img src={calendarIcon} alt="" aria-hidden="true" className="calendar-icon" />
+            <img
+              src={calendarIcon}
+              alt=""
+              aria-hidden="true"
+              className="calendar-icon"
+            />
+
             <span>{periodLabel}</span>
           </button>
 
           {isPeriodOpen && (
-            <div className="period-picker" id="period-picker">
+            <div
+              className="period-picker"
+              id="period-picker"
+            >
               <div className="period-picker-dates">
                 <label>
                   <span>시작일</span>
-                  <input type="date" value={fromDate} onChange={handleFromDateChange} />
+
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={
+                      handleFromDateChange
+                    }
+                  />
                 </label>
-                <span className="period-divider" aria-hidden="true">–</span>
+
+                <span
+                  className="period-divider"
+                  aria-hidden="true"
+                >
+                  –
+                </span>
+
                 <label>
                   <span>종료일</span>
-                  <input type="date" value={toDate} onChange={handleToDateChange} />
+
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={
+                      handleToDateChange
+                    }
+                  />
                 </label>
               </div>
+
               <div className="period-picker-actions">
                 {(fromDate || toDate) && (
-                  <button type="button" className="period-reset-btn" onClick={handleResetDates}>
+                  <button
+                    type="button"
+                    className="period-reset-btn"
+                    onClick={
+                      handleResetDates
+                    }
+                  >
                     초기화
                   </button>
                 )}
-              <button
-                type="button"
+
+                <button
+                  type="button"
                   className="period-apply-btn"
-                  onClick={() => setIsPeriodOpen(false)}
-              >
+                  onClick={() =>
+                    setIsPeriodOpen(false)
+                  }
+                >
                   확인
-              </button>
+                </button>
               </div>
             </div>
           )}
@@ -319,7 +411,9 @@ export default function LedgerCreatePage() {
           <button
             type="button"
             className={`tab-btn ${
-              filter === "all" ? "active" : ""
+              filter === "all"
+                ? "active"
+                : ""
             }`}
             onClick={() =>
               handleFilterChange("all")
@@ -359,106 +453,132 @@ export default function LedgerCreatePage() {
       </section>
 
       <main className="transaction-list">
-        {(isGroupLoading || isLoading) && (
+        {(isGroupLoading ||
+          isLoading) && (
           <p>불러오는 중...</p>
         )}
 
         {!isGroupLoading &&
           currentTermId == null && (
-            <p>조회할 기수를 선택해 주세요.</p>
+            <p>
+              조회할 기수를 선택해 주세요.
+            </p>
           )}
 
         {hasSelectedTerm &&
           !isLoading &&
-          error && <p>{errorMessage}</p>}
+          error && (
+            <p>{errorMessage}</p>
+          )}
 
         {!isLoading &&
           !error &&
           currentTermId != null &&
           !hasEntries && (
-            <p>등록된 내역이 없습니다.</p>
+            <p>
+              등록된 내역이 없습니다.
+            </p>
           )}
 
         {!isLoading &&
           !error &&
-          visibleGroups.map((group) => (
-            <section
-              key={group.date}
-              className="date-group"
-            >
-              <h2 className="date-title">
-                {group.date}
-              </h2>
+          visibleGroups.map(
+            (group) => (
+              <section
+                key={group.date}
+                className="date-group"
+              >
+                <h2 className="date-title">
+                  {group.date}
+                </h2>
 
-              <div className="table-card">
-                <div className="table-header">
-                  <span className="col-event">
-                    행사
-                  </span>
-                  <span className="col-desc">
-                    내용
-                  </span>
-                  <span className="col-amount">
-                    금액
-                  </span>
-                </div>
-
-                {group.items.map((item) => (
-                  <div
-                    key={`${item.entryType}-${item.id}`}
-                    className="table-row"
-                    role={
-                      item.entryType === "TRANSACTION" && !item.deleted
-                        ? "button"
-                        : undefined
-                    }
-                    tabIndex={
-                      item.entryType === "TRANSACTION" && !item.deleted
-                        ? 0
-                        : undefined
-                    }
-                    onClick={() => handleEntryClick(item)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        handleEntryClick(item);
-                      }
-                    }}
-                  >
+                <div className="table-card">
+                  <div className="table-header">
                     <span className="col-event">
-                      {item.event}
+                      행사
                     </span>
 
                     <span className="col-desc">
-                      {item.deleted
-                        ? `${item.desc} (삭제됨)`
-                        : item.desc}
+                      내용
                     </span>
 
-                    <span
-                      className={`col-amount ${item.type}`}
-                    >
-                      {item.amount > 0
-                        ? `+${item.amount.toLocaleString()}원`
-                        : `${item.amount.toLocaleString()}원`}
+                    <span className="col-amount">
+                      금액
                     </span>
                   </div>
-                ))}
-              </div>
-            </section>
-          ))}
+
+                  {group.items.map(
+                    (item) => (
+                      <div
+                        key={`${item.entryType}-${item.id}`}
+                        className="table-row"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          handleEntryClick(
+                            item,
+                          )
+                        }
+                        onKeyDown={(
+                          event,
+                        ) => {
+                          if (
+                            event.key ===
+                              "Enter" ||
+                            event.key ===
+                              " "
+                          ) {
+                            event.preventDefault();
+
+                            handleEntryClick(
+                              item,
+                            );
+                          }
+                        }}
+                      >
+                        <span className="col-event">
+                          {item.event}
+                        </span>
+
+                        <span className="col-desc">
+                          {item.deleted
+                            ? `${item.desc} (삭제됨)`
+                            : item.desc}
+                        </span>
+
+                        <span
+                          className={`col-amount ${item.type}`}
+                        >
+                          {item.amount > 0
+                            ? `+${item.amount.toLocaleString()}원`
+                            : `${item.amount.toLocaleString()}원`}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </section>
+            ),
+          )}
       </main>
 
       {hasSelectedTerm &&
         !isLoading &&
         !error &&
         pageInfo.totalPages > 0 && (
-          <div className="ledger-pagination" aria-label="가계부 목록 페이지 이동">
+          <div
+            className="ledger-pagination"
+            aria-label="가계부 목록 페이지 이동"
+          >
             <button
               type="button"
               className="ledger-page-btn"
-              disabled={pageInfo.page <= 0}
-              onClick={handlePreviousPage}
+              disabled={
+                pageInfo.page <= 0
+              }
+              onClick={
+                handlePreviousPage
+              }
               aria-label="이전 페이지"
             >
               ‹
@@ -472,8 +592,12 @@ export default function LedgerCreatePage() {
             <button
               type="button"
               className="ledger-page-btn"
-              disabled={!pageInfo.hasNext}
-              onClick={handleNextPage}
+              disabled={
+                !pageInfo.hasNext
+              }
+              onClick={
+                handleNextPage
+              }
               aria-label="다음 페이지"
             >
               ›
@@ -484,7 +608,9 @@ export default function LedgerCreatePage() {
       {isModalOpen && (
         <div
           className="modal-overlay"
-          onClick={() => setIsModalOpen(false)}
+          onClick={() =>
+            setIsModalOpen(false)
+          }
         >
           <div
             className="modal-card"
@@ -499,7 +625,8 @@ export default function LedgerCreatePage() {
             <div className="modal-options">
               <label
                 className={`type-option ${
-                  selectedType === "income"
+                  selectedType ===
+                  "income"
                     ? "selected"
                     : ""
                 }`}
@@ -508,10 +635,13 @@ export default function LedgerCreatePage() {
                   type="radio"
                   name="transactionType"
                   checked={
-                    selectedType === "income"
+                    selectedType ===
+                    "income"
                   }
                   onChange={() =>
-                    setSelectedType("income")
+                    setSelectedType(
+                      "income",
+                    )
                   }
                 />
 
@@ -522,14 +652,20 @@ export default function LedgerCreatePage() {
                 </span>
               </label>
 
-              {selectedType === "income" && (
+              {selectedType ===
+                "income" && (
                 <label className="fee-checkbox-label">
                   <input
                     type="checkbox"
-                    checked={isFeeCollect}
-                    onChange={(event) =>
+                    checked={
+                      isFeeCollect
+                    }
+                    onChange={(
+                      event,
+                    ) =>
                       setIsFeeCollect(
-                        event.target.checked,
+                        event.target
+                          .checked,
                       )
                     }
                   />
@@ -537,7 +673,9 @@ export default function LedgerCreatePage() {
                   <span className="custom-checkbox">
                     {isFeeCollect && (
                       <img
-                        src={checkIcon}
+                        src={
+                          checkIcon
+                        }
                         alt=""
                         aria-hidden="true"
                         className="check-icon"
@@ -545,13 +683,16 @@ export default function LedgerCreatePage() {
                     )}
                   </span>
 
-                  <span>회비로 걷기</span>
+                  <span>
+                    회비로 걷기
+                  </span>
                 </label>
               )}
 
               <label
                 className={`type-option ${
-                  selectedType === "expense"
+                  selectedType ===
+                  "expense"
                     ? "selected"
                     : ""
                 }`}
@@ -560,10 +701,13 @@ export default function LedgerCreatePage() {
                   type="radio"
                   name="transactionType"
                   checked={
-                    selectedType === "expense"
+                    selectedType ===
+                    "expense"
                   }
                   onChange={() =>
-                    setSelectedType("expense")
+                    setSelectedType(
+                      "expense",
+                    )
                   }
                 />
 
@@ -589,7 +733,9 @@ export default function LedgerCreatePage() {
               <button
                 type="button"
                 className="btn-next"
-                onClick={handleNextClick}
+                onClick={
+                  handleNextClick
+                }
               >
                 다음
               </button>

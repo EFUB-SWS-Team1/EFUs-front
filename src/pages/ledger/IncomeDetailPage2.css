@@ -252,7 +252,7 @@
 /* 열 간격 및 정렬 균형 맞추기 */
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
-  width: 30%;
+  width: 40%;
 }
 
 .history-table th:nth-child(2),
@@ -262,7 +262,7 @@
 
 .history-table th:nth-child(3),
 .history-table td:nth-child(3) {
-  width: 40%;
+  width: 30%;
 }
 
 /* 수정 이력 표가 들어있을 때는 박스의 위아래 패딩을 줄이고 표가 꽉 차게 조절 */
@@ -564,6 +564,83 @@
   box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
 }
 
+/* 회비 상세의 수정 이력 카드에만 적용되는 스타일 */
+.detail-container .charge-history-title {
+  margin-bottom: 12px;
+  color: #555555;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.detail-container .charge-history-card {
+  min-height: 78px;
+  padding: 0;
+  overflow: hidden;
+  align-items: stretch;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.03);
+}
+
+.detail-container .charge-history-card.is-empty {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.detail-container .charge-history-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.detail-container .charge-history-table th,
+.detail-container .charge-history-table td {
+  border: 0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.detail-container .charge-history-table th {
+  height: 52px;
+  padding: 0 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #f2f2f2;
+  color: #aaaaaa;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.detail-container .charge-history-table td {
+  min-height: 60px;
+  padding: 20px 32px;
+  color: #555555;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.detail-container .charge-history-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.detail-container .charge-history-table th:nth-child(1),
+.detail-container .charge-history-table td:nth-child(1) {
+  width: 24%;
+}
+
+.detail-container .charge-history-table th:nth-child(2),
+.detail-container .charge-history-table td:nth-child(2) {
+  width: 20%;
+}
+
+.detail-container .charge-history-table th:nth-child(3),
+.detail-container .charge-history-table td:nth-child(3) {
+  width: 56%;
+}
+
 .detail-container .summary-cards-row {
   width: 100%;
   min-height: 144px;
@@ -738,6 +815,13 @@
 .detail-container .status-badge-btn {
   min-width: 48px;
   justify-content: center;
+}
+
+.detail-container .status-badge-btn.pending:not(:disabled) {
+  cursor: pointer;
+}
+
+.detail-container .status-badge-btn:disabled {
   cursor: default;
 }
 
