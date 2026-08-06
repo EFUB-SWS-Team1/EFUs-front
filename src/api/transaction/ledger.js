@@ -109,6 +109,22 @@ function unwrapResponse(response) {
   return response.data?.data ?? response.data;
 }
 
+function mapTransactionDetail(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return null;
+  }
+
+  return {
+    ...payload,
+    title: payload.title ?? "",
+    amount: payload.amount ?? 0,
+    transactionDate: payload.transactionDate ?? payload.date ?? null,
+    fundingName: payload.fundingName ?? null,
+    memo: payload.memo ?? "",
+    createdAt: payload.createdAt ?? null,
+  };
+}
+
 /**
  * 통합 가계부 목록 조회
  */
@@ -172,7 +188,7 @@ export async function getTransaction(termId, transactionId) {
     `/terms/${termId}/transactions/${transactionId}`,
   );
 
-  return unwrapResponse(response);
+  return mapTransactionDetail(unwrapResponse(response));
 }
 
 /**
@@ -283,11 +299,12 @@ export async function getTransactionHistories(
 
   const payload = unwrapResponse(response);
 
-  const histories = Array.isArray(payload)
+  const historyItems = Array.isArray(payload)
     ? payload
-    : (payload?.histories ?? []);
+    : (Array.isArray(payload?.histories) ? payload.histories : []);
 
-  return histories.map((item) => ({
+  const histories = historyItems.map((item) => ({
+    id: item.id ?? item.historyId ?? null,
     date: String(
       item.changedAt ?? item.date ?? "",
     )
@@ -300,4 +317,17 @@ export async function getTransactionHistories(
     content:
       item.summary ?? item.actionType ?? "-",
   }));
+
+  return {
+    histories,
+    pageInfo: {
+      page: payload?.pageInfo?.page ?? params.page ?? 0,
+      size: payload?.pageInfo?.size ?? params.size ?? histories.length,
+      totalElements:
+        payload?.pageInfo?.totalElements ?? histories.length,
+      totalPages:
+        payload?.pageInfo?.totalPages ?? (histories.length > 0 ? 1 : 0),
+      hasNext: payload?.pageInfo?.hasNext ?? false,
+    },
+  };
 }
