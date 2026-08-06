@@ -46,6 +46,14 @@ export default function Sidebar() {
     setDropdownOpen(false);
   };
 
+  useEffect(() => {
+  const width = collapsed ? "56px" : "240px";
+  document.documentElement.style.setProperty("--sidebar-width", width);
+  return () => {
+    document.documentElement.style.removeProperty("--sidebar-width");
+  };
+}, [collapsed]);
+
   return (
     <aside
       className={[styles.sidebar, collapsed ? styles.collapsed : ""]

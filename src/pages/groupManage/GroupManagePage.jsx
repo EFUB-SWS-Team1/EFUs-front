@@ -113,14 +113,9 @@ export default function GroupManagePage() {
   }
 
  return (
-  <div
-    className={[
-      styles.pageRoot,
-      selectedMemberId != null ? styles.pageRootWithPanel : '',
-    ]
-      .filter(Boolean)
-      .join(' ')}
-  >
+ 
+  <div className={styles.pageRoot}>
+    
     <MemberDetailPanel
       isOpen={selectedMemberId != null}
       detail={memberDetail}
