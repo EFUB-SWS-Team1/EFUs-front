@@ -24,7 +24,6 @@ export default function MemberDetailPanel({
   onClose,
 }) {
   const [charges, setCharges] = useState([]);
-  const [paymentStatus, setPaymentStatus] = useState("");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [chargesLoading, setChargesLoading] = useState(false);
@@ -37,7 +36,7 @@ export default function MemberDetailPanel({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setChargesLoading(true);
     setChargesError("");
-    getMemberCharges(termId, termMemberId, { paymentStatus, page, size: 7 })
+    getMemberCharges(termId, termMemberId, { page, size: 7 })
       .then((result) => {
         if (!active) return;
         setCharges(result.content);
@@ -48,17 +47,14 @@ export default function MemberDetailPanel({
       })
       .finally(() => { if (active) setChargesLoading(false); });
     return () => { active = false; };
-  }, [isOpen, page, paymentStatus, termId, termMemberId]);
+  }, [isOpen, page, termId, termMemberId]);
 
   if (!isOpen) return null;
 
   const member = detail?.member;
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
-
-      <aside className={styles.panel}>
+      <aside className={styles.panel} aria-label="구성원 상세">
         <button
           type="button"
           className={styles.closeBtn}
@@ -76,7 +72,15 @@ export default function MemberDetailPanel({
             {/* 상단: 프로필 (460 × padding 40, gap 12) */}
             <div className={styles.headerSection}>
               <div className={styles.profileRow}>
-                <div className={styles.avatar} aria-hidden="true" />
+                {member.profileImageUrl ? (
+                  <img
+                    className={styles.avatar}
+                    src={member.profileImageUrl}
+                    alt=""
+                  />
+                ) : (
+                  <div className={styles.avatar} aria-hidden="true" />
+                )}
 
                 <div className={styles.profileInfo}>
                   <div className={styles.nameRow}>
@@ -121,11 +125,8 @@ export default function MemberDetailPanel({
               </div>
 
               <h3 className={styles.duesTitle}>회비 납부 현황</h3>
-              <select value={paymentStatus} onChange={(event) => { setPaymentStatus(event.target.value); setPage(0); }} aria-label="납부 상태 필터">
-                <option value="">전체</option><option value="PAID">납부</option><option value="UNPAID">미납</option>
-              </select>
-              {chargesLoading && <p>불러오는 중...</p>}
-              {!chargesLoading && chargesError && <p>{chargesError}</p>}
+              {chargesLoading && <p className={styles.message}>불러오는 중...</p>}
+              {!chargesLoading && chargesError && <p className={styles.message}>{chargesError}</p>}
               <ul className={styles.duesList}>
                 {charges.map((due) => {
                   const status = DUE_STATUS[due.status] ?? DUE_STATUS.unpaid;
@@ -137,10 +138,13 @@ export default function MemberDetailPanel({
                             <p className={styles.dueLabel}>{due.label}</p>
                             <p className={styles.dueMeta}>
                               1인당 {formatCurrency(due.amount)} · 기한{" "}
-                              {due.dueDate}
+                              {formatDueDate(due.dueDate)}
                             </p>
                           </div>
-                          <PermissionBadge variant={status.variant}>
+                          <PermissionBadge
+                            variant={status.variant}
+                            className={styles.dueStatusBadge}
+                          >
                             {status.label}
                           </PermissionBadge>
                         </div>
@@ -149,12 +153,17 @@ export default function MemberDetailPanel({
                   );
                 })}
               </ul>
-              {!chargesLoading && !chargesError && charges.length === 0 && <p>회비 내역이 없습니다.</p>}
-              {totalPages > 1 && <div><button type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>이전</button><span>{page + 1} / {totalPages}</span><button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage((value) => value + 1)}>다음</button></div>}
+              {!chargesLoading && !chargesError && charges.length === 0 && <p className={styles.message}>회비 내역이 없습니다.</p>}
+              {totalPages > 1 && <div className={styles.pagination}><button type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>이전</button><span>{page + 1} / {totalPages}</span><button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage((value) => value + 1)}>다음</button></div>}
             </div>
           </>
         )}
       </aside>
-    </>
   );
+}
+
+function formatDueDate(dateValue) {
+  if (!dateValue) return "-";
+  const parts = String(dateValue).split("-");
+  return parts.length >= 3 ? `${parts[1]}.${parts[2].slice(0, 2)}` : dateValue;
 }
