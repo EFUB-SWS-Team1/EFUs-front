@@ -1,16 +1,5 @@
 import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = true;
-
-/** 'empty' | 'with-orgs' */
-const MOCK_MODE = "with-orgs";
-
-const MOCK_ORGS = [
-  { id: "efub", name: "EFUB", memberCount: 25 },
-  { id: "book-club", name: "독서 모임", memberCount: 30 },
-  { id: "student-council", name: "학생회", memberCount: 17 },
-];
-
 function mapOrg(item) {
   return {
     id: item.id ?? item.organizationId,
@@ -46,14 +35,17 @@ function todayDateString() {
 }
 
 export async function getMyOrganizations() {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 300));
-    return MOCK_MODE === "empty" ? [] : MOCK_ORGS;
-  }
-
-  const { data } = await axiosInstance.get("/organizations");
-  const list = Array.isArray(data) ? data : data?.content ?? data?.organizations ?? [];
+  const response = await axiosInstance.get("/organizations");
+  const payload = response.data?.data;
+  const list = Array.isArray(payload)
+    ? payload
+    : payload?.content ?? payload?.organizations ?? [];
   return list.map(mapOrg);
+}
+
+export async function getOrganization(organizationId) {
+  const response = await axiosInstance.get(`/organizations/${organizationId}`);
+  return mapOrg(response.data?.data);
 }
 
 export async function createOrganization({
@@ -61,22 +53,14 @@ export async function createOrganization({
   initialTermName,
   initialTermStartDate,
 }) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 300));
-    if (!name.trim()) throw new Error("단체명을 입력해주세요");
-    return {
-      org: { id: "new-org", name: name.trim(), memberCount: 1 },
-      inviteCodes: { staff: "AB1C34", general: "F2XC4L" },
-    };
-  }
-
   const body = {
     name: name.trim(),
     initialTermName: initialTermName?.trim() || "1기",
     initialTermStartDate: initialTermStartDate || todayDateString(),
   };
 
-  const { data } = await axiosInstance.post("/organizations", body);
+  const response = await axiosInstance.post("/organizations", body);
+  const data = response.data?.data;
 
   return {
     org: mapOrg(data.organization ?? data.org ?? data),
