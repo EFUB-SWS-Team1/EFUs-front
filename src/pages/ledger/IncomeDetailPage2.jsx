@@ -9,8 +9,6 @@ import {
   getCharge,
   getChargeHistories,
   getChargePaymentMembersPage,
-  payChargeMember,
-  reverseChargeMemberPayment,
 } from "../../api";
 
 function formatDisplayDate(dateStr) {
@@ -166,29 +164,6 @@ const IncomeDetailPage2 = () => {
 
     return () => { ignore = true; };
   }, [chargeId, keyword, paymentStatus, page]);
-
-  const handleStatusToggle = async (id) => {
-    if (!chargeId || incomeData.isDeleted) return;
-
-    const target = memberList.find((m) => m.id === id);
-    if (!target) return;
-
-    try {
-      setError("");
-      if (target.status === "pending") {
-        await payChargeMember(chargeId, id);
-      } else {
-        await reverseChargeMemberPayment(chargeId, id);
-      }
-      await reloadMembers(chargeId);
-      const detail = await getCharge(chargeId);
-      setIncomeData((prev) =>
-        mapChargeToView(detail, { ...prev, history: prev.history }),
-      );
-    } catch (err) {
-      setError(err.response?.data?.message ?? err.message ?? "납부 상태 변경에 실패했습니다.");
-    }
-  };
 
   const handleAllComplete = async () => {
     if (!chargeId || incomeData.isDeleted) return;
@@ -443,14 +418,11 @@ const IncomeDetailPage2 = () => {
                     <span className="target-name">{member.name}</span>
                     <span className="target-amount">{formatWon(member.assignedAmount)}</span>
                   </div>
-                  <button
-                    type="button"
+                  <span
                     className={`status-badge-btn ${isCompleted ? "completed" : "pending"}`}
-                    onClick={() => handleStatusToggle(member.chargeMemberId)}
-                    disabled={incomeData.isDeleted}
                   >
                     {isCompleted ? "완료" : "미납"}
-                  </button>
+                  </span>
                 </div>
               );
             })}
