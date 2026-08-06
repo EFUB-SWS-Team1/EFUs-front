@@ -347,6 +347,296 @@
   color: #ffffff;
 }
 
+/* =========================================================
+   8. 가계부 목록 - Figma 데스크톱 레이아웃
+   ========================================================= */
+
+.account-container {
+  width: 100%;
+  max-width: 1251px;
+  margin: 48px auto 60px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.account-header {
+  width: 100%;
+  height: 41px;
+  margin-bottom: 32px;
+}
+
+.account-header .add-btn {
+  min-height: 41px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.filter-section {
+  gap: 32px;
+  margin-bottom: 0;
+  padding-bottom: 32px;
+  border-bottom: 0;
+}
+
+.filter-period {
+  width: 486px;
+  min-height: 62px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.period-select-trigger {
+  width: 486px;
+  max-width: 100%;
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #555555;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.period-select-trigger:hover,
+.period-select-trigger:focus-visible,
+.period-select-trigger[aria-expanded="true"] {
+  border-color: #5b6cf9;
+  box-shadow: 0 0 0 3px rgba(91, 108, 249, 0.1);
+  outline: 0;
+}
+
+.period-select-trigger .calendar-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.period-picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: 486px;
+  max-width: 100%;
+  padding: 18px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(17, 17, 17, 0.1);
+  box-sizing: border-box;
+}
+
+.period-picker-dates {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.period-picker-dates label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #777777;
+  font-size: 12px;
+}
+
+.period-picker-dates input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  color: #555555;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.period-picker .period-divider {
+  padding-bottom: 10px;
+  color: #b5b5b5;
+  font-size: 16px;
+}
+
+.period-picker-actions {
+  min-height: 32px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.period-picker-actions button {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.period-reset-btn {
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  color: #777777;
+}
+
+.period-apply-btn {
+  border: 1px solid #5b6cf9;
+  background: #5b6cf9;
+  color: #ffffff;
+}
+
+.filter-section > .tab-group {
+  width: 219px;
+  height: 33px;
+  align-items: stretch;
+}
+
+.filter-section > .tab-group .tab-btn {
+  height: 33px;
+  padding: 7px 20px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.transaction-list {
+  padding: 32px 0;
+  border-top: 1px solid #eeeeee;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.transaction-list .date-group {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transaction-list .date-title {
+  margin: 0;
+}
+
+.transaction-list .table-card {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+}
+
+.transaction-list .table-header,
+.transaction-list .table-row {
+  grid-template-columns: minmax(180px, 1fr) minmax(320px, 2fr) minmax(160px, 1fr);
+  min-height: 43px;
+  height: auto;
+  padding: 12px 60px;
+}
+
+.transaction-list .col-amount {
+  text-align: right;
+}
+
+.transaction-list .col-desc {
+  text-align: center;
+}
+
+.transaction-list .table-row .col-amount {
+  font-weight: 600;
+}
+
+.ledger-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.ledger-page-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #555555;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 32px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.ledger-page-btn:not(:disabled):hover {
+  background: #f0f2ff;
+  color: #3340b0;
+}
+
+.ledger-page-btn:disabled {
+  color: #cccccc;
+  cursor: not-allowed;
+}
+
+.ledger-page-info {
+  min-width: 48px;
+  color: #555555;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 1320px) {
+  .account-container {
+    margin-top: 48px;
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-container {
+    margin-top: 24px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .filter-period,
+  .period-select-trigger,
+  .period-picker {
+    width: 100%;
+  }
+
+  .period-picker-dates {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .period-picker .period-divider {
+    display: none;
+  }
+
+
+  .transaction-list .table-header,
+  .transaction-list .table-row {
+    grid-template-columns: minmax(72px, 0.8fr) minmax(120px, 1.5fr) minmax(92px, 1fr);
+    padding: 12px 16px;
+    gap: 8px;
+    font-size: 14px;
+  }
+}
+
 /* 회비로 걷기 컨테이너 */
 .fee-checkbox-label {
   display: flex;
