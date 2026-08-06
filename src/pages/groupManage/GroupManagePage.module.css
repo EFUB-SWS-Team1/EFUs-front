@@ -1,8 +1,10 @@
 .page {
-  width: 100%;
+  min-width: 0;
+  width: auto;
+  flex: 1;
   max-width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 32px;
   background: transparent;
   min-height: 100%;
   display: flex;
@@ -229,7 +231,12 @@
 }
 
 .pageRoot {
-  position: relative;
+  width: calc(100% + 64px);
+  min-height: 100vh;
+  margin: -32px;
+  display: flex;
+  align-items: stretch;
   overflow-x: hidden;
+  box-sizing: border-box;
 }
 
