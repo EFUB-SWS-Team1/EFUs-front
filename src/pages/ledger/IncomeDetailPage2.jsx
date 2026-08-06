@@ -9,7 +9,9 @@ import {
   getCharge,
   getChargeHistories,
   getChargePaymentMembersPage,
+  payChargeMember,
 } from "../../api";
+import useGroup from "../../hooks/useGroup";
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "-";
@@ -52,6 +54,7 @@ function mapChargeToView(data, fallback = {}) {
 const IncomeDetailPage2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { role, termStatus } = useGroup();
 
   const initial = location.state?.incomeData;
 
@@ -79,9 +82,14 @@ const IncomeDetailPage2 = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [memberList, setMemberList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [payingMemberId, setPayingMemberId] = useState(null);
   const [error, setError] = useState("");
 
   const chargeId = initial?.id ?? incomeData.id;
+  const canManagePayments =
+    String(role ?? "").toUpperCase() === "STAFF" &&
+    String(termStatus ?? "").toUpperCase() === "ACTIVE" &&
+    !incomeData.isDeleted;
 
   async function reloadMembers(id) {
     const result = await getChargePaymentMembersPage(id, {
@@ -178,6 +186,30 @@ const IncomeDetailPage2 = () => {
       );
     } catch (err) {
       setError(err.response?.data?.message ?? err.message ?? "전체 납부 처리에 실패했습니다.");
+    }
+  };
+
+  const handleMemberPayment = async (member) => {
+    if (
+      !chargeId ||
+      !canManagePayments ||
+      member.status !== "pending" ||
+      payingMemberId !== null
+    ) return;
+
+    try {
+      setError("");
+      setPayingMemberId(member.chargeMemberId);
+      await payChargeMember(chargeId, member.chargeMemberId);
+      await reloadMembers(chargeId);
+      const detail = await getCharge(chargeId);
+      setIncomeData((prev) =>
+        mapChargeToView(detail, { ...prev, history: prev.history }),
+      );
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message ?? "납부 처리에 실패했습니다.");
+    } finally {
+      setPayingMemberId(null);
     }
   };
 
@@ -418,11 +450,14 @@ const IncomeDetailPage2 = () => {
                     <span className="target-name">{member.name}</span>
                     <span className="target-amount">{formatWon(member.assignedAmount)}</span>
                   </div>
-                  <span
+                  <button
+                    type="button"
                     className={`status-badge-btn ${isCompleted ? "completed" : "pending"}`}
+                    onClick={() => handleMemberPayment(member)}
+                    disabled={isCompleted || !canManagePayments || payingMemberId !== null}
                   >
                     {isCompleted ? "완료" : "미납"}
-                  </span>
+                  </button>
                 </div>
               );
             })}

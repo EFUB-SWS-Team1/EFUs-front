@@ -717,6 +717,13 @@
 .detail-container .status-badge-btn {
   min-width: 48px;
   justify-content: center;
+}
+
+.detail-container .status-badge-btn.pending:not(:disabled) {
+  cursor: pointer;
+}
+
+.detail-container .status-badge-btn:disabled {
   cursor: default;
 }
 

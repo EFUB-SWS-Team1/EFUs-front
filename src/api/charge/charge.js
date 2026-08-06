@@ -118,7 +118,7 @@ export async function deleteCharge(chargeId) {
 export async function payChargeMember(chargeId, chargeMemberId, paidAt) {
   const { data } = await axiosInstance.post(
     `/charges/${chargeId}/members/${chargeMemberId}/payment`,
-    paidAt ? { paidAt } : {},
+    paidAt ? { paidAt } : undefined,
   );
   return unwrap(data);
 }
