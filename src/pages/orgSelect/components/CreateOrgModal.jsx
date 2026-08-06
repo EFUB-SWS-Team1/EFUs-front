@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import modalStyles from "./orgSelectModal.module.css";
 
 export default function CreateOrgModal({ isOpen, onClose, onSubmit }) {
@@ -7,6 +7,12 @@ export default function CreateOrgModal({ isOpen, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = name.trim().length > 0;
+
+  const handleClose = useCallback(() => {
+    setName("");
+    setError("");
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -22,15 +28,9 @@ export default function CreateOrgModal({ isOpen, onClose, onSubmit }) {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [handleClose, isOpen]);
 
   if (!isOpen) return null;
-
-  const handleClose = () => {
-    setName("");
-    setError("");
-    onClose();
-  };
 
   const handleSubmit = async () => {
     if (!isValid) return;

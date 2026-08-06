@@ -36,6 +36,18 @@ export default function GenerationCloseModal({
   onClose,
   onSubmit,
 }) {
+  if (!isOpen) return null;
+
+  return (
+    <GenerationCloseModalContent
+      generationLabel={generationLabel}
+      onClose={onClose}
+      onSubmit={onSubmit}
+    />
+  );
+}
+
+function GenerationCloseModalContent({ generationLabel, onClose, onSubmit }) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -44,8 +56,6 @@ export default function GenerationCloseModal({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose?.();
     };
@@ -56,23 +66,12 @@ export default function GenerationCloseModal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedDate("");
-      setShowCalendar(false);
-      setViewYear(today.getFullYear());
-      setViewMonth(today.getMonth());
-    }
-  }, [isOpen]);
+  }, [onClose]);
 
   const calendar = useMemo(
     () => buildCalendar(viewYear, viewMonth),
     [viewYear, viewMonth],
   );
-
-  if (!isOpen) return null;
 
   function handlePrevMonth() {
     if (viewMonth === 0) {

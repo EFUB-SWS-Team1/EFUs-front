@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./ExpensePage.css";

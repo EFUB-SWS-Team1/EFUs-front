@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { Button } from "../../components/common";
@@ -74,82 +74,86 @@ export default function GroupManagePage() {
   const [isCloseOpen, setIsCloseOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-  const [memberDetail, setMemberDetail] = useState(null);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detailError, setDetailError] = useState("");
+  const [detailResult, setDetailResult] = useState({
+    requestKey: "",
+    detail: null,
+    error: "",
+  });
 
   const isStaff = String(role).toUpperCase() === "STAFF";
   const isActive = String(termStatus).toUpperCase() === "ACTIVE";
-
-  const loadMembers = useCallback(async () => {
-    if (currentTermId == null) {
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await getMembers(currentTermId, {
-        keyword: search.trim(),
-        role: roleFilter,
-        page,
-        size: PAGE_SIZE,
-      });
-
-      setMembers(result.content);
-      setTotalElements(result.totalElements);
-    } catch (requestError) {
-      setError(errorMessage(requestError));
-      setMembers([]);
-      setTotalElements(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentTermId, page, roleFilter, search]);
+  const detailRequestKey = selectedMemberId && currentTermId != null
+    ? `${currentTermId}:${selectedMemberId}`
+    : "";
+  const hasCurrentDetail = detailResult.requestKey === detailRequestKey;
+  const memberDetail = hasCurrentDetail ? detailResult.detail : null;
+  const detailError = hasCurrentDetail ? detailResult.error : "";
+  const detailLoading = Boolean(detailRequestKey) && !hasCurrentDetail;
 
   useEffect(() => {
-    // Async API synchronization intentionally starts when query state changes.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadMembers();
-  }, [loadMembers]);
-
-  useEffect(() => {
-    if (!selectedMemberId || currentTermId == null) {
-      setMemberDetail(null);
-      setDetailError("");
-      return;
-    }
+    if (currentTermId == null) return;
 
     let active = true;
 
-    // Async API synchronization intentionally starts for the URL member id.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDetailLoading(true);
-    setDetailError("");
+    async function loadMembers() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const result = await getMembers(currentTermId, {
+          keyword: search.trim(),
+          role: roleFilter,
+          page,
+          size: PAGE_SIZE,
+        });
+
+        if (active) {
+          setMembers(result.content);
+          setTotalElements(result.totalElements);
+        }
+      } catch (requestError) {
+        if (active) {
+          setError(errorMessage(requestError));
+          setMembers([]);
+          setTotalElements(0);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadMembers();
+
+    return () => {
+      active = false;
+    };
+  }, [currentTermId, page, roleFilter, search]);
+
+  useEffect(() => {
+    if (!detailRequestKey) return;
+
+    let active = true;
 
     getMemberDetail(currentTermId, selectedMemberId)
       .then((detail) => {
         if (active) {
-          setMemberDetail(detail);
+          setDetailResult({ requestKey: detailRequestKey, detail, error: "" });
         }
       })
       .catch((requestError) => {
         if (active) {
-          setMemberDetail(null);
-          setDetailError(errorMessage(requestError));
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setDetailLoading(false);
+          setDetailResult({
+            requestKey: detailRequestKey,
+            detail: null,
+            error: errorMessage(requestError),
+          });
         }
       });
 
     return () => {
       active = false;
     };
-  }, [currentTermId, selectedMemberId]);
+  }, [currentTermId, detailRequestKey, selectedMemberId]);
 
   const totalPages = Math.max(
     1,
