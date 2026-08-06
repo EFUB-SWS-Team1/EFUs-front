@@ -169,6 +169,6 @@ EFUs의 전체 API 명세는 아래 문서에서 확인할 수 있습니다.
 
 EFUs 프론트엔드 개발 과정에서 발생한 문제와 해결 과정을 정리했습니다.
 
-[EFUs 프론트엔드 트러블 슈팅 보러가기 ✔️](https://efub.notion.site/3aae1ad1c5f080458de7e0bde1c96dff?source=copy_link)
+[EFUs 프론트엔드 트러블 슈팅 보러가기 ✔️](https://app.notion.com/p/efub/3b4e1ad1c5f080eea4a5e58b286ba337)
 
 </br></br>
