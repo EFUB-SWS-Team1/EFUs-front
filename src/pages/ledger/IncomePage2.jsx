@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
 import "./IncomePage2.css";
-import { createCharge, getChargeMembers, previewCharge } from "../../api";
+import {
+  buildChargeAssignment,
+  createCharge,
+  getCharge,
+  getChargeFundings,
+  getChargeMembers,
+  getChargePaymentMembers,
+  previewCharge,
+  updateCharge,
+} from "../../api";
 import useGroup from "../../hooks/useGroup";
 
 const IncomePage2 = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentTermId } = useGroup();
+  const chargeId = location.state?.chargeId ?? location.state?.incomeData?.id;
+  const isEditMode = chargeId != null;
 
   const [billingType, setBillingType] = useState("individual"); // individual | nppang
   const [formData, setFormData] = useState({
@@ -30,13 +42,9 @@ const IncomePage2 = () => {
   const [preview, setPreview] = useState(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState("");
-
-  const eventOptions = [
-    "2월 MT",
-    "1학기 종강파티",
-    "8월 MT",
-    "여름방학 해커톤",
-  ];
+  const [eventOptions, setEventOptions] = useState([]);
+  const [original, setOriginal] = useState(null);
+  const [hasPaidMembers, setHasPaidMembers] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -48,8 +56,14 @@ const IncomePage2 = () => {
           if (!ignore) setMemberList([]);
           return;
         }
-        const members = await getChargeMembers(currentTermId);
-        if (!ignore) setMemberList(members);
+        const [members, fundings] = await Promise.all([
+          getChargeMembers(currentTermId),
+          getChargeFundings(currentTermId),
+        ]);
+        if (!ignore) {
+          setMemberList(members);
+          setEventOptions(fundings);
+        }
       } catch (err) {
         if (!ignore) {
           setMemberList([]);
@@ -65,6 +79,33 @@ const IncomePage2 = () => {
       ignore = true;
     };
   }, [currentTermId]);
+
+  useEffect(() => {
+    if (!isEditMode) return;
+    let ignore = false;
+    Promise.all([getCharge(chargeId), getChargePaymentMembers(chargeId)])
+      .then(([detail, members]) => {
+        if (ignore) return;
+        const method = detail.chargeMethod ?? "PER_PERSON";
+        const selectedIds = (detail.targetTermMemberIds ?? members.map((m) => m.termMemberId)).filter(Boolean);
+        const next = {
+          title: detail.title ?? "",
+          amount: String(detail.perPersonAmount ?? detail.totalAmount ?? detail.requestedAmount ?? ""),
+          date: String(detail.dueDate ?? "").slice(0, 10),
+          event: detail.fundingId == null ? "" : String(detail.fundingId),
+          memo: detail.memo ?? "",
+        };
+        setBillingType(method === "EQUAL_SPLIT" ? "nppang" : "individual");
+        setSelectedTargets(selectedIds);
+        setFormData(next);
+        setOriginal({ ...detail, formData: next, selectedTargets: selectedIds });
+        setHasPaidMembers(
+          Number(detail.paidCount ?? 0) > 0 || members.some((m) => m.status === "completed"),
+        );
+      })
+      .catch((err) => setSubmitError(err.response?.data?.message ?? err.message ?? "청구 정보를 불러오지 못했습니다."));
+    return () => { ignore = true; };
+  }, [chargeId, isEditMode]);
 
   const sortedMemberList = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -85,7 +126,7 @@ const IncomePage2 = () => {
   };
 
   const handleSelectEvent = (option) => {
-    setFormData((prev) => ({ ...prev, event: option }));
+    setFormData((prev) => ({ ...prev, event: String(option.id) }));
     setIsDropdownOpen(false);
   };
 
@@ -135,14 +176,12 @@ const IncomePage2 = () => {
       setIsPreviewLoading(true);
       setPreviewError("");
       try {
-        const result = await previewCharge(currentTermId, {
+        const result = await previewCharge(currentTermId, buildChargeAssignment({
           chargeMethod: billingType === "individual" ? "PER_PERSON" : "EQUAL_SPLIT",
           targetMode: isAllSelected ? "ALL_ACTIVE" : "SELECTED",
-          ...(isAllSelected ? {} : { targetTermMemberIds: selectedTargets }),
-          ...(billingType === "individual"
-            ? { perPersonAmount: rawAmount }
-            : { totalAmount: rawAmount }),
-        });
+          targetTermMemberIds: selectedTargets,
+          amount: rawAmount,
+        }));
         if (!ignore) setPreview({ key: previewKey, data: result });
       } catch (err) {
         if (!ignore) {
@@ -191,27 +230,43 @@ const IncomePage2 = () => {
       return;
     }
 
+    const assignment = buildChargeAssignment({
+      chargeMethod: billingType === "individual" ? "PER_PERSON" : "EQUAL_SPLIT",
+      targetMode: isAllSelected ? "ALL_ACTIVE" : "SELECTED",
+      targetTermMemberIds: selectedTargets,
+      amount: rawAmount,
+    });
     const payload = {
       title: formData.title.trim(),
-      chargeMethod: billingType === "individual" ? "PER_PERSON" : "EQUAL_SPLIT",
       dueDate: formData.date,
-      fundingId: null, // TODO: 행사 → fundingId
+      fundingId: formData.event ? Number(formData.event) : null,
       memo: formData.memo || null,
-      targetMode: isAllSelected ? "ALL_ACTIVE" : "SELECTED",
-      ...(isAllSelected
-        ? {}
-        : { targetTermMemberIds: selectedTargets }),
-      ...(billingType === "individual"
-        ? { perPersonAmount: rawAmount }
-        : { totalAmount: rawAmount }),
+      ...assignment,
     };
 
     try {
       setIsSubmitting(true);
       setSubmitError("");
 
+      if (isEditMode) {
+        const editablePayload = hasPaidMembers
+          ? { title: payload.title, dueDate: payload.dueDate, fundingId: payload.fundingId, memo: payload.memo }
+          : payload;
+        const changedPayload = Object.fromEntries(Object.entries(editablePayload).filter(([key, value]) => {
+          const previous = key === "dueDate" ? original?.dueDate
+            : key === "fundingId" ? original?.fundingId
+              : key === "memo" ? (original?.memo ?? null)
+                : key === "title" ? original?.title
+                  : undefined;
+          return previous === undefined || JSON.stringify(previous) !== JSON.stringify(value);
+        }));
+        if (Object.keys(changedPayload).length > 0) await updateCharge(chargeId, changedPayload);
+        navigate("/income-detail2", { state: { incomeData: { id: chargeId } }, replace: true });
+        return;
+      }
+
       const created = await createCharge(currentTermId, payload);
-      const chargeId = created.id ?? created.chargeId;
+      const createdChargeId = created.id ?? created.chargeId;
 
       const today = new Date();
       const formattedDate = `${today.getFullYear()}.${String(
@@ -219,7 +274,7 @@ const IncomePage2 = () => {
       ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
 
       const incomeData = {
-        id: chargeId,
+        id: createdChargeId,
         billingType,
         title: formData.title,
         registrationDate: formattedDate,
@@ -233,7 +288,7 @@ const IncomePage2 = () => {
 
       navigate("/income-detail2", { state: { incomeData } });
     } catch (err) {
-      setSubmitError(err.message ?? "회비 청구 등록에 실패했습니다.");
+      setSubmitError(err.response?.data?.message ?? err.message ?? "회비 청구 저장에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -246,7 +301,7 @@ const IncomePage2 = () => {
       <div className="billing-type-container">
         <div
           className={`billing-card ${billingType === "individual" ? "active" : ""}`}
-          onClick={() => setBillingType("individual")}
+          onClick={() => !hasPaidMembers && setBillingType("individual")}
         >
           <div className="billing-card-header">
             <span className="custom-radio"></span>
@@ -257,7 +312,7 @@ const IncomePage2 = () => {
 
         <div
           className={`billing-card ${billingType === "nppang" ? "active" : ""}`}
-          onClick={() => setBillingType("nppang")}
+          onClick={() => !hasPaidMembers && setBillingType("nppang")}
         >
           <div className="billing-card-header">
             <span className="custom-radio"></span>
@@ -289,6 +344,7 @@ const IncomePage2 = () => {
               name="amount"
               value={formData.amount}
               onChange={handleChange}
+              disabled={hasPaidMembers}
               placeholder=""
             />
           </div>
@@ -317,7 +373,7 @@ const IncomePage2 = () => {
               className={`custom-select ${isDropdownOpen ? "open" : ""}`}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              <span>{formData.event}</span>
+              <span>{eventOptions.find((option) => String(option.id) === formData.event)?.name ?? ""}</span>
               {isDropdownOpen ? (
                 <ChevronUp className="icon dropdown-icon" size={18} />
               ) : (
@@ -329,11 +385,11 @@ const IncomePage2 = () => {
               <ul className="dropdown-menu">
                 {eventOptions.map((option) => (
                   <li
-                    key={option}
-                    className={formData.event === option ? "selected" : ""}
+                    key={option.id}
+                    className={formData.event === String(option.id) ? "selected" : ""}
                     onClick={() => handleSelectEvent(option)}
                   >
-                    {option}
+                    {option.name}
                   </li>
                 ))}
               </ul>
@@ -370,6 +426,7 @@ const IncomePage2 = () => {
               type="button"
               className="btn-bulk-select"
               onClick={handleSelectAll}
+              disabled={hasPaidMembers}
             >
               전체 일괄 청구
             </button>
@@ -393,6 +450,7 @@ const IncomePage2 = () => {
                       key={member.id}
                       className={`target-item ${isChecked ? "checked" : ""}`}
                       onClick={() => handleTargetToggle(member.id)}
+                      style={hasPaidMembers ? { pointerEvents: "none", opacity: 0.65 } : undefined}
                     >
                       <div
                         className={`checkbox-custom ${isChecked ? "checked" : ""}`}
@@ -459,7 +517,7 @@ const IncomePage2 = () => {
             className="btn btn-submit register-mode"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "등록 중..." : "등록"}
+            {isSubmitting ? "저장 중..." : isEditMode ? "저장" : "등록"}
           </button>
         </div>
       </form>

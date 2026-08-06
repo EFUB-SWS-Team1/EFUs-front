@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import "./IncomeDetailPage2.css";
@@ -44,6 +44,10 @@ function mapChargeToView(data, fallback = {}) {
     unpaidAmount: data.unpaidAmount ?? 0,
     paidCount: data.paidCount ?? null,
     unpaidCount: data.unpaidCount ?? null,
+    paymentStatus: data.paymentStatus ?? fallback.paymentStatus ?? "UNPAID",
+    chargeMethod: data.chargeMethod ?? fallback.chargeMethod,
+    fundingId: data.fundingId ?? fallback.fundingId ?? null,
+    deletedAt: data.deletedAt ?? null,
   };
 }
 
@@ -109,7 +113,7 @@ const IncomeDetailPage2 = () => {
         setMemberList(members);
       } catch (err) {
         if (!ignore) {
-          setError(err.message ?? "회비 상세를 불러오지 못했습니다.");
+          setError(err.response?.data?.message ?? err.message ?? "회비 상세를 불러오지 못했습니다.");
           // 등록 직후 state만 있어도 화면은 보이게
           if (initial) setIncomeData((prev) => ({ ...prev, id: chargeId }));
         }
@@ -144,7 +148,7 @@ const IncomeDetailPage2 = () => {
         mapChargeToView(detail, { ...prev, history: prev.history }),
       );
     } catch (err) {
-      setError(err.message ?? "납부 상태 변경에 실패했습니다.");
+      setError(err.response?.data?.message ?? err.message ?? "납부 상태 변경에 실패했습니다.");
     }
   };
 
@@ -160,14 +164,14 @@ const IncomeDetailPage2 = () => {
         mapChargeToView(detail, { ...prev, history: prev.history }),
       );
     } catch (err) {
-      setError(err.message ?? "전체 납부 처리에 실패했습니다.");
+      setError(err.response?.data?.message ?? err.message ?? "전체 납부 처리에 실패했습니다.");
     }
   };
 
-  const completedCount = memberList.filter(
+  const completedCount = incomeData.paidCount ?? memberList.filter(
     (m) => m.status === "completed",
   ).length;
-  const pendingCount = memberList.filter((m) => m.status === "pending").length;
+  const pendingCount = incomeData.unpaidCount ?? memberList.filter((m) => m.status === "pending").length;
 
   const paidAmountSum = useMemo(() => {
     if (incomeData.paidAmount != null && incomeData.paidAmount !== 0) {
@@ -192,10 +196,16 @@ const IncomeDetailPage2 = () => {
     try {
       await deleteCharge(chargeId);
       const today = formatDisplayDate(new Date().toISOString());
+      let refreshed = {};
+      try {
+        refreshed = await getCharge(chargeId);
+      } catch {
+        // 삭제 직후 조회가 지연되거나 204 응답이어도 삭제 성공 상태는 유지한다.
+      }
       setIncomeData((prev) => ({
-        ...prev,
-        isDeleted: true,
-        deletedDate: today,
+        ...mapChargeToView(refreshed, prev),
+        isDeleted: refreshed.deleted ?? true,
+        deletedDate: formatDisplayDate(refreshed.deletedAt) || today,
         history: [
           { date: today, author: "나", content: "삭제" },
           ...(prev.history ?? []),
@@ -203,7 +213,7 @@ const IncomeDetailPage2 = () => {
       }));
       setIsDeleteModalOpen(false);
     } catch (err) {
-      setError(err.message ?? "삭제에 실패했습니다.");
+      setError(err.response?.data?.message ?? err.message ?? "삭제에 실패했습니다.");
       setIsDeleteModalOpen(false);
     }
   };
@@ -219,7 +229,7 @@ const IncomeDetailPage2 = () => {
           {/* 회비 수정 화면이 따로 없으면 일단 비활성/또는 기존 경로 유지 */}
           <button
             className="btn-action btn-edit"
-            onClick={() => navigate("/income-edit", { state: { incomeData } })}
+            onClick={() => navigate("/income2", { state: { chargeId } })}
             disabled={incomeData.isDeleted}
           >
             수정
@@ -329,6 +339,10 @@ const IncomeDetailPage2 = () => {
         <div className="summary-card">
           <span className="summary-card-label">미납</span>
           <span className="summary-card-value">{pendingCount}명</span>
+        </div>
+        <div className="summary-card">
+          <span className="summary-card-label">전체 납부 상태</span>
+          <span className="summary-card-value">{incomeData.paymentStatus}</span>
         </div>
       </div>
 

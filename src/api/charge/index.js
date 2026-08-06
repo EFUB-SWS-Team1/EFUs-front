@@ -1,12 +1,15 @@
 export {
   bulkPayCharge,
+  buildChargeAssignment,
   createCharge,
   deleteCharge,
   getCharge,
+  getChargeFundings,
   getChargeHistories,
   getChargeMembers,
   getChargePaymentMembers,
   payChargeMember,
   previewCharge,
   reverseChargeMemberPayment,
+  updateCharge,
 } from "./charge";
