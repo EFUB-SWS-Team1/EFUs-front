@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
 import "./IncomePage2.css";
-import { createCharge, getChargeMembers } from "../../api/charge/charge";
+import { createCharge, getChargeMembers } from "../../api";
 
 const TERM_ID = 1; // 나중에 실제 termId로
 

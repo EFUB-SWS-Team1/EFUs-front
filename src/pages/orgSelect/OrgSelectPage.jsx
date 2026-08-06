@@ -9,8 +9,11 @@ import InviteCodeModal from "./components/InviteCodeModal";
 import CreateOrgModal from "./components/CreateOrgModal";
 import CreateOrgSuccessModal from "./components/CreateOrgSuccessModal";
 import styles from "./OrgSelectPage.module.css";
-import { getMyOrganizations, createOrganization } from "../../api/organization/orgSelect";
-import { joinOrganizationByCode } from "../../api/invitation/invitation";
+import {
+  createOrganization,
+  getMyOrganizations,
+  joinOrganizationByCode,
+} from "../../api";
 
 export default function OrgSelectPage() {
   const { user } = useAuth();

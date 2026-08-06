@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./IncomePage1.css";
 import FolderIcon from "../../assets/Folder plus.svg";
-import { createTransaction, uploadReceipt } from "../../api/transaction/ledger";
+import { createTransaction, uploadReceipt } from "../../api";
 
 const TERM_ID = 1; // 나중에 실제 termId로 교체
 

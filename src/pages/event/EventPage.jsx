@@ -7,7 +7,7 @@ import EventFormModal from "./components/EventFormModal";
 import styles from "./EventPage.module.css";
 import eventIcon from "../../assets/efub로고2.svg";
 import plusIcon from "../../assets/plusIcon.svg";
-import { createEvent, getEvents } from "../../api/funding/event";
+import { createEvent, getEvents } from "../../api";
 const GENERATION_ID = "efub-6";
 
 export default function EventPage() {
