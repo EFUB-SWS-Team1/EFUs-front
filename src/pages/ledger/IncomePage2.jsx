@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp, Search, Check } from "lucide-react";
 import "./IncomePage2.css";
-import { createCharge, getChargeMembers } from "../../api";
-
-const TERM_ID = 1; // 나중에 실제 termId로
+import { createCharge, getChargeMembers, previewCharge } from "../../api";
+import useGroup from "../../hooks/useGroup";
 
 const IncomePage2 = () => {
   const navigate = useNavigate();
+  const { currentTermId } = useGroup();
 
   const [billingType, setBillingType] = useState("individual"); // individual | nppang
   const [formData, setFormData] = useState({
@@ -27,6 +27,9 @@ const IncomePage2 = () => {
   const [isLoadingMembers, setIsLoadingMembers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState("");
 
   const eventOptions = [
     "2월 MT",
@@ -41,7 +44,11 @@ const IncomePage2 = () => {
     async function loadMembers() {
       setIsLoadingMembers(true);
       try {
-        const members = await getChargeMembers(TERM_ID);
+        if (currentTermId == null) {
+          if (!ignore) setMemberList([]);
+          return;
+        }
+        const members = await getChargeMembers(currentTermId);
         if (!ignore) setMemberList(members);
       } catch (err) {
         if (!ignore) {
@@ -57,7 +64,7 @@ const IncomePage2 = () => {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [currentTermId]);
 
   const sortedMemberList = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -106,18 +113,59 @@ const IncomePage2 = () => {
     }
   };
 
-  const calculateTotalAmount = () => {
-    const rawAmount =
-      parseInt(String(formData.amount).replace(/[^0-9]/g, ""), 10) || 0;
-    if (billingType === "individual") {
-      return rawAmount * selectedTargets.length;
-    }
-    return rawAmount;
-  };
+  const rawAmount =
+    parseInt(String(formData.amount).replace(/[^0-9]/g, ""), 10) || 0;
+  const isAllSelected =
+    memberList.length > 0 && selectedTargets.length === memberList.length;
+  const canPreview =
+    currentTermId != null && rawAmount > 0 && selectedTargets.length > 0;
+  const previewKey = [
+    currentTermId,
+    billingType,
+    isAllSelected ? "ALL_ACTIVE" : "SELECTED",
+    rawAmount,
+    selectedTargets.join(","),
+  ].join(":");
 
-  const totalCalculated = calculateTotalAmount();
-  const formattedTotalAmount =
-    totalCalculated > 0 ? `${totalCalculated.toLocaleString()}원` : "- 원";
+  useEffect(() => {
+    if (!canPreview) return;
+
+    let ignore = false;
+    const timer = window.setTimeout(async () => {
+      setIsPreviewLoading(true);
+      setPreviewError("");
+      try {
+        const result = await previewCharge(currentTermId, {
+          chargeMethod: billingType === "individual" ? "PER_PERSON" : "EQUAL_SPLIT",
+          targetMode: isAllSelected ? "ALL_ACTIVE" : "SELECTED",
+          ...(isAllSelected ? {} : { targetTermMemberIds: selectedTargets }),
+          ...(billingType === "individual"
+            ? { perPersonAmount: rawAmount }
+            : { totalAmount: rawAmount }),
+        });
+        if (!ignore) setPreview({ key: previewKey, data: result });
+      } catch (err) {
+        if (!ignore) {
+          setPreview(null);
+          setPreviewError(err.message ?? "청구 금액을 미리 계산하지 못했습니다.");
+        }
+      } finally {
+        if (!ignore) setIsPreviewLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      ignore = true;
+      window.clearTimeout(timer);
+    };
+  }, [billingType, canPreview, currentTermId, isAllSelected, previewKey, rawAmount, selectedTargets]);
+
+  const activePreview = canPreview && preview?.key === previewKey
+    ? preview.data
+    : null;
+  const formattedTotalAmount = activePreview
+    ? `${Number(activePreview.requestedAmount ?? activePreview.totalAmount ?? 0).toLocaleString()}원`
+    : "- 원";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -130,12 +178,10 @@ const IncomePage2 = () => {
       alert("청구 대상을 선택해주세요.");
       return;
     }
-
-    const rawAmount =
-      parseInt(String(formData.amount).replace(/[^0-9]/g, ""), 10) || 0;
-
-    const isAllSelected =
-      memberList.length > 0 && selectedTargets.length === memberList.length;
+    if (currentTermId == null) {
+      setSubmitError("선택된 기수 정보를 확인해주세요.");
+      return;
+    }
 
     const payload = {
       title: formData.title.trim(),
@@ -156,7 +202,7 @@ const IncomePage2 = () => {
       setIsSubmitting(true);
       setSubmitError("");
 
-      const created = await createCharge(TERM_ID, payload);
+      const created = await createCharge(currentTermId, payload);
       const chargeId = created.id ?? created.chargeId;
 
       const today = new Date();
@@ -384,6 +430,29 @@ const IncomePage2 = () => {
           </div>
           <div className="total-billing-value">{formattedTotalAmount}</div>
         </div>
+
+        {canPreview && isPreviewLoading && <p className="preview-message">금액 계산 중...</p>}
+        {canPreview && previewError && <p className="preview-message error">{previewError}</p>}
+        {activePreview && !isPreviewLoading && (
+          <div className="charge-preview-details">
+            <div className="preview-metrics">
+              <span>배정 금액 <strong>{Number(activePreview.totalAmount ?? 0).toLocaleString()}원</strong></span>
+              <span>요청 금액 <strong>{Number(activePreview.requestedAmount ?? 0).toLocaleString()}원</strong></span>
+              <span>나머지 금액 <strong>{Number(activePreview.remainderAmount ?? 0).toLocaleString()}원</strong></span>
+              <span>대상 인원 <strong>{activePreview.targetCount ?? activePreview.members?.length ?? 0}명</strong></span>
+            </div>
+            {activePreview.members?.length > 0 && (
+              <div className="preview-member-list">
+                {activePreview.members.map((member) => (
+                  <div key={member.termMemberId} className="preview-member-row">
+                    <span>{member.name}</span>
+                    <strong>{Number(member.assignedAmount ?? 0).toLocaleString()}원</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {submitError && <p style={{ color: "red" }}>{submitError}</p>}
 

@@ -83,21 +83,11 @@ export async function createCharge(termId, payload) {
 
 /** (선택) 금액 미리 계산 */
 export async function previewCharge(termId, payload) {
-  if (USE_MOCK) {
-    const count = payload.targetTermMemberIds?.length ?? 0;
-    if (payload.chargeMethod === "PER_PERSON") {
-      return {
-        requestedAmount: (payload.perPersonAmount ?? 0) * count,
-      };
-    }
-    return { requestedAmount: payload.totalAmount ?? 0 };
-  }
-
   const { data } = await axiosInstance.post(
     `/terms/${termId}/charges/preview`,
     payload,
   );
-  return data;
+  return data?.data ?? data;
 }
 
 function unwrapChargeMembers(data) {
