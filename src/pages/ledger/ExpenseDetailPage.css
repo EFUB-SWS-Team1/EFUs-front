@@ -241,6 +241,27 @@
   font-size: 16px;
 }
 
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.history-pagination button {
+  padding: 8px 16px;
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.history-pagination button:disabled {
+  color: #b5b5b5;
+  cursor: not-allowed;
+}
+
 /* 열 간격 및 정렬 균형 맞추기 */
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
