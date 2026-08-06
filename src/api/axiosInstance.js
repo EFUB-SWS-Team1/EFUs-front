@@ -12,7 +12,9 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = normalizeAccessToken(
+      localStorage.getItem("accessToken"),
+    );
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -21,21 +23,54 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-let isRefreshing = false;
-let refreshSubscribers = [];
+let refreshPromise = null;
 
-function onTokenRefreshed(token) {
-  refreshSubscribers.forEach(({ resolve }) => resolve(token));
-  refreshSubscribers = [];
+function normalizeAccessToken(accessToken) {
+  if (typeof accessToken !== "string") return null;
+
+  const normalizedToken = accessToken.trim().replace(/^Bearer\s+/i, "");
+  return normalizedToken || null;
 }
 
-function onRefreshFailed(error) {
-  refreshSubscribers.forEach(({ reject }) => reject(error));
-  refreshSubscribers = [];
+function getAuthorizationHeader(headers) {
+  if (typeof headers?.get === "function") {
+    return headers.get("Authorization");
+  }
+
+  return headers?.Authorization ?? headers?.authorization;
 }
 
-function addRefreshSubscriber(resolve, reject) {
-  refreshSubscribers.push({ resolve, reject });
+function getBearerToken(headers) {
+  const authorization = getAuthorizationHeader(headers);
+  return normalizeAccessToken(authorization);
+}
+
+function retryWithAccessToken(config, accessToken) {
+  const normalizedToken = normalizeAccessToken(accessToken);
+  if (!normalizedToken) {
+    return Promise.reject(new Error("유효한 accessToken이 없습니다."));
+  }
+
+  config.headers = config.headers ?? {};
+  config.headers.Authorization = `Bearer ${normalizedToken}`;
+  return axiosInstance(config);
+}
+
+function refreshAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = reissue()
+      .catch((error) => {
+        localStorage.removeItem("accessToken");
+        window.dispatchEvent(new Event("auth:unauthorized"));
+        window.location.href = "/";
+        throw error;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
 }
 
 axiosInstance.interceptors.response.use(
@@ -49,34 +84,28 @@ axiosInstance.interceptors.response.use(
 
     config._retry = true;
 
-    if (!isRefreshing) {
-      isRefreshing = true;
+    const failedAccessToken = getBearerToken(config.headers);
+    const currentAccessToken = normalizeAccessToken(
+      localStorage.getItem("accessToken"),
+    );
 
-      try {
-        const newAccessToken = await reissue();
-        onTokenRefreshed(newAccessToken);
-        isRefreshing = false;
-
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${newAccessToken}`;
-        return axiosInstance(config);
-      } catch (err) {
-        isRefreshing = false;
-        onRefreshFailed(err);
-        localStorage.removeItem("accessToken");
-        window.dispatchEvent(new Event("auth:unauthorized"));
-        window.location.href = "/";
-        return Promise.reject(err);
-      }
+    // A request sent with the old token can receive its 401 after another
+    // request has already completed reissue. Retry it with the current token
+    // instead of starting an unnecessary second reissue.
+    if (
+      failedAccessToken &&
+      currentAccessToken &&
+      failedAccessToken !== currentAccessToken
+    ) {
+      return retryWithAccessToken(config, currentAccessToken);
     }
 
-    return new Promise((resolve, reject) => {
-      addRefreshSubscriber((token) => {
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${token}`;
-        resolve(axiosInstance(config));
-      }, reject);
-    });
+    try {
+      const newAccessToken = await refreshAccessToken();
+      return retryWithAccessToken(config, newAccessToken);
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
+    }
   },
 );
 

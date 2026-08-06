@@ -14,12 +14,15 @@ export async function reissue() {
     { withCredentials: true },
   );
 
-  const newAccessToken = data?.data?.accessToken;
+  const accessToken = data?.data?.accessToken;
 
-  if (typeof newAccessToken !== "string" || !newAccessToken) {
+  if (typeof accessToken !== "string" || !accessToken.trim()) {
     throw new Error("accessToken이 응답에 없습니다.");
   }
 
+  // 백엔드 응답이 `Bearer <token>` 또는 순수 토큰 어느 형태여도
+  // localStorage에는 순수 토큰만 저장한다.
+  const newAccessToken = accessToken.trim().replace(/^Bearer\s+/i, "");
   localStorage.setItem("accessToken", newAccessToken);
   return newAccessToken;
 }
