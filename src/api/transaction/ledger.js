@@ -1,7 +1,5 @@
 import axiosInstance from "../axiosInstance";
 
-const USE_HISTORY_MOCK = true;
-
 function formatDisplayDate(dateString) {
   if (!dateString) return "";
 
@@ -219,10 +217,6 @@ export async function getTransactionHistories(
   transactionId,
   params = {},
 ) {
-  if (USE_HISTORY_MOCK) {
-    return [];
-  }
-
   const response = await axiosInstance.get(
     `/transactions/${transactionId}/histories`,
     {
@@ -237,9 +231,22 @@ export async function getTransactionHistories(
     ? payload
     : (payload?.histories ?? []);
 
-  return histories.map((item) => ({
-    date: formatDisplayDate(item.changedAt ?? item.date),
-    author: item.actorName ?? item.author ?? "-",
-    content: item.summary ?? item.actionType ?? "-",
-  }));
+  return {
+    histories: histories.map((item) => ({
+      id: item.historyId,
+      date: formatDisplayDate(item.changedAt ?? item.date),
+      author: item.actorName ?? item.author ?? "-",
+      content: item.summary ?? item.actionType ?? "-",
+      actionType: item.actionType,
+      beforeData: item.beforeData ?? null,
+      afterData: item.afterData ?? null,
+    })),
+    pageInfo: {
+      page: payload?.page ?? params.page ?? 0,
+      size: payload?.size ?? params.size ?? 20,
+      totalElements: payload?.totalElements ?? histories.length,
+      totalPages: payload?.totalPages ?? 0,
+      hasNext: payload?.hasNext ?? false,
+    },
+  };
 }

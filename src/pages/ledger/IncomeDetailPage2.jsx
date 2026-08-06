@@ -11,6 +11,8 @@ import {
   getChargePaymentMembersPage,
 } from "../../api";
 
+const HISTORY_PAGE_SIZE = 20;
+
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "-";
   return String(dateStr).slice(0, 10).replaceAll("-", ".");
@@ -78,6 +80,14 @@ const IncomeDetailPage2 = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [memberList, setMemberList] = useState([]);
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyPageInfo, setHistoryPageInfo] = useState({
+    page: 0,
+    size: HISTORY_PAGE_SIZE,
+    totalElements: 0,
+    totalPages: 0,
+    hasNext: false,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -92,6 +102,18 @@ const IncomeDetailPage2 = () => {
     });
     setMemberList(result.members);
     setTotalPages(result.totalPages);
+  }
+
+  async function reloadHistories(id) {
+    const historyData = await getChargeHistories(id, {
+      page: historyPage,
+      size: HISTORY_PAGE_SIZE,
+    });
+    setIncomeData((previous) => ({
+      ...previous,
+      history: historyData.histories,
+    }));
+    setHistoryPageInfo(historyData.pageInfo);
   }
 
   useEffect(() => {
@@ -111,9 +133,12 @@ const IncomeDetailPage2 = () => {
       setIsLoading(true);
       setError("");
       try {
-        const [detail, histories] = await Promise.all([
+        const [detail, historyData] = await Promise.all([
           getCharge(chargeId),
-          getChargeHistories(chargeId),
+          getChargeHistories(chargeId, {
+            page: historyPage,
+            size: HISTORY_PAGE_SIZE,
+          }),
         ]);
 
         if (ignore) return;
@@ -122,9 +147,10 @@ const IncomeDetailPage2 = () => {
           mapChargeToView(detail, {
             ...initial,
             id: chargeId,
-            history: histories,
+            history: historyData.histories,
           }),
         );
+        setHistoryPageInfo(historyData.pageInfo);
       } catch (err) {
         if (!ignore) {
           setError(err.response?.data?.message ?? err.message ?? "회비 상세를 불러오지 못했습니다.");
@@ -141,7 +167,7 @@ const IncomeDetailPage2 = () => {
       ignore = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chargeId]);
+  }, [chargeId, historyPage]);
 
   useEffect(() => {
     if (!chargeId) return;
@@ -162,7 +188,9 @@ const IncomeDetailPage2 = () => {
         if (!ignore) setError(err.response?.data?.message ?? err.message ?? "납부 현황을 불러오지 못했습니다.");
       });
 
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [chargeId, keyword, paymentStatus, page]);
 
   const handleAllComplete = async () => {
@@ -172,6 +200,7 @@ const IncomeDetailPage2 = () => {
       setError("");
       await bulkPayCharge(chargeId, { targetMode: "ALL_UNPAID" });
       await reloadMembers(chargeId);
+      await reloadHistories(chargeId);
       const detail = await getCharge(chargeId);
       setIncomeData((prev) =>
         mapChargeToView(detail, { ...prev, history: prev.history }),
@@ -197,35 +226,77 @@ const IncomeDetailPage2 = () => {
   }, [incomeData.paidAmount, memberList]);
 
   const handleDeleteConfirm = async () => {
-    if (!chargeId) {
-      setIsDeleteModalOpen(false);
-      return;
+  if (!chargeId) {
+    setIsDeleteModalOpen(false);
+    return;
+  }
+
+  try {
+    setError("");
+
+    await deleteCharge(chargeId);
+
+    const today = formatDisplayDate(
+      new Date().toISOString(),
+    );
+
+    let refreshed = {};
+    let historyData = null;
+
+    try {
+      refreshed = await getCharge(chargeId);
+    } catch {
+      // 삭제 직후 상세 조회 실패 여부와 관계없이 삭제 상태를 유지합니다.
     }
 
     try {
-      await deleteCharge(chargeId);
-      const today = formatDisplayDate(new Date().toISOString());
-      let refreshed = {};
-      try {
-        refreshed = await getCharge(chargeId);
-      } catch {
-        // 삭제 직후 조회가 지연되거나 204 응답이어도 삭제 성공 상태는 유지한다.
-      }
-      setIncomeData((prev) => ({
-        ...mapChargeToView(refreshed, prev),
-        isDeleted: refreshed.deleted ?? true,
-        deletedDate: formatDisplayDate(refreshed.deletedAt) || today,
-        history: [
-          { date: today, author: "나", content: "삭제" },
-          ...(prev.history ?? []),
-        ],
-      }));
-      setIsDeleteModalOpen(false);
-    } catch (err) {
-      setError(err.response?.data?.message ?? err.message ?? "삭제에 실패했습니다.");
-      setIsDeleteModalOpen(false);
+      historyData = await getChargeHistories(
+        chargeId,
+        {
+          page: 0,
+          size: HISTORY_PAGE_SIZE,
+        },
+      );
+    } catch {
+      // 이력 조회 실패로 성공한 삭제를 실패 처리하지 않습니다.
     }
-  };
+
+    setIncomeData((previous) => ({
+      ...mapChargeToView(
+        refreshed,
+        previous,
+      ),
+      isDeleted:
+        refreshed.deleted ?? true,
+      deletedDate: refreshed.deletedAt
+        ? formatDisplayDate(
+            refreshed.deletedAt,
+          )
+        : today,
+      history:
+        historyData?.histories ??
+        previous.history ??
+        [],
+    }));
+
+    setHistoryPage(0);
+
+    if (historyData) {
+      setHistoryPageInfo(
+        historyData.pageInfo,
+      );
+    }
+
+    setIsDeleteModalOpen(false);
+  } catch (err) {
+    setError(
+      err.response?.data?.message ??
+        err.message ??
+        "삭제에 실패했습니다.",
+    );
+    setIsDeleteModalOpen(false);
+  }
+};
 
   return (
     <div className="detail-container">
@@ -309,7 +380,7 @@ const IncomeDetailPage2 = () => {
       </div>
 
       <div className="detail-section">
-        <h3 className="section-heading">수정 이력</h3>
+        <h3 className="section-heading">회비 및 납부 이력</h3>
         <div className="section-box">
           {incomeData.history && incomeData.history.length > 0 ? (
             <table className="history-table">
@@ -321,8 +392,8 @@ const IncomeDetailPage2 = () => {
                 </tr>
               </thead>
               <tbody>
-                {incomeData.history.map((item, index) => (
-                  <tr key={index}>
+                {incomeData.history.map((item) => (
+                  <tr key={item.id}>
                     <td>{item.date}</td>
                     <td>{item.author}</td>
                     <td>{item.content}</td>
@@ -331,9 +402,35 @@ const IncomeDetailPage2 = () => {
               </tbody>
             </table>
           ) : (
-            "수정 이력이 없습니다"
+            "회비 및 납부 이력이 없습니다"
           )}
         </div>
+
+        {historyPageInfo.totalPages > 1 && (
+          <div className="history-pagination">
+            <button
+              type="button"
+              disabled={historyPageInfo.page <= 0}
+              onClick={() =>
+                setHistoryPage((currentPage) => currentPage - 1)
+              }
+            >
+              이전
+            </button>
+            <span>
+              {historyPageInfo.page + 1} / {historyPageInfo.totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={!historyPageInfo.hasNext}
+              onClick={() =>
+                setHistoryPage((currentPage) => currentPage + 1)
+              }
+            >
+              다음
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="summary-cards-row">

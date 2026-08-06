@@ -137,10 +137,40 @@ export async function bulkPayCharge(chargeId, payload = { targetMode: "ALL_UNPAI
 }
 
 export async function getChargeHistories(chargeId, params = {}) {
-  const { data } = await axiosInstance.get(`/charges/${chargeId}/histories`, { params });
-  return unwrapList(data, ["histories"]).map((item) => ({
-    date: String(item.changedAt ?? item.date ?? "").slice(0, 10).replaceAll("-", "."),
-    author: item.actorName ?? item.author ?? "-",
-    content: item.summary ?? item.actionType ?? "-",
-  }));
+  const { data } = await axiosInstance.get(
+    `/charges/${chargeId}/histories`,
+    {
+      params: {
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
+    },
+  );
+
+  const payload = unwrap(data) ?? {};
+  const histories = Array.isArray(payload.histories)
+    ? payload.histories
+    : [];
+
+  return {
+    histories: histories.map((item, index) => ({
+      id: `${item.changedAt ?? "history"}-${index}`,
+      date: String(item.changedAt ?? "")
+        .slice(0, 10)
+        .replaceAll("-", "."),
+      author: item.actorName ?? "-",
+      content: item.summary ?? item.actionType ?? "-",
+      actionType: item.actionType,
+      beforeData: item.beforeData ?? null,
+      afterData: item.afterData ?? null,
+    })),
+    pageInfo: {
+      page: payload.page ?? params.page ?? 0,
+      size: payload.size ?? params.size ?? 20,
+      totalElements:
+        payload.totalElements ?? histories.length,
+      totalPages: payload.totalPages ?? 0,
+      hasNext: payload.hasNext ?? false,
+    },
+  };
 }

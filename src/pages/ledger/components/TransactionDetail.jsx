@@ -5,9 +5,12 @@ import {
   deleteTransaction,
   getReceipt,
   getTransaction,
+  getTransactionHistories,
 } from "../../../api";
 import backArrowIcon from "../../../assets/화살표.svg";
 import useGroup from "../../../hooks/useGroup";
+
+const HISTORY_PAGE_SIZE = 20;
 
 function formatDisplayDate(dateString) {
   if (!dateString) return "-";
@@ -34,7 +37,17 @@ export default function TransactionDetail({
 
   const [transaction, setTransaction] = useState(null);
   const [receipt, setReceipt] = useState(null);
+  const [histories, setHistories] = useState([]);
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyPageInfo, setHistoryPageInfo] = useState({
+    page: 0,
+    size: HISTORY_PAGE_SIZE,
+    totalElements: 0,
+    totalPages: 0,
+    hasNext: false,
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [error, setError] = useState("");
@@ -87,6 +100,59 @@ export default function TransactionDetail({
       ignore = true;
     };
   }, [currentTermId, isGroupLoading, transactionId]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    if (
+      isGroupLoading ||
+      currentTermId == null ||
+      !transactionId
+    ) {
+      return undefined;
+    }
+
+    async function loadHistories() {
+      setIsHistoryLoading(true);
+
+      try {
+        const historyData = await getTransactionHistories(
+          transactionId,
+          {
+            page: historyPage,
+            size: HISTORY_PAGE_SIZE,
+          },
+        );
+
+        if (ignore) return;
+
+        setHistories(historyData.histories);
+        setHistoryPageInfo(historyData.pageInfo);
+      } catch (requestError) {
+        if (!ignore) {
+          setError(
+            getErrorMessage(
+              requestError,
+              "거래 이력을 불러오지 못했습니다.",
+            ),
+          );
+        }
+      } finally {
+        if (!ignore) setIsHistoryLoading(false);
+      }
+    }
+
+    loadHistories();
+
+    return () => {
+      ignore = true;
+    };
+  }, [
+    currentTermId,
+    historyPage,
+    isGroupLoading,
+    transactionId,
+  ]);
 
   async function handleDeleteTransaction() {
     try {
@@ -244,7 +310,58 @@ export default function TransactionDetail({
 
       <div className="detail-section">
         <h3 className="section-heading">수정 이력</h3>
-        <div className="section-box">수정 이력이 없습니다</div>
+        <div className="section-box">
+          {isHistoryLoading ? (
+            "이력을 불러오는 중입니다..."
+          ) : histories.length > 0 ? (
+            <table className="history-table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>이름</th>
+                  <th>수정 내용</th>
+                </tr>
+              </thead>
+              <tbody>
+                {histories.map((history) => (
+                  <tr key={history.id}>
+                    <td>{history.date}</td>
+                    <td>{history.author}</td>
+                    <td>{history.content}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            "수정 이력이 없습니다"
+          )}
+        </div>
+
+        {!isHistoryLoading && historyPageInfo.totalPages > 1 && (
+          <div className="history-pagination">
+            <button
+              type="button"
+              disabled={historyPageInfo.page <= 0}
+              onClick={() =>
+                setHistoryPage((currentPage) => currentPage - 1)
+              }
+            >
+              이전
+            </button>
+            <span>
+              {historyPageInfo.page + 1} / {historyPageInfo.totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={!historyPageInfo.hasNext}
+              onClick={() =>
+                setHistoryPage((currentPage) => currentPage + 1)
+              }
+            >
+              다음
+            </button>
+          </div>
+        )}
       </div>
 
       {isDeleteModalOpen && (
