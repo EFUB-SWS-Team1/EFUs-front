@@ -4,7 +4,7 @@ import axiosInstance from "../axiosInstance";
  * ledger.js — 가계부 (transaction + receipt)
  */
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 const MOCK_ENTRIES = [
   {

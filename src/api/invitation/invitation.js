@@ -1,6 +1,6 @@
 import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 const MOCK_ORGS_JOIN = {
   id: "joined-org",
