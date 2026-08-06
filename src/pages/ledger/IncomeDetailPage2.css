@@ -458,3 +458,281 @@
   padding: 12px 20px;             /* 안쪽 여백 */
   border-radius: 10px;            /* 모서리 둥글게 */
 }
+
+/* =========================================================
+   회비 청구 상세 - Figma 레이아웃 보정
+   ========================================================= */
+.detail-container {
+  width: 100%;
+  max-width: 1251px;
+  margin: 48px auto 60px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.detail-container .detail-top-nav {
+  width: 100%;
+  min-height: 41px;
+  margin-bottom: 32px;
+}
+
+.detail-container .action-buttons {
+  gap: 8px;
+}
+
+.detail-container .btn-back,
+.detail-container .btn-action {
+  min-height: 41px;
+  box-sizing: border-box;
+}
+
+.detail-container .detail-header-section {
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: 32px;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-container .title-area {
+  gap: 4px;
+  min-width: 0;
+}
+
+.detail-container .detail-main-title {
+  overflow-wrap: anywhere;
+}
+
+.detail-container .detail-amount {
+  flex-shrink: 0;
+}
+
+.detail-container .detail-card {
+  width: 100%;
+  min-height: 297px;
+  margin-bottom: 32px;
+  padding: 40px 48px;
+  border-radius: 20px;
+  border-color: #eeeeee;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.detail-container .detail-grid {
+  width: 100%;
+  row-gap: 32px;
+  column-gap: 64px;
+}
+
+.detail-container .detail-section {
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.detail-container .section-heading {
+  margin: 0 0 12px;
+}
+
+.detail-container .section-box {
+  min-height: 78px;
+  padding: 20px 24px;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+}
+
+.detail-container .summary-cards-row {
+  width: 100%;
+  min-height: 144px;
+  margin: 0 0 32px;
+  padding-top: 32px;
+  gap: 20px;
+  border-top: 1px solid #eeeeee;
+  box-sizing: border-box;
+}
+
+.detail-container .summary-card {
+  min-width: 0;
+  height: 112px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+  justify-content: center;
+}
+
+/* 디자인 시안은 납부 금액/완료/미납 3개 요약만 노출한다. */
+.detail-container .summary-card:nth-child(4) {
+  display: none;
+}
+
+.detail-container .summary-card:nth-child(2) .summary-card-label::before,
+.detail-container .summary-card:nth-child(3) .summary-card-label::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.detail-container .summary-card:nth-child(2) .summary-card-label::before {
+  background: #25c189;
+}
+
+.detail-container .summary-card:nth-child(3) .summary-card-label::before {
+  background: #ff6b6b;
+}
+
+.detail-container .summary-card-value {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.detail-container .detail-section:has(.payment-section-title) {
+  min-height: 413px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-container .payment-section-title {
+  margin: 0 !important;
+}
+
+.detail-container .target-search-row {
+  width: 100%;
+  margin: 0;
+  gap: 12px;
+}
+
+.detail-container .target-search-input-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-container .target-search-input {
+  width: 100%;
+  padding-left: 38px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.detail-container .btn-bulk-select {
+  flex: 0 0 auto;
+  min-width: 132px;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+}
+
+.detail-container .target-select-box {
+  flex: 1;
+  min-height: 302px;
+  padding: 20px 24px 16px;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.detail-container .target-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.detail-container .target-item {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid #eeeeee;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+.detail-container .target-item:nth-child(odd) {
+  border-right: 1px solid #eeeeee;
+}
+
+.detail-container .target-item.checked {
+  border-color: #eeeeee;
+  background: #ffffff;
+}
+
+.detail-container .badge {
+  min-width: 46px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.detail-container .badge.admin {
+  background: #eef0ff;
+  color: #5b6cf9;
+}
+
+.detail-container .badge.general {
+  background: #f5f5f5;
+  color: #777777;
+}
+
+.detail-container .status-badge-btn {
+  min-width: 48px;
+  justify-content: center;
+}
+
+.detail-container .pagination-mock {
+  margin-top: auto;
+  justify-content: center;
+}
+
+@media (max-width: 1320px) {
+  .detail-container {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .detail-container {
+    margin-top: 24px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .detail-container .detail-header-section {
+    align-items: flex-start;
+  }
+
+  .detail-container .detail-card {
+    min-height: 0;
+    padding: 28px 24px;
+  }
+
+  .detail-container .detail-grid,
+  .detail-container .target-list-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-container .detail-item.full-width {
+    grid-column: span 1;
+  }
+
+  .detail-container .target-item:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .detail-container .summary-cards-row {
+    height: auto;
+    flex-direction: column;
+  }
+
+  .detail-container .summary-card {
+    flex: none;
+    width: 100%;
+  }
+}
