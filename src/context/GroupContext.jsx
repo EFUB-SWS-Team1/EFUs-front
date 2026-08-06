@@ -9,9 +9,17 @@ function getId(item, key) {
   return item?.[key] ?? item?.id ?? null;
 }
 
+function getTermStatus(term) {
+  return term?.status ?? term?.termStatus ?? null;
+}
+
+function getMyTermRole(term) {
+  return term?.myRole ?? term?.role ?? term?.userRole ?? null;
+}
+
 function selectDefaultTerm(terms) {
   const activeTerm = terms.find(
-    (term) => String(term.status).toUpperCase() === "ACTIVE",
+    (term) => String(getTermStatus(term)).toUpperCase() === "ACTIVE",
   );
   if (activeTerm) return activeTerm;
 
@@ -136,8 +144,8 @@ export function GroupProvider({ children }) {
     terms,
     currentTerm,
     currentTermId,
-    termStatus: currentTerm?.status ?? null,
-    role: currentTerm?.role ?? currentTerm?.userRole ?? null,
+    termStatus: getTermStatus(currentTerm),
+    role: getMyTermRole(currentTerm),
     isGroupLoading,
     selectOrganization,
     selectTerm,

@@ -1,259 +1,184 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "../../components/common";
-import groupIcon from "../../assets/efub로고2.svg";
-import usersIcon from "../../assets/Users.svg";
-import searchIcon from "../../assets/searchIcon.svg";
-import MemberItem from "./components/MemberItem";
-import InviteCodeModal from "./components/InviteCodeModal";
-import GenerationCloseModal from "./components/GenerationCloseModal";
-import MemberDetailPanel from "./components/MemberDetailPanel";
-import SuccessModal from "./components/SuccessModal";
-import styles from "./GroupManagePage.module.css";
-import {
-  closeGeneration,
-  getGroupManageOverview,
-  getMemberDetail,
-} from "../../api";
+  return (
+    <div
+      className={[
+        styles.pageRoot,
+        selectedMemberId ? styles.pageRootWithPanel : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <MemberDetailPanel
+        isOpen={Boolean(selectedMemberId)}
+        termId={currentTermId}
+        termMemberId={selectedMemberId}
+        detail={memberDetail}
+        loading={detailLoading}
+        error={detailError}
+        onClose={closeDetail}
+      />
 
-/*loadOverview로 GroupManagePage에 데이터를 불러옴, formatShortDate 는 날짜 다듬기, 
-멤버를 검색 및 페이지 별로 보여줌 : filteredMembers, totalPages, pagedMembers, 
-멤버 클릭하면 팝업창 띄움 : handleMemberClick */
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <img src={groupIcon} alt="" className={styles.headerIcon} />
+          <h1 className={styles.title}>단체 관리</h1>
+        </header>
 
-const GENERATION_ID = "efub-6";
-const PAGE_SIZE = 7;
+        <section className={styles.generationCard}>
+          <div>
+            <h2 className={styles.generationLabel}>
+              {currentTerm?.name ?? "-"}
+            </h2>
 
-function formatShortDate(dateStr) {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (Number.isNaN(date.getTime())) return dateStr;
-  const y = String(date.getFullYear()).slice(-2);
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}.${m}.${d}`;
-}
-
-export default function GroupManagePage() {
-  const [generation, setGeneration] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [isCloseOpen, setIsCloseOpen] = useState(false);
-  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-
-  const [selectedMemberId, setSelectedMemberId] = useState(null);
-  const [memberDetail, setMemberDetail] = useState(null);
-  const [detailLoading, setDetailLoading] = useState(false);
-
-  const isStaff = currentUser?.role === "staff";
-
-  const loadOverview = useCallback(() => {
-    getGroupManageOverview(GENERATION_ID).then((data) => {
-      setGeneration(data.generation);
-      setCurrentUser(data.currentUser);
-      setMembers(data.members);
-    });
-  }, []);
-
-  /*loadOverview: getGroupManageOverview를 실행해서 데이터를 받아온 뒤, 화면 상태(State)에 저장하는 역할*/
-
-  useEffect(() => {
-    loadOverview();
-  }, [loadOverview]);
-
-  const filteredMembers = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    if (!keyword) return members;
-    return members.filter((m) => m.name.toLowerCase().includes(keyword));
-  }, [members, search]);
-  /*filteredMembers : 검색하는거*/
-
-  const totalPages = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE));
-  /*totalPages : 총 몇페이지가 필요한지 전체 페이지 계산*/
-
-  const pagedMembers = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return filteredMembers.slice(start, start + PAGE_SIZE);
-  }, [filteredMembers, page]);
-  /*pagedMembers : 현재 페이지에 보여줄 멤버*/
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  async function handleMemberClick(memberId) {
-    setSelectedMemberId(memberId);
-    setDetailLoading(true);
-
-    try {
-      const detail = await getMemberDetail(GENERATION_ID, memberId);
-      setMemberDetail(detail);
-    } finally {
-      setDetailLoading(false);
-    }
-  }
-  /*handleMemberClick : 김민지 클릭 --> id 파악 --> getMemberDetail 실행 --> 김민지 납부 현황 데이터 가져옴*/
-
-  function handleCloseDetail() {
-    setSelectedMemberId(null);
-    setMemberDetail(null);
-  }
-
-  async function handleGenerationClose(endDate) {
-    await closeGeneration(GENERATION_ID, endDate);
-    setIsCloseOpen(false);
-    setIsSuccessOpen(true);
-    loadOverview();
-  }
-
- return (
- 
-  <div className={styles.pageRoot}>
-    
-    <MemberDetailPanel
-      isOpen={selectedMemberId != null}
-      detail={memberDetail}
-      loading={detailLoading}
-      onClose={handleCloseDetail}
-    />
-
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <img src={groupIcon} alt="" className={styles.headerIcon} />
-        <h1 className={styles.title}>단체 관리</h1>
-      </header>
-
-      <section className={styles.generationCard}>
-        <div className={styles.generationInfo}>
-          <h2 className={styles.generationLabel}>{generation?.label ?? '-'}</h2>
-          <p className={styles.generationDate}>
-            {generation?.startDate
-              ? `${formatShortDate(generation.startDate)} -${
-                  generation.endDate
-                    ? ` ${formatShortDate(generation.endDate)}`
-                    : ''
-                }`
-              : '-'}
-          </p>
-        </div>
-        {isStaff && generation?.isActive && (
-          <Button
-            variant="primary"
-            className={styles.closeGenBtn}
-            onClick={() => setIsCloseOpen(true)}
-          >
-            기수 종료
-          </Button>
-        )}
-      </section>
-
-      <div className={styles.memberToolbar}>
-        <h3 className={styles.memberCount}>
-          <span>멤버</span>
-          <img
-            src={usersIcon}
-            alt=""
-            className={styles.memberIcon}
-            aria-hidden="true"
-          />
-          <span>{members.length}</span>
-        </h3>
-        {isStaff && (
-          <button
-            type="button"
-            className={styles.inviteBtn}
-            onClick={() => setIsInviteOpen(true)}
-          >
-            멤버 초대
-          </button>
-        )}
-      </div>
-
-      <div className={styles.searchCard}>
-        <img
-          src={searchIcon}
-          alt=""
-          className={styles.searchIcon}
-          aria-hidden="true"
-        />
-        <input
-          type="search"
-          className={styles.searchInput}
-          placeholder="이름으로 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      <section className={styles.listCard}>
-        <ul className={styles.memberList}>
-          {pagedMembers.map((member) => (
-            <li key={member.id}>
-              <MemberItem
-                member={member}
-                isSelected={selectedMemberId === member.id}
-                onClick={() => handleMemberClick(member.id)}
-              />
-            </li>
-          ))}
-        </ul>
-        {filteredMembers.length === 0 && (
-          <p className={styles.empty}>검색 결과가 없습니다.</p>
-        )}
-
-        {filteredMembers.length > 0 && (
-          <div className={styles.pagination}>
-            <button
-              type="button"
-              className={styles.pageBtn}
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-              aria-label="이전 페이지"
-            >
-              ‹
-            </button>
-            <span className={styles.pageInfo}>
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              className={styles.pageBtn}
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-              aria-label="다음 페이지"
-            >
-              ›
-            </button>
+            <p className={styles.generationDate}>
+              {currentTerm?.startDate
+                ? `${formatShortDate(currentTerm.startDate)} -${
+                    currentTerm.endDate
+                      ? ` ${formatShortDate(currentTerm.endDate)}`
+                      : ""
+                  }`
+                : "-"}
+            </p>
           </div>
-        )}
-      </section>
-    </div>
 
-    {isStaff && (
-      <>
-        <InviteCodeModal
-          isOpen={isInviteOpen}
-          generationId={GENERATION_ID}
-          onClose={() => setIsInviteOpen(false)}
-        />
-        <GenerationCloseModal
-          isOpen={isCloseOpen}
-          generationLabel={generation?.label ?? ''}
-          onClose={() => setIsCloseOpen(false)}
-          onSubmit={handleGenerationClose}
-        />
-        <SuccessModal
-          isOpen={isSuccessOpen}
-          message="기수가 성공적으로 종료되었어요!"
-          onClose={() => setIsSuccessOpen(false)}
-        />
-      </>
-    )}
-  </div>
-)};
+          {isStaff && isActive && (
+            <Button
+              variant="primary"
+              className={styles.closeGenBtn}
+              onClick={() => setIsCloseOpen(true)}
+            >
+              기수 종료
+            </Button>
+          )}
+        </section>
+
+        <div className={styles.memberToolbar}>
+          <h3 className={styles.memberCount}>
+            <span>멤버</span>
+            <img src={usersIcon} alt="" className={styles.memberIcon} />
+            <span>{totalElements}</span>
+          </h3>
+
+          {isStaff && isActive && (
+            <button
+              type="button"
+              className={styles.inviteBtn}
+              onClick={() => setIsInviteOpen(true)}
+            >
+              멤버 초대
+            </button>
+          )}
+        </div>
+
+        <div className={styles.filters}>
+          <div className={styles.searchCard}>
+            <img src={searchIcon} alt="" className={styles.searchIcon} />
+            <input
+              type="search"
+              className={styles.searchInput}
+              placeholder="이름으로 검색"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+
+          <select
+            className={styles.roleFilter}
+            value={roleFilter}
+            onChange={(event) => {
+              setRoleFilter(event.target.value);
+              setPage(0);
+            }}
+            aria-label="역할 필터"
+          >
+            <option value="">전체 역할</option>
+            <option value="STAFF">운영진</option>
+            <option value="MEMBER">일반</option>
+          </select>
+        </div>
+
+        <section className={styles.listCard}>
+          {loading && (
+            <p className={styles.empty}>불러오는 중...</p>
+          )}
+
+          {!loading && error && (
+            <p className={styles.empty}>{error}</p>
+          )}
+
+          {!loading && !error && (
+            <ul className={styles.memberList}>
+              {members.map((member) => (
+                <li key={member.termMemberId}>
+                  <MemberItem
+                    member={member}
+                    isSelected={
+                      String(selectedMemberId) ===
+                      String(member.termMemberId)
+                    }
+                    onClick={() => selectMember(member.termMemberId)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {!loading && !error && members.length === 0 && (
+            <p className={styles.empty}>구성원이 없습니다.</p>
+          )}
+
+          {!loading && !error && totalElements > 0 && (
+            <div className={styles.pagination}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={page === 0}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                ‹
+              </button>
+
+              <span className={styles.pageInfo}>
+                {page + 1} / {totalPages}
+              </span>
+
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={page + 1 >= totalPages}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                ›
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
+
+      {isStaff && isActive && (
+        <>
+          <InviteCodeModal
+            isOpen={isInviteOpen}
+            termId={currentTermId}
+            onClose={() => setIsInviteOpen(false)}
+          />
+
+          <GenerationCloseModal
+            isOpen={isCloseOpen}
+            generationLabel={currentTerm?.name ?? ""}
+            onClose={() => setIsCloseOpen(false)}
+            onSubmit={handleGenerationClose}
+          />
+
+          <SuccessModal
+            isOpen={isSuccessOpen}
+            message="기수가 성공적으로 종료되었어요!"
+            onClose={() => setIsSuccessOpen(false)}
+          />
+        </>
+      )}
+    </div>
+  );
+}

@@ -1,75 +1,52 @@
 import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = true;
-
-const MOCK_ORGS_JOIN = {
-  id: "joined-org",
-  name: "새로 참여한 단체",
-  memberCount: 1,
-};
-
-const MOCK_INVITE_CODES = {
-  staff: "AB1C34",
-  general: "F2XC4L",
-  expiresInDays: 7,
-};
-
-function mapOrg(item) {
-  return {
-    id: item.id ?? item.organizationId,
-    name: item.name,
-    memberCount: item.memberCount ?? item.member_count ?? 0,
-    currentTerm: item.currentTerm ?? item.activeTerm ?? null,
-    role: item.role ?? null,
-  };
+function unwrapPayload(response) {
+  return response.data?.data;
 }
 
-function daysUntil(dateStr) {
-  if (!dateStr) return 7;
-  const diff = new Date(dateStr).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+function daysUntil(dateString) {
+  if (!dateString) return null;
+  return Math.max(
+    0,
+    Math.ceil((new Date(dateString).getTime() - Date.now()) / 86_400_000),
+  );
 }
 
 function mapInviteCodes(data) {
-  if (Array.isArray(data)) {
-    const staff = data.find((item) => String(item.role).toUpperCase() === "STAFF");
-    const member = data.find((item) => String(item.role).toUpperCase() === "MEMBER");
-    const expiresAt = staff?.expiresAt ?? member?.expiresAt ?? staff?.expiredAt;
-    return {
-      staff: staff?.code ?? "",
-      general: member?.code ?? "",
-      expiresInDays: daysUntil(expiresAt),
-    };
-  }
-
+  const invitations = Array.isArray(data) ? data : data?.invitations ?? [];
+  const staff = invitations.find((item) => item.role === "STAFF");
+  const member = invitations.find((item) => item.role === "MEMBER");
+  const expiresAt = staff?.expiresAt ?? member?.expiresAt ?? null;
   return {
-    staff: data.staffCode ?? data.staff ?? data.STAFF ?? "",
-    general: data.memberCode ?? data.general ?? data.MEMBER ?? data.member ?? "",
-    expiresInDays: data.expiresInDays ?? daysUntil(data.expiresAt ?? data.expiredAt),
+    staff: staff?.code ?? data?.staffCode ?? "",
+    general: member?.code ?? data?.memberCode ?? "",
+    expiresAt,
+    expiresInDays: daysUntil(expiresAt),
   };
 }
 
-/** 초대 코드로 가입 (옛 orgSelect) */
-export async function joinOrganizationByCode(code) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 300));
-    if (!code.trim()) throw new Error("초대 코드를 입력해주세요");
-    return MOCK_ORGS_JOIN;
-  }
-
-  const { data } = await axiosInstance.post("/invitations/join", {
-    code: code.trim(),
-  });
-
-  return mapOrg(data.organization ?? data);
+export async function getInviteCodes(termId) {
+  const response = await axiosInstance.get(`/terms/${termId}/invitations`);
+  return mapInviteCodes(unwrapPayload(response));
 }
 
-/** 기수 초대 코드 조회 (옛 groupManage) */
-export async function getInviteCodes(termId) {
-  if (USE_MOCK) {
-    return MOCK_INVITE_CODES;
-  }
+export async function reissueInviteCode(termId, role) {
+  const response = await axiosInstance.post(`/terms/${termId}/invitations`, {
+    role,
+  });
+  return unwrapPayload(response);
+}
 
-  const { data } = await axiosInstance.get(`/terms/${termId}/invitations`);
-  return mapInviteCodes(data);
+export async function validateInvitation(code) {
+  const response = await axiosInstance.post("/invitations/validate", {
+    code: code.trim(),
+  });
+  return unwrapPayload(response);
+}
+
+export async function joinOrganizationByCode(code) {
+  const response = await axiosInstance.post("/invitations/join", {
+    code: code.trim(),
+  });
+  return unwrapPayload(response);
 }
