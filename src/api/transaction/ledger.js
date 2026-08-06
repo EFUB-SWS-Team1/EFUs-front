@@ -6,29 +6,6 @@ import axiosInstance from "../axiosInstance";
 
 const USE_MOCK = true;
 
-const MOCK_ENTRIES = [
-  {
-    date: "2026.06.23",
-    items: [
-      { id: 1, event: "1학기 종강파티", desc: "공간 대여", amount: -50000, type: "expense", entryType: "TRANSACTION" },
-      { id: 2, event: "-", desc: "1학기 벌금", amount: 30000, type: "income", entryType: "TRANSACTION" },
-    ],
-  },
-  {
-    date: "2026.06.08",
-    items: [
-      { id: 3, event: "-", desc: "동아리 지원금", amount: 600000, type: "income", entryType: "TRANSACTION" },
-    ],
-  },
-  {
-    date: "2026.06.05",
-    items: [
-      { id: 4, event: "-", desc: "6월 정기 회비", amount: 240000, type: "income", entryType: "CHARGE" },
-      { id: 5, event: "8월 MT", desc: "MT 숙소비", amount: -300000, type: "expense", entryType: "TRANSACTION" },
-    ],
-  },
-];
-
 const MOCK_TRANSACTIONS = {
   1: {
     id: 1,
@@ -44,81 +21,104 @@ const MOCK_TRANSACTIONS = {
   },
 };
 
-function unwrapList(data) {
-  if (Array.isArray(data)) return data;
-  return data?.content ?? data?.ledgerEntries ?? data?.entries ?? [];
-}
+function formatDisplayDate(dateString) {
+  if (!dateString) return "";
 
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return "";
-  // 2026-06-23 → 2026.06.23
-  return String(dateStr).slice(0, 10).replaceAll("-", ".");
+  return String(dateString)
+    .slice(0, 10)
+    .replaceAll("-", ".");
 }
 
 function mapCashFlowType(value) {
-  const v = String(value ?? "").toUpperCase();
-  if (v === "EXPENSE" || v === "지출") return "expense";
+  const normalizedValue = String(value ?? "").toUpperCase();
+
+  if (
+    normalizedValue === "EXPENSE" ||
+    normalizedValue === "지출"
+  ) {
+    return "expense";
+  }
+
   return "income";
 }
 
-/** 명세 통합 가계부 항목 → 목록 UI 아이템 */
+/**
+ * 백엔드 통합 가계부 항목을 목록 UI 형식으로 변환합니다.
+ */
 function mapLedgerItem(item) {
-  const entryType = String(item.entryType ?? "TRANSACTION").toUpperCase();
-  const cashFlow = mapCashFlowType(item.cashFlowType ?? item.transactionType);
+  const entryType = String(
+    item.entryType ?? "TRANSACTION",
+  ).toUpperCase();
 
-  let amount = 0;
-  if (entryType === "CHARGE") {
-    // 회비: 납부액 우선, 없으면 총청구액
-    amount = item.paidAmount ?? item.requestedAmount ?? item.amount ?? 0;
-  } else {
-    amount = item.amount ?? 0;
-  }
+  const cashFlow = mapCashFlowType(
+    item.cashFlowType ?? item.transactionType,
+  );
 
-  const signedAmount = cashFlow === "expense" ? -Math.abs(amount) : Math.abs(amount);
+  const amount =
+  entryType === "CHARGE"
+    ? (
+        item.paidAmount ??
+        item.requestedAmount ??
+        item.amount ??
+        0
+      )
+    : item.amount ?? 0;
+
+  const signedAmount =
+    cashFlow === "expense"
+      ? -Math.abs(amount)
+      : Math.abs(amount);
 
   return {
     id: item.entryId ?? item.id ?? item.transactionId,
     event: item.fundingName ?? item.event ?? "-",
     desc: item.title ?? item.desc ?? "",
     amount: signedAmount,
-    type: cashFlow, // 'income' | 'expense'
-    entryType, // 'TRANSACTION' | 'CHARGE'
+    type: cashFlow,
+    entryType,
+    date: item.date ?? item.transactionDate,
     deleted: item.deleted ?? false,
-    transactionDate: item.transactionDate,
+    hasReceipt: item.hasReceipt ?? false,
+    receiptId: item.receiptId ?? null,
     paymentStatus: item.paymentStatus ?? null,
     requestedAmount: item.requestedAmount ?? null,
     paidAmount: item.paidAmount ?? null,
     unpaidAmount: item.unpaidAmount ?? null,
+    createdAt: item.createdAt ?? null,
   };
 }
 
-/** 날짜별 그룹 (LedgerCreatePage initialData 형태) */
+/**
+ * 가계부 항목을 날짜별로 그룹화합니다.
+ */
 function groupByDate(items) {
-  const map = new Map();
+  const dateMap = new Map();
 
   for (const item of items) {
-    const date = formatDisplayDate(item.transactionDate) || "-";
-    if (!map.has(date)) map.set(date, []);
-    map.get(date).push(item);
+    const date = formatDisplayDate(item.date) || "-";
+
+    if (!dateMap.has(date)) {
+      dateMap.set(date, []);
+    }
+
+    dateMap.get(date).push(item);
   }
 
-  return Array.from(map.entries()).map(([date, grouped]) => ({
-    date,
-    items: grouped,
-  }));
+  return Array.from(dateMap.entries()).map(
+    ([date, groupedItems]) => ({
+      date,
+      items: groupedItems,
+    }),
+  );
 }
 
+/**
+ * 거래 등록 요청 데이터를 백엔드 형식으로 변환합니다.
+ */
 function toTransactionBody(payload) {
-  // 화면: income/expense, title, amount, date, fundingId?, memo?
-  const type = String(payload.transactionType ?? payload.type ?? "").toLowerCase();
-  const transactionType =
-    type === "income" || type === "INCOME".toLowerCase()
-      ? "INCOME"
-      : type === "INCOME"
-        ? "INCOME"
-        : String(payload.transactionType ?? "").toUpperCase() === "INCOME"
-          ? "INCOME"
-          : "EXPENSE";
+  const type = String(
+    payload.transactionType ?? payload.type ?? "",
+  ).toLowerCase();
 
   const normalizedType =
     payload.transactionType === "INCOME" ||
@@ -131,72 +131,109 @@ function toTransactionBody(payload) {
   return {
     transactionType: normalizedType,
     title: payload.title,
-    amount: Math.abs(Number(payload.amount) || 0), // 명세: 금액은 항상 양수
-    transactionDate: payload.transactionDate ?? payload.date,
+    amount: Math.abs(Number(payload.amount) || 0),
+    transactionDate:
+      payload.transactionDate ?? payload.date,
     fundingId: payload.fundingId ?? null,
     memo: payload.memo ?? null,
   };
 }
 
 /**
- * 통합 가계부 목록
+ * 통합 가계부 목록 조회
+ *
  * @param {number|string} termId
  * @param {object} [params]
- * @param {'ALL'|'INCOME'|'EXPENSE'} [params.type]
- * @param {string} [params.fromDate] yyyy-MM-dd
+ * @param {"ALL"|"INCOME"|"EXPENSE"} [params.type]
+ * @param {number|string} [params.fundingId]
+ * @param {string} [params.fromDate]
  * @param {string} [params.toDate]
  * @param {boolean} [params.includeDeleted]
  * @param {number} [params.page]
  * @param {number} [params.size]
- * @returns {Promise<Array<{ date: string, items: Array }>>}
  */
-export async function getLedgerEntries(termId, params = {}) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 200));
-    const filter = String(params.type ?? "ALL").toUpperCase();
-    if (filter === "ALL") return MOCK_ENTRIES;
-
-    return MOCK_ENTRIES.map((group) => ({
-      date: group.date,
-      items: group.items.filter((item) =>
-        filter === "INCOME" ? item.type === "income" : item.type === "expense",
-      ),
-    })).filter((group) => group.items.length > 0);
-  }
-
-  const { data } = await axiosInstance.get(`/terms/${termId}/ledger-entries`, {
-    params: {
-      type: params.type ?? "ALL",
-      fromDate: params.fromDate,
-      toDate: params.toDate,
-      includeDeleted: params.includeDeleted,
-      page: params.page,
-      size: params.size,
+export async function getLedgerEntries(
+  termId,
+  params = {},
+) {
+  const response = await axiosInstance.get(
+    `/terms/${termId}/ledger-entries`,
+    {
+      params: {
+        type: params.type ?? "ALL",
+        fundingId: params.fundingId,
+        fromDate: params.fromDate,
+        toDate: params.toDate,
+        includeDeleted:
+          params.includeDeleted ?? false,
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
     },
-  });
+  );
 
-  const mapped = unwrapList(data).map(mapLedgerItem);
-  return groupByDate(mapped);
+  const payload = response.data?.data ?? {};
+
+  const entries = Array.isArray(payload.entries)
+    ? payload.entries
+    : [];
+
+  const mappedEntries = entries.map(mapLedgerItem);
+
+  return {
+    termId: payload.termId ?? termId,
+    totalIncome: payload.totalIncome ?? 0,
+    totalExpense: payload.totalExpense ?? 0,
+    balance: payload.balance ?? 0,
+    groups: groupByDate(mappedEntries),
+    pageInfo: {
+      page:
+        payload.pageInfo?.page ??
+        params.page ??
+        0,
+      size:
+        payload.pageInfo?.size ??
+        params.size ??
+        20,
+      totalElements:
+        payload.pageInfo?.totalElements ?? 0,
+      totalPages:
+        payload.pageInfo?.totalPages ?? 0,
+      hasNext:
+        payload.pageInfo?.hasNext ?? false,
+    },
+  };
 }
 
-/** 일반 거래 등록 (수입/지출) */
-export async function createTransaction(termId, payload) {
+/**
+ * 일반 거래 등록
+ */
+export async function createTransaction(
+  termId,
+  payload,
+) {
   if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 200));
+    await new Promise((resolve) =>
+      setTimeout(resolve, 200),
+    );
+
     return {
       id: Date.now(),
       ...toTransactionBody(payload),
     };
   }
 
-  const { data } = await axiosInstance.post(
+  const response = await axiosInstance.post(
     `/terms/${termId}/transactions`,
     toTransactionBody(payload),
   );
-  return data;
+
+  return response.data;
 }
 
-/** 거래 상세 */
+/**
+ * 일반 거래 상세 조회
+ */
 export async function getTransaction(transactionId) {
   if (USE_MOCK) {
     return (
@@ -206,6 +243,7 @@ export async function getTransaction(transactionId) {
         title: "샘플 거래",
         amount: 10000,
         transactionDate: "2026-06-23",
+        fundingId: null,
         fundingName: "-",
         memo: "",
         deleted: false,
@@ -214,76 +252,125 @@ export async function getTransaction(transactionId) {
     );
   }
 
-  const { data } = await axiosInstance.get(`/transactions/${transactionId}`);
-  return data;
+  const response = await axiosInstance.get(
+    `/transactions/${transactionId}`,
+  );
+
+  return response.data;
 }
 
-/** 거래 수정 */
-export async function updateTransaction(transactionId, payload) {
+/**
+ * 일반 거래 수정
+ */
+export async function updateTransaction(
+  transactionId,
+  payload,
+) {
   if (USE_MOCK) {
-    return { id: transactionId, ...toTransactionBody(payload) };
+    return {
+      id: transactionId,
+      ...toTransactionBody(payload),
+    };
   }
 
-  const { data } = await axiosInstance.patch(
+  const response = await axiosInstance.patch(
     `/transactions/${transactionId}`,
     toTransactionBody(payload),
   );
-  return data;
+
+  return response.data;
 }
 
-/** 거래 소프트 삭제 */
-export async function deleteTransaction(transactionId) {
+/**
+ * 일반 거래 소프트 삭제
+ */
+export async function deleteTransaction(
+  transactionId,
+) {
   if (USE_MOCK) {
     return { success: true };
   }
 
-  await axiosInstance.delete(`/transactions/${transactionId}`);
+  await axiosInstance.delete(
+    `/transactions/${transactionId}`,
+  );
+
   return { success: true };
 }
 
-/** 영수증 조회 (Presigned URL) */
+/**
+ * 영수증 조회
+ */
 export async function getReceipt(transactionId) {
   if (USE_MOCK) {
-    return { url: null, fileName: null };
+    return {
+      url: null,
+      fileName: null,
+    };
   }
 
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     `/transactions/${transactionId}/receipt`,
   );
-  return data;
+
+  return response.data;
 }
 
-/** 영수증 등록·교체 (multipart) */
-export async function uploadReceipt(transactionId, file) {
+/**
+ * 영수증 등록·교체
+ *
+ * 현재 Mock 단계입니다.
+ * 실제 연동에서는 Presigned URL 방식을 사용해야 합니다.
+ */
+export async function uploadReceipt(
+  transactionId,
+  file,
+) {
   if (USE_MOCK) {
-    return { success: true, fileName: file?.name };
+    return {
+      success: true,
+      fileName: file?.name,
+    };
   }
 
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await axiosInstance.put(
+  const response = await axiosInstance.put(
     `/transactions/${transactionId}/receipt`,
     formData,
     {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     },
   );
-  return data;
+
+  return response.data;
 }
 
-/** 영수증 삭제 */
+/**
+ * 영수증 삭제
+ */
 export async function deleteReceipt(transactionId) {
   if (USE_MOCK) {
     return { success: true };
   }
 
-  await axiosInstance.delete(`/transactions/${transactionId}/receipt`);
+  await axiosInstance.delete(
+    `/transactions/${transactionId}/receipt`,
+  );
+
   return { success: true };
 }
 
-/** 거래 수정·삭제 이력 */
-export async function getTransactionHistories(transactionId, params = {}) {
+/**
+ * 거래 수정·삭제 이력 조회
+ */
+export async function getTransactionHistories(
+  transactionId,
+  params = {},
+) {
   if (USE_MOCK) {
     return [
       {
@@ -294,16 +381,28 @@ export async function getTransactionHistories(transactionId, params = {}) {
     ];
   }
 
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     `/transactions/${transactionId}/histories`,
-    { params: { page: params.page, size: params.size } },
+    {
+      params: {
+        page: params.page,
+        size: params.size,
+      },
+    },
   );
 
-  const list = Array.isArray(data) ? data : data?.content ?? data?.histories ?? [];
+  const payload = response.data?.data;
 
-  return list.map((item) => ({
-    date: String(item.changedAt ?? item.date ?? "").slice(0, 10).replaceAll("-", "."),
+  const histories = Array.isArray(payload)
+    ? payload
+    : payload?.histories ?? [];
+
+  return histories.map((item) => ({
+    date: String(item.changedAt ?? item.date ?? "")
+      .slice(0, 10)
+      .replaceAll("-", "."),
     author: item.actorName ?? item.author ?? "-",
-    content: item.summary ?? item.actionType ?? "-",
+    content:
+      item.summary ?? item.actionType ?? "-",
   }));
 }
