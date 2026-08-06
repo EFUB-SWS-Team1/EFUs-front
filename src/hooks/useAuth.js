@@ -1,3 +1,10 @@
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthStateContext";
+
 export default function useAuth() {
-  return { user: { name: "임시 유저" }, isLoading: false };
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth는 AuthProvider 안에서 사용해야 합니다.");
+  }
+  return context;
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getEventDetail, updateEvent } from "../../api/event";
+import { getEventDetail, updateEvent } from "../../api";
 import { formatCurrency, formatDate, formatDateRange, formatNumber } from "../../utils/format";
 import { Button, PermissionBadge } from "../../components/common";
 import EventFormModal from "./components/EventFormModal";
@@ -22,18 +22,18 @@ export default function EventDetailPage() {
   const [transactions, setTransactions] = useState([]);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  function loadDetail() {
+  const loadDetail = useCallback(() => {
     getEventDetail(GENERATION_ID, eventId)
       .then((data) => {
         setEvent(data.event);
         setTransactions(data.transactions);
       })
       .catch(() => setEvent(null));
-  }
+  }, [eventId]);
 
   useEffect(() => {
     loadDetail();
-  }, [eventId]);
+  }, [loadDetail]);
 
   async function handleUpdate(payload) {
     await updateEvent(GENERATION_ID, eventId, payload);

@@ -1,8 +1,10 @@
 .page {
-  width: 100%;
+  min-width: 0;
+  width: auto;
+  flex: 1;
   max-width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 32px;
   background: transparent;
   min-height: 100%;
   display: flex;
@@ -108,13 +110,16 @@
 .searchCard {
   position: relative;
   box-sizing: border-box;
-  width: 100%;
+  flex: 1;
   height: 48px;
   margin-bottom: 12px;
   background: #ffffff;
   border-radius: 999px;
   border: 1px solid #eeeeee;
 }
+
+.filters { display: flex; gap: 12px; }
+.roleFilter { min-width: 130px; height: 48px; padding: 0 14px; border: 1px solid #eee; border-radius: 12px; background: #fff; font: inherit; }
 
 .searchIcon {
   position: absolute;
@@ -226,13 +231,12 @@
 }
 
 .pageRoot {
-  position: relative;
-}
-
-/* 패널 열릴 때만: main padding 상쇄 → 사이드바에 붙음 */
-.pageRootWithPanel {
-  margin: -32px 0 -32px -32px;
-  padding: 32px 32px 32px 0;
+  width: calc(100% + 64px);
   min-height: 100vh;
+  margin: -32px;
+  display: flex;
+  align-items: stretch;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
+

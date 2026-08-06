@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import { ko } from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
@@ -33,21 +33,18 @@ const DateInput = forwardRef(function DateInput(
 });
 
 export default function EventForm({ title, initialValues, submitLabel, onCancel, onSubmit }) {
-  const [name, setName] = useState("");
-  const [budget, setBudget] = useState("");
-  const [participants, setParticipants] = useState("");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [budget, setBudget] = useState(String(initialValues?.budget ?? ""));
+  const [participants, setParticipants] = useState(
+    String(initialValues?.participants ?? ""),
+  );
+  const [startDate, setStartDate] = useState(
+    initialValues?.startDate ? new Date(initialValues.startDate) : null,
+  );
+  const [endDate, setEndDate] = useState(
+    initialValues?.endDate ? new Date(initialValues.endDate) : null,
+  );
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    setName(initialValues?.name ?? "");
-    setBudget(String(initialValues?.budget ?? ""));
-    setParticipants(String(initialValues?.participants ?? ""));
-    setStartDate(initialValues?.startDate ? new Date(initialValues.startDate) : null);
-    setEndDate(initialValues?.endDate ? new Date(initialValues.endDate) : null);
-    setError("");
-  }, [initialValues]);
 
   const isValid = name.trim() && parseNumber(budget) > 0;
 
