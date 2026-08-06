@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getEventDetail, updateEvent } from "../../api/funding/event";
+import { getEventDetail, updateEvent } from "../../api";
 import { formatCurrency, formatDate, formatDateRange, formatNumber } from "../../utils/format";
 import { Button, PermissionBadge } from "../../components/common";
 import EventFormModal from "./components/EventFormModal";

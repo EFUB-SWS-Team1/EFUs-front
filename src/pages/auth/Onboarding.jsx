@@ -8,7 +8,7 @@ import {
   USE_MOCK_AUTH,
   getKakaoAuthorizeUrl,
   loginWithKakaoCode,
-} from "../../api/auth/kakaoLogin";
+} from "../../api";
 import styles from "./Onboarding.module.css";
 
 export default function Onboarding() {

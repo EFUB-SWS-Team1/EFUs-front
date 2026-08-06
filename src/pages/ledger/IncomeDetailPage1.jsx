@@ -7,7 +7,7 @@ import {
   getReceipt,
   getTransaction,
   getTransactionHistories,
-} from "../../api/transaction/ledger";
+} from "../../api";
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "-";

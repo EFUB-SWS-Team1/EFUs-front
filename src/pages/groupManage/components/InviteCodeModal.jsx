@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import copyIcon from '../../../assets/Copy.svg';
 import styles from './InviteCodeModal.module.css';
-import { getInviteCodes } from "../../../api/invitation/invitation";
+import { getInviteCodes } from "../../../api";
 
 const ROLE_ITEMS = [
   { key: 'staff', label: '운영진' },

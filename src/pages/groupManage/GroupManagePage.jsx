@@ -9,8 +9,11 @@ import GenerationCloseModal from "./components/GenerationCloseModal";
 import MemberDetailPanel from "./components/MemberDetailPanel";
 import SuccessModal from "./components/SuccessModal";
 import styles from "./GroupManagePage.module.css";
-import { getGroupManageOverview, getMemberDetail } from "../../api/member/groupManage";
-import { closeGeneration } from "../../api/term/term";
+import {
+  closeGeneration,
+  getGroupManageOverview,
+  getMemberDetail,
+} from "../../api";
 
 /*loadOverview로 GroupManagePage에 데이터를 불러옴, formatShortDate 는 날짜 다듬기, 
 멤버를 검색 및 페이지 별로 보여줌 : filteredMembers, totalPages, pagedMembers, 

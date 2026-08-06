@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import logoIcon from "../../assets/efub로고2.svg";
 import pencilIcon from "../../assets/Edit_Pencil_Line_01.svg";
-import { getDashboardSummary } from "../../api/term/dashboard";
+import { getDashboardSummary } from "../../api";
 import useGroup from "../../hooks/useGroup";
 import BudgetSummary from "./components/BudgetSummary";
 import RecentTransaction from "./components/RecentTransaction";
