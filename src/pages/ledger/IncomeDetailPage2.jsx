@@ -9,7 +9,9 @@ import {
   getCharge,
   getChargeHistories,
   getChargePaymentMembersPage,
+  payChargeMember,
 } from "../../api";
+import useGroup from "../../hooks/useGroup";
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "-";
@@ -19,6 +21,20 @@ function formatDisplayDate(dateStr) {
 function formatWon(amount) {
   const num = Math.abs(Number(amount) || 0);
   return `${num.toLocaleString()}원`;
+}
+
+function formatHistoryDate(date) {
+  return date ? String(date).slice(0, 10) : "-";
+}
+
+function formatHistoryContent(content) {
+  const text = String(content ?? "-").trim();
+
+  return text
+    .replace(/(을|를)\s+(추가|변경|수정|삭제)(?:했습니다|하였습니다|함)?\.?$/, " $2")
+    .replace(/(추가|변경|수정|삭제)(?:했습니다|하였습니다|되었습니다|함|됨)\.?$/, "$1")
+    .replace(/(?:했습니다|하였습니다)\.?$/, "")
+    .trim();
 }
 
 function mapChargeToView(data, fallback = {}) {
@@ -52,6 +68,7 @@ function mapChargeToView(data, fallback = {}) {
 const IncomeDetailPage2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { role, termStatus } = useGroup();
 
   const initial = location.state?.incomeData;
 
@@ -79,9 +96,14 @@ const IncomeDetailPage2 = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [memberList, setMemberList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [payingMemberId, setPayingMemberId] = useState(null);
   const [error, setError] = useState("");
 
   const chargeId = initial?.id ?? incomeData.id;
+  const canManagePayments =
+    String(role ?? "").toUpperCase() === "STAFF" &&
+    String(termStatus ?? "").toUpperCase() === "ACTIVE" &&
+    !incomeData.isDeleted;
 
   async function reloadMembers(id) {
     const result = await getChargePaymentMembersPage(id, {
@@ -181,6 +203,30 @@ const IncomeDetailPage2 = () => {
     }
   };
 
+  const handleMemberPayment = async (member) => {
+    if (
+      !chargeId ||
+      !canManagePayments ||
+      member.status !== "pending" ||
+      payingMemberId !== null
+    ) return;
+
+    try {
+      setError("");
+      setPayingMemberId(member.chargeMemberId);
+      await payChargeMember(chargeId, member.chargeMemberId);
+      await reloadMembers(chargeId);
+      const detail = await getCharge(chargeId);
+      setIncomeData((prev) =>
+        mapChargeToView(detail, { ...prev, history: prev.history }),
+      );
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message ?? "납부 처리에 실패했습니다.");
+    } finally {
+      setPayingMemberId(null);
+    }
+  };
+
   const completedCount = incomeData.paidCount ?? memberList.filter(
     (m) => m.status === "completed",
   ).length;
@@ -215,10 +261,7 @@ const IncomeDetailPage2 = () => {
         ...mapChargeToView(refreshed, prev),
         isDeleted: refreshed.deleted ?? true,
         deletedDate: formatDisplayDate(refreshed.deletedAt) || today,
-        history: [
-          { date: today, author: "나", content: "삭제" },
-          ...(prev.history ?? []),
-        ],
+        history: prev.history ?? [],
       }));
       setIsDeleteModalOpen(false);
     } catch (err) {
@@ -308,11 +351,15 @@ const IncomeDetailPage2 = () => {
         </div>
       </div>
 
-      <div className="detail-section">
-        <h3 className="section-heading">수정 이력</h3>
-        <div className="section-box">
+      <div className="detail-section charge-history-section">
+        <h3 className="section-heading charge-history-title">수정 이력</h3>
+        <div
+          className={`section-box charge-history-card ${
+            incomeData.history?.length ? "" : "is-empty"
+          }`}
+        >
           {incomeData.history && incomeData.history.length > 0 ? (
-            <table className="history-table">
+            <table className="history-table charge-history-table">
               <thead>
                 <tr>
                   <th>날짜</th>
@@ -323,9 +370,9 @@ const IncomeDetailPage2 = () => {
               <tbody>
                 {incomeData.history.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.date}</td>
+                    <td>{formatHistoryDate(item.date)}</td>
                     <td>{item.author}</td>
-                    <td>{item.content}</td>
+                    <td>{formatHistoryContent(item.content)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -418,11 +465,14 @@ const IncomeDetailPage2 = () => {
                     <span className="target-name">{member.name}</span>
                     <span className="target-amount">{formatWon(member.assignedAmount)}</span>
                   </div>
-                  <span
+                  <button
+                    type="button"
                     className={`status-badge-btn ${isCompleted ? "completed" : "pending"}`}
+                    onClick={() => handleMemberPayment(member)}
+                    disabled={isCompleted || !canManagePayments || payingMemberId !== null}
                   >
                     {isCompleted ? "완료" : "미납"}
-                  </span>
+                  </button>
                 </div>
               );
             })}

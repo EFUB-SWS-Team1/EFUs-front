@@ -118,7 +118,7 @@ export async function deleteCharge(chargeId) {
 export async function payChargeMember(chargeId, chargeMemberId, paidAt) {
   const { data } = await axiosInstance.post(
     `/charges/${chargeId}/members/${chargeMemberId}/payment`,
-    paidAt ? { paidAt } : {},
+    paidAt ? { paidAt } : undefined,
   );
   return unwrap(data);
 }
@@ -138,9 +138,41 @@ export async function bulkPayCharge(chargeId, payload = { targetMode: "ALL_UNPAI
 
 export async function getChargeHistories(chargeId, params = {}) {
   const { data } = await axiosInstance.get(`/charges/${chargeId}/histories`, { params });
-  return unwrapList(data, ["histories"]).map((item) => ({
-    date: String(item.changedAt ?? item.date ?? "").slice(0, 10).replaceAll("-", "."),
-    author: item.actorName ?? item.author ?? "-",
-    content: item.summary ?? item.actionType ?? "-",
-  }));
+  return unwrapList(data, ["histories"])
+    .filter((item) => {
+      const action = String(
+        item.actionType ?? item.type ?? item.httpMethod ?? item.method ?? "",
+      ).toUpperCase();
+      const summary = String(
+        item.summary ?? item.changeSummary ?? item.description ?? "",
+      ).toUpperCase();
+      const historyText = `${action} ${summary}`;
+
+      if (/PAYMENT|PAID|UNPAID|REVERSAL|납부|미납/.test(historyText)) return false;
+      if (/CREATE|CREATED|DELETE|DELETED|생성|등록|삭제/.test(historyText)) return false;
+
+      return (
+        /PATCH|UPDATE|UPDATED|EDIT|EDITED|MODIFY|MODIFIED|수정|변경/.test(historyText) ||
+        Array.isArray(item.changedFields) ||
+        item.changes != null
+      );
+    })
+    .map((item) => ({
+      content:
+        item.summary ??
+        item.changeSummary ??
+        item.description ??
+        item.changedContent ??
+        item.actionType ??
+        "-",
+      author:
+        item.actorName ??
+        item.updatedByName ??
+        item.modifiedByName ??
+        item.author ??
+        "-",
+      date: String(
+        item.changedAt ?? item.updatedAt ?? item.modifiedAt ?? item.date ?? "",
+      ).slice(0, 16).replace("T", " ").replaceAll("-", "."),
+    }));
 }

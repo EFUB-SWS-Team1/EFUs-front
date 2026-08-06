@@ -212,6 +212,44 @@ export default function LedgerCreatePage() {
     navigate("/expense");
   }
 
+  function handleEntryClick(item) {
+    const sharedData = {
+      id: item.id,
+      title: item.desc,
+      date: item.date,
+      event: item.event,
+      isDeleted: item.deleted,
+      registrationDate: item.createdAt,
+    };
+
+    if (item.entryType === "CHARGE") {
+      navigate("/income-detail2", {
+        state: {
+          incomeData: {
+            ...sharedData,
+            rawAmount: item.requestedAmount,
+            paidAmount: item.paidAmount,
+            unpaidAmount: item.unpaidAmount,
+            paymentStatus: item.paymentStatus,
+          },
+        },
+      });
+      return;
+    }
+
+    const amount = `${item.type === "expense" ? "-" : "+"}${Math.abs(item.amount).toLocaleString()}원`;
+    if (item.type === "expense") {
+      navigate("/expense-detail", {
+        state: { expenseData: { ...sharedData, amount } },
+      });
+      return;
+    }
+
+    navigate("/income-detail", {
+      state: { incomeData: { ...sharedData, amount } },
+    });
+  }
+
   const errorMessage =
     error?.response?.data?.message ??
     error?.message ??
@@ -394,6 +432,15 @@ export default function LedgerCreatePage() {
                   <div
                     key={`${item.entryType}-${item.id}`}
                     className="table-row"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleEntryClick(item)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleEntryClick(item);
+                      }
+                    }}
                   >
                     <span className="col-event">
                       {item.event}
