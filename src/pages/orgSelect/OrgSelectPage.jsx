@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import useGroup from "../../hooks/useGroup";
 import ProfileHeader from "./components/ProfileHeader";
 import OrgEmptyState from "./components/OrgEmptyState";
 import OrgList from "./components/OrgList";
@@ -17,6 +18,7 @@ import {
 
 export default function OrgSelectPage() {
   const { user } = useAuth();
+  const { selectOrganization } = useGroup();
   const navigate = useNavigate();
 
   const [organizations, setOrganizations] = useState([]);
@@ -43,7 +45,12 @@ export default function OrgSelectPage() {
     };
   }, []);
 
-  const handleEnterOrg = (orgId) => {
+  const handleEnterOrg = async (orgId) => {
+    const organization = organizations.find(
+      (item) => String(item.id) === String(orgId),
+    );
+    if (!organization) return;
+    await selectOrganization(organization);
     navigate("/dashboard");
   };
 
