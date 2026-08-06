@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import GenerationItem from "./components/GenerationItem";
@@ -15,6 +14,8 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({
+  clubName = "EFUB",
+  clubLogo = groupLogoIcon,
   generations = [
     { id: 6, label: "EFUB 6기" },
     { id: 5, label: "EFUB 5기" },
@@ -75,9 +76,13 @@ export default function Sidebar({
             type="button"
             className={styles.groupBtn}
             onClick={() => setDropdownOpen((prev) => !prev)}
+            aria-expanded={dropdownOpen}
+            aria-haspopup="listbox"
           >
-            <img src={groupLogoIcon} alt="" className={styles.groupLogo} />
-            <span className={styles.groupName}>EFUB</span>
+            <img src={clubLogo} alt="" className={styles.groupLogo} />
+            <span className={styles.groupName} title={clubName}>
+              {clubName}
+            </span>
             <span
               className={[
                 styles.chevron,
@@ -85,16 +90,17 @@ export default function Sidebar({
               ]
                 .filter(Boolean)
                 .join(" ")}
+              aria-hidden="true"
             />
           </button>
 
           {dropdownOpen && (
-            <ul className={styles.dropdown}>
+            <ul className={styles.dropdown} role="listbox">
               {generations.map((gen) => (
                 <GenerationItem
                   key={gen.id}
                   label={gen.label}
-                  logo={groupLogoIcon}
+                  logo={clubLogo}
                   isActive={gen.id === activeGenerationId}
                   onClick={() => handleGenerationSelect(gen.id)}
                 />
