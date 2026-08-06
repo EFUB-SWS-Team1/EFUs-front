@@ -8,7 +8,7 @@ import checkIcon from "../../assets/checkbox.svg";
 import { getLedgerEntries } from "../../api";
 import useGroup from "../../hooks/useGroup";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 5;
 
 const EMPTY_PAGE_INFO = {
   page: 0,
