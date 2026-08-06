@@ -39,12 +39,12 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 
 | Category | Technology | Description |
 |:---:|:---:|:---|
-| **Framework** | `React` | 프론트엔드 애플리케이션 개발 |
-| **Language** | `JavaScript` | 서비스 UI 및 비즈니스 로직 구현 |
+| **Framework** | React | 프론트엔드 애플리케이션 개발 |
+| **Language** | JavaScript | 서비스 UI 및 비즈니스 로직 구현 |
 | **Build Tool** | Vite | 개발 서버 및 프로젝트 빌드 |
-| **HTTP Client** | `Axios` | 백엔드 REST API 통신 |
-| **State Management** | `React Hooks` | 클라이언트 상태 관리 |
-| **Styling** | `CSS Modules` | UI 스타일링 |
+| **HTTP Client** | Axios | 백엔드 REST API 통신 |
+| **State Management** | React Hooks | 클라이언트 상태 관리 |
+| **Styling** | CSS Modules | UI 스타일링 |
 | **Deploy** | Vercel | 프론트엔드 서비스 배포 |
 
 </br>
@@ -54,29 +54,34 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 ```text
 📁 src
 ├── 📁 assets
-│   ├── 📁 icons
-│   └── 📁 images
 │
 ├── 📁 components
 │   ├── 📁 common
 │   └── 📁 layout
+│       └── 📁 components
 │
 ├── 📁 pages
-│   ├── 📁 Login
-│   ├── 📁 Organization
-│   ├── 📁 Dashboard
-│   ├── 📁 Member
-│   ├── 📁 Invitation
-│   ├── 📁 Funding
-│   ├── 📁 Transaction
-│   ├── 📁 Charge
-│   └── 📁 MyPage
+│   ├── 📁 auth
+│   ├── 📁 orgSelect
+│   ├── 📁 dashboard
+│   ├── 📁 groupManage
+│   ├── 📁 event
+│   └── 📁 ledger
 │
 ├── 📁 api
+│   ├── 📁 auth
+│   ├── 📁 organization
+│   ├── 📁 term
+│   ├── 📁 funding
+│   ├── 📁 transaction
+│   ├── 📁 invitation
+│   ├── 📁 member
+│   └── 📁 charge
+│
 ├── 📁 hooks
-├── 📁 constants
 ├── 📁 utils
 ├── 📁 styles
+├── 📁 router
 │
 ├── App
 └── main
