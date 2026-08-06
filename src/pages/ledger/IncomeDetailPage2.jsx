@@ -23,6 +23,20 @@ function formatWon(amount) {
   return `${num.toLocaleString()}원`;
 }
 
+function formatHistoryDate(date) {
+  return date ? String(date).slice(0, 10) : "-";
+}
+
+function formatHistoryContent(content) {
+  const text = String(content ?? "-").trim();
+
+  return text
+    .replace(/(을|를)\s+(추가|변경|수정|삭제)(?:했습니다|하였습니다|함)?\.?$/, " $2")
+    .replace(/(추가|변경|수정|삭제)(?:했습니다|하였습니다|되었습니다|함|됨)\.?$/, "$1")
+    .replace(/(?:했습니다|하였습니다)\.?$/, "")
+    .trim();
+}
+
 function mapChargeToView(data, fallback = {}) {
   return {
     id: data.id ?? data.chargeId ?? fallback.id,
@@ -337,24 +351,28 @@ const IncomeDetailPage2 = () => {
         </div>
       </div>
 
-      <div className="detail-section">
-        <h3 className="section-heading">수정 이력</h3>
-        <div className="section-box">
+      <div className="detail-section charge-history-section">
+        <h3 className="section-heading charge-history-title">수정 이력</h3>
+        <div
+          className={`section-box charge-history-card ${
+            incomeData.history?.length ? "" : "is-empty"
+          }`}
+        >
           {incomeData.history && incomeData.history.length > 0 ? (
-            <table className="history-table">
+            <table className="history-table charge-history-table">
               <thead>
                 <tr>
+                  <th>날짜</th>
+                  <th>이름</th>
                   <th>수정 내용</th>
-                  <th>수정자</th>
-                  <th>수정 일자</th>
                 </tr>
               </thead>
               <tbody>
                 {incomeData.history.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.content}</td>
+                    <td>{formatHistoryDate(item.date)}</td>
                     <td>{item.author}</td>
-                    <td>{item.date}</td>
+                    <td>{formatHistoryContent(item.content)}</td>
                   </tr>
                 ))}
               </tbody>

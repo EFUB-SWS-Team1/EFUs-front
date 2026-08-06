@@ -543,6 +543,83 @@
   box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
 }
 
+/* 회비 상세의 수정 이력 카드에만 적용되는 스타일 */
+.detail-container .charge-history-title {
+  margin-bottom: 12px;
+  color: #555555;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.detail-container .charge-history-card {
+  min-height: 78px;
+  padding: 0;
+  overflow: hidden;
+  align-items: stretch;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.03);
+}
+
+.detail-container .charge-history-card.is-empty {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.detail-container .charge-history-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.detail-container .charge-history-table th,
+.detail-container .charge-history-table td {
+  border: 0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.detail-container .charge-history-table th {
+  height: 52px;
+  padding: 0 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #f2f2f2;
+  color: #aaaaaa;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.detail-container .charge-history-table td {
+  min-height: 60px;
+  padding: 20px 32px;
+  color: #555555;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.detail-container .charge-history-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.detail-container .charge-history-table th:nth-child(1),
+.detail-container .charge-history-table td:nth-child(1) {
+  width: 24%;
+}
+
+.detail-container .charge-history-table th:nth-child(2),
+.detail-container .charge-history-table td:nth-child(2) {
+  width: 20%;
+}
+
+.detail-container .charge-history-table th:nth-child(3),
+.detail-container .charge-history-table td:nth-child(3) {
+  width: 56%;
+}
+
 .detail-container .summary-cards-row {
   width: 100%;
   min-height: 144px;
