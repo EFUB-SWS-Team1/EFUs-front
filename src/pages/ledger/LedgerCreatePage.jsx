@@ -8,13 +8,7 @@ import checkIcon from "../../assets/checkbox.svg";
 import { getLedgerEntries } from "../../api";
 import useGroup from "../../hooks/useGroup";
 
-const PAGE_SIZE = 20;
-
-const EMPTY_SUMMARY = {
-  totalIncome: 0,
-  totalExpense: 0,
-  balance: 0,
-};
+const PAGE_SIZE = 5;
 
 const EMPTY_PAGE_INFO = {
   page: 0,
@@ -31,10 +25,9 @@ export default function LedgerCreatePage() {
   const [filter, setFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
   const [groups, setGroups] = useState([]);
-  const [summary, setSummary] = useState(EMPTY_SUMMARY);
-
   const [paginationState, setPaginationState] =
     useState({
       termId: null,
@@ -89,7 +82,6 @@ export default function LedgerCreatePage() {
           ),
         );
         setGroups([]);
-        setSummary(EMPTY_SUMMARY);
         setPageInfo(EMPTY_PAGE_INFO);
         setIsLoading(false);
         return;
@@ -118,19 +110,12 @@ export default function LedgerCreatePage() {
 
         setGroups(data.groups);
 
-        setSummary({
-          totalIncome: data.totalIncome,
-          totalExpense: data.totalExpense,
-          balance: data.balance,
-        });
-
         setPageInfo(data.pageInfo);
       } catch (requestError) {
         if (ignore) return;
 
         setError(requestError);
         setGroups([]);
-        setSummary(EMPTY_SUMMARY);
         setPageInfo(EMPTY_PAGE_INFO);
       } finally {
         if (!ignore) {
@@ -234,15 +219,14 @@ export default function LedgerCreatePage() {
 
   const hasSelectedTerm = currentTermId != null;
 
-  const visibleSummary = hasSelectedTerm
-    ? summary
-    : EMPTY_SUMMARY;
-
   const visibleGroups = hasSelectedTerm
     ? groups
     : [];
 
   const hasEntries = visibleGroups.length > 0;
+  const periodLabel = fromDate || toDate
+    ? `${fromDate ? fromDate.replaceAll("-", ".") : "시작일"} – ${toDate ? toDate.replaceAll("-", ".") : "종료일"}`
+    : "전체";
 
 
   return (
@@ -270,78 +254,52 @@ export default function LedgerCreatePage() {
         </button>
       </header>
 
-      <section className="table-card">
-        <div className="table-header">
-          <span>총수입</span>
-          <span>총지출</span>
-          <span>잔액</span>
-        </div>
-
-        <div className="table-row">
-          <span className="col-amount income">
-            +
-            {visibleSummary.totalIncome.toLocaleString()}
-            원
-          </span>
-
-          <span className="col-amount expense">
-            -
-            {visibleSummary.totalExpense.toLocaleString()}
-            원
-          </span>
-
-          <span
-            className={`col-amount ${
-              visibleSummary.balance < 0
-                ? "expense"
-                : "income"
-            }`}
-          >
-            {visibleSummary.balance.toLocaleString()}원
-          </span>
-        </div>
-      </section>
-
       <section className="filter-section">
         <div className="filter-period">
           <label className="filter-label">
             기간
           </label>
 
-          <div className="select-box">
-            <img
-              src={calendarIcon}
-              alt=""
-              aria-hidden="true"
-              className="calendar-icon"
-            />
+          <button
+            type="button"
+            className="period-select-trigger"
+            onClick={() => setIsPeriodOpen((value) => !value)}
+            aria-expanded={isPeriodOpen}
+            aria-controls="period-picker"
+          >
+            <img src={calendarIcon} alt="" aria-hidden="true" className="calendar-icon" />
+            <span>{periodLabel}</span>
+          </button>
 
-            <input
-              type="date"
-              value={fromDate}
-              onChange={handleFromDateChange}
-              aria-label="시작 날짜"
-            />
-
-            <span>~</span>
-
-            <input
-              type="date"
-              value={toDate}
-              onChange={handleToDateChange}
-              aria-label="종료 날짜"
-            />
-
-            {(fromDate || toDate) && (
+          {isPeriodOpen && (
+            <div className="period-picker" id="period-picker">
+              <div className="period-picker-dates">
+                <label>
+                  <span>시작일</span>
+                  <input type="date" value={fromDate} onChange={handleFromDateChange} />
+                </label>
+                <span className="period-divider" aria-hidden="true">–</span>
+                <label>
+                  <span>종료일</span>
+                  <input type="date" value={toDate} onChange={handleToDateChange} />
+                </label>
+              </div>
+              <div className="period-picker-actions">
+                {(fromDate || toDate) && (
+                  <button type="button" className="period-reset-btn" onClick={handleResetDates}>
+                    초기화
+                  </button>
+                )}
               <button
                 type="button"
-                onClick={handleResetDates}
-                aria-label="기간 필터 초기화"
+                  className="period-apply-btn"
+                  onClick={() => setIsPeriodOpen(false)}
               >
-                초기화
+                  확인
               </button>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="tab-group">
@@ -465,28 +423,30 @@ export default function LedgerCreatePage() {
         !isLoading &&
         !error &&
         pageInfo.totalPages > 0 && (
-          <div className="tab-group">
+          <div className="ledger-pagination" aria-label="가계부 목록 페이지 이동">
             <button
               type="button"
-              className="tab-btn"
+              className="ledger-page-btn"
               disabled={pageInfo.page <= 0}
               onClick={handlePreviousPage}
+              aria-label="이전 페이지"
             >
-              이전
+              ‹
             </button>
 
-            <span>
+            <span className="ledger-page-info">
               {pageInfo.page + 1} /{" "}
               {pageInfo.totalPages}
             </span>
 
             <button
               type="button"
-              className="tab-btn"
+              className="ledger-page-btn"
               disabled={!pageInfo.hasNext}
               onClick={handleNextPage}
+              aria-label="다음 페이지"
             >
-              다음
+              ›
             </button>
           </div>
         )}

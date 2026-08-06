@@ -65,16 +65,44 @@ function mapPaymentStatus(status) {
 }
 
 export async function getChargePaymentMembers(chargeId, params = {}) {
-  const { data } = await axiosInstance.get(`/charges/${chargeId}/members`, { params });
-  return unwrapList(data, ["members"]).map((item) => ({
-    id: item.chargeMemberId ?? item.id ?? item.termMemberId,
-    termMemberId: item.termMemberId ?? item.memberId ?? item.id,
+  const result = await getChargePaymentMembersPage(chargeId, params);
+  return result.members;
+}
+
+export async function getChargePaymentMembersPage(chargeId, params = {}) {
+  const query = {
+    ...(params.keyword?.trim() ? { keyword: params.keyword.trim() } : {}),
+    ...(params.paymentStatus ? { paymentStatus: params.paymentStatus } : {}),
+    page: params.page ?? 0,
+    size: params.size ?? 100,
+  };
+  const { data } = await axiosInstance.get(`/charges/${chargeId}/members`, {
+    params: query,
+  });
+  const payload = unwrap(data);
+  const items = unwrapList(data, ["members"]);
+  const members = items.map((item) => ({
+    id: item.chargeMemberId,
+    chargeMemberId: item.chargeMemberId,
+    termMemberId: item.termMemberId,
     name: item.name,
     role: mapRole(item.role) === "staff" ? "운영진" : "일반",
     status: mapPaymentStatus(item.paymentStatus ?? item.status),
-    amount: item.assignedAmount ?? item.amount ?? item.chargeAmount ?? 0,
+    paymentStatus: item.paymentStatus,
+    assignedAmount: item.assignedAmount ?? 0,
+    amount: item.assignedAmount ?? 0,
     paidAt: item.paidAt ?? null,
   }));
+
+  return {
+    members,
+    page: payload?.number ?? payload?.page ?? payload?.pageInfo?.page ?? query.page,
+    size: payload?.size ?? payload?.pageInfo?.size ?? query.size,
+    totalPages:
+      payload?.totalPages ?? payload?.pageInfo?.totalPages ?? (members.length ? 1 : 0),
+    totalElements:
+      payload?.totalElements ?? payload?.pageInfo?.totalElements ?? members.length,
+  };
 }
 
 export async function updateCharge(chargeId, payload) {

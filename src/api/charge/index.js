@@ -8,6 +8,7 @@ export {
   getChargeHistories,
   getChargeMembers,
   getChargePaymentMembers,
+  getChargePaymentMembersPage,
   payChargeMember,
   previewCharge,
   reverseChargeMemberPayment,
