@@ -1,15 +1,15 @@
 .page {
   min-width: 0;
-  width: auto;
+  width: 100%;
   flex: 1;
-  max-width: 100%;
+  max-width: var(--content-max-width);
   margin: 0;
-  padding: 32px;
+  padding: 0;
   background: transparent;
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--section-gap);
   box-sizing: border-box;
 }
 
@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .headerIcon {
@@ -42,7 +42,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 28px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   background: #ffffff;
   border-radius: 16px;
 }
@@ -71,7 +71,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .memberCount {
@@ -231,11 +231,14 @@
 }
 
 .pageRoot {
-  width: calc(100% + 64px);
-  min-height: 100vh;
-  margin: -32px;
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-height: 100%;
+  margin: 0;
   display: flex;
+  flex-direction: row-reverse;
   align-items: stretch;
+  gap: var(--section-gap);
   overflow-x: hidden;
   box-sizing: border-box;
 }
