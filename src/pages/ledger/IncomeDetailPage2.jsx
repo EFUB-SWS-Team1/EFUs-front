@@ -8,7 +8,7 @@ import {
   deleteCharge,
   getCharge,
   getChargeHistories,
-  getChargePaymentMembers,
+  getChargePaymentMembersPage,
   payChargeMember,
   reverseChargeMemberPayment,
 } from "../../api";
@@ -75,6 +75,10 @@ const IncomeDetailPage2 = () => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [memberList, setMemberList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -82,9 +86,23 @@ const IncomeDetailPage2 = () => {
   const chargeId = initial?.id ?? incomeData.id;
 
   async function reloadMembers(id) {
-    const members = await getChargePaymentMembers(id);
-    setMemberList(members);
+    const result = await getChargePaymentMembersPage(id, {
+      keyword,
+      paymentStatus,
+      page,
+      size: 8,
+    });
+    setMemberList(result.members);
+    setTotalPages(result.totalPages);
   }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0);
+      setKeyword(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (!chargeId) return;
@@ -95,10 +113,9 @@ const IncomeDetailPage2 = () => {
       setIsLoading(true);
       setError("");
       try {
-        const [detail, histories, members] = await Promise.all([
+        const [detail, histories] = await Promise.all([
           getCharge(chargeId),
           getChargeHistories(chargeId),
-          getChargePaymentMembers(chargeId),
         ]);
 
         if (ignore) return;
@@ -110,7 +127,6 @@ const IncomeDetailPage2 = () => {
             history: histories,
           }),
         );
-        setMemberList(members);
       } catch (err) {
         if (!ignore) {
           setError(err.response?.data?.message ?? err.message ?? "회비 상세를 불러오지 못했습니다.");
@@ -128,6 +144,28 @@ const IncomeDetailPage2 = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chargeId]);
+
+  useEffect(() => {
+    if (!chargeId) return;
+    let ignore = false;
+
+    getChargePaymentMembersPage(chargeId, {
+      keyword,
+      paymentStatus,
+      page,
+      size: 8,
+    })
+      .then((result) => {
+        if (ignore) return;
+        setMemberList(result.members);
+        setTotalPages(result.totalPages);
+      })
+      .catch((err) => {
+        if (!ignore) setError(err.response?.data?.message ?? err.message ?? "납부 현황을 불러오지 못했습니다.");
+      });
+
+    return () => { ignore = true; };
+  }, [chargeId, keyword, paymentStatus, page]);
 
   const handleStatusToggle = async (id) => {
     if (!chargeId || incomeData.isDeleted) return;
@@ -182,10 +220,6 @@ const IncomeDetailPage2 = () => {
       .reduce((acc, m) => acc + (Number(m.amount) || 0), 0);
     return formatWon(sum);
   }, [incomeData.paidAmount, memberList]);
-
-  const filteredMembers = memberList.filter((m) =>
-    m.name.includes(searchTerm.trim()),
-  );
 
   const handleDeleteConfirm = async () => {
     if (!chargeId) {
@@ -362,6 +396,19 @@ const IncomeDetailPage2 = () => {
               className="target-search-input"
             />
           </div>
+          <select
+            className="payment-status-filter"
+            value={paymentStatus}
+            onChange={(e) => {
+              setPaymentStatus(e.target.value);
+              setPage(0);
+            }}
+            aria-label="납부 상태 필터"
+          >
+            <option value="">전체</option>
+            <option value="UNPAID">미납</option>
+            <option value="PAID">완료</option>
+          </select>
           <button
             type="button"
             className="btn-bulk-select"
@@ -374,11 +421,11 @@ const IncomeDetailPage2 = () => {
 
         <div className="target-select-box">
           <div className="target-list-grid">
-            {filteredMembers.map((member) => {
+            {memberList.map((member) => {
               const isCompleted = member.status === "completed";
               return (
                 <div
-                  key={member.id}
+                  key={member.chargeMemberId}
                   className={`target-item ${isCompleted ? "checked" : ""}`}
                 >
                   <div
@@ -394,11 +441,12 @@ const IncomeDetailPage2 = () => {
                       {member.role}
                     </span>
                     <span className="target-name">{member.name}</span>
+                    <span className="target-amount">{formatWon(member.assignedAmount)}</span>
                   </div>
                   <button
                     type="button"
                     className={`status-badge-btn ${isCompleted ? "completed" : "pending"}`}
-                    onClick={() => handleStatusToggle(member.id)}
+                    onClick={() => handleStatusToggle(member.chargeMemberId)}
                     disabled={incomeData.isDeleted}
                   >
                     {isCompleted ? "완료" : "미납"}
@@ -409,8 +457,13 @@ const IncomeDetailPage2 = () => {
           </div>
 
           <div className="pagination-mock">
-            <span>1 / 1</span>
-            <span className="page-arrow">&gt;</span>
+            <button type="button" onClick={() => setPage((value) => value - 1)} disabled={page === 0}>
+              &lt;
+            </button>
+            <span>{totalPages === 0 ? 0 : page + 1} / {totalPages}</span>
+            <button type="button" onClick={() => setPage((value) => value + 1)} disabled={page + 1 >= totalPages}>
+              &gt;
+            </button>
           </div>
         </div>
       </div>

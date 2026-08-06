@@ -628,6 +628,21 @@
   background: #ffffff;
 }
 
+.detail-container .payment-status-filter {
+  min-width: 104px;
+  padding: 0 12px;
+  border: 1px solid #eeeeee;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #555555;
+}
+
+.detail-container .target-amount {
+  color: #777777;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .detail-container .target-select-box {
   flex: 1;
   min-height: 302px;
@@ -688,6 +703,18 @@
 .detail-container .pagination-mock {
   margin-top: auto;
   justify-content: center;
+}
+
+.detail-container .pagination-mock button {
+  border: 0;
+  background: transparent;
+  color: #555555;
+  cursor: pointer;
+}
+
+.detail-container .pagination-mock button:disabled {
+  color: #cccccc;
+  cursor: default;
 }
 
 @media (max-width: 1320px) {
