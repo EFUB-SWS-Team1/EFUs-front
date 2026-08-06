@@ -247,10 +247,7 @@ const IncomeDetailPage2 = () => {
         ...mapChargeToView(refreshed, prev),
         isDeleted: refreshed.deleted ?? true,
         deletedDate: formatDisplayDate(refreshed.deletedAt) || today,
-        history: [
-          { date: today, author: "나", content: "삭제" },
-          ...(prev.history ?? []),
-        ],
+        history: prev.history ?? [],
       }));
       setIsDeleteModalOpen(false);
     } catch (err) {
@@ -347,17 +344,17 @@ const IncomeDetailPage2 = () => {
             <table className="history-table">
               <thead>
                 <tr>
-                  <th>날짜</th>
-                  <th>이름</th>
                   <th>수정 내용</th>
+                  <th>수정자</th>
+                  <th>수정 일자</th>
                 </tr>
               </thead>
               <tbody>
                 {incomeData.history.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.date}</td>
-                    <td>{item.author}</td>
                     <td>{item.content}</td>
+                    <td>{item.author}</td>
+                    <td>{item.date}</td>
                   </tr>
                 ))}
               </tbody>

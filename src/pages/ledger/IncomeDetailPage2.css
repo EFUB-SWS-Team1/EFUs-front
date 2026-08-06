@@ -231,7 +231,7 @@
 /* 열 간격 및 정렬 균형 맞추기 */
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
-  width: 30%;
+  width: 40%;
 }
 
 .history-table th:nth-child(2),
@@ -241,7 +241,7 @@
 
 .history-table th:nth-child(3),
 .history-table td:nth-child(3) {
-  width: 40%;
+  width: 30%;
 }
 
 /* 수정 이력 표가 들어있을 때는 박스의 위아래 패딩을 줄이고 표가 꽉 차게 조절 */
