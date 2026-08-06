@@ -240,7 +240,7 @@ const IncomePage2 = () => {
   };
 
   return (
-    <div className="expense-container">
+    <div className="expense-container income-charge-container">
       <h2 className="expense-title">수입 (+)</h2>
 
       <div className="billing-type-container">
