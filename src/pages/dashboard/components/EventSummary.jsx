@@ -1,64 +1,63 @@
 import Badge from "../../../components/common/Badge";
 import ProgressBar from "../../../components/common/ProgressBar";
+import { formatCurrency } from "../../../utils/format";
 import styles from "./EventSummary.module.css";
 
-function formatWon(amount) {
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
-function getBadgeProps(event) {
-  switch (event.status) {
-    case "ongoing":
-      return { variant: "success", label: "진행 중" };
-    case "warning":
-      return { variant: "warning", label: `${event.percent}% 초과` };
-    case "over":
+function getBadgeProps(budget) {
+  switch (budget.budgetStatus) {
+    case "NORMAL":
+      return { variant: "success", label: "정상" };
+    case "WARNING":
+      return { variant: "warning", label: "주의" };
+    case "EXCEEDED":
       return { variant: "danger", label: "예산 초과" };
     default:
       return { variant: "neutral", label: "-" };
   }
 }
 
-function EventCard({ event }) {
-  const { variant, label } = getBadgeProps(event);
-  const isOver = event.status === "over";
+function EventCard({ budget }) {
+  const { variant, label } = getBadgeProps(budget);
+  const isExceeded = budget.budgetStatus === "EXCEEDED";
 
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <p className={styles.eventName}>{event.name}</p>
+        <p className={styles.eventName}>{budget.name}</p>
         <Badge variant={variant}>{label}</Badge>
       </div>
-
       <ProgressBar
-        percent={event.percent}
-        variant={isOver ? "danger" : "default"}
+        percent={budget.usageRate}
+        variant={isExceeded ? "danger" : "default"}
         className={styles.progress}
       />
-
       <div className={styles.cardFooter}>
         <p className={styles.amountText}>
-          {formatWon(event.spent)} / {formatWon(event.budget)}
+          {formatCurrency(budget.spentAmount)} / {formatCurrency(budget.budgetAmount)}
         </p>
-        {isOver ? (
-          <p className={styles.overText}>+{formatWon(event.overAmount)} 초과</p>
+        {isExceeded ? (
+          <p className={styles.overText}>+{formatCurrency(budget.exceededAmount)} 초과</p>
         ) : (
-          <p className={styles.amountText}>{event.percent}%</p>
+          <p className={styles.amountText}>{budget.usageRate}%</p>
         )}
       </div>
     </div>
   );
 }
 
-export default function EventSummary({ events }) {
+export default function EventSummary({ budgets }) {
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>행사별 예산</h2>
-      <div className={styles.grid}>
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+      {budgets.length === 0 ? (
+        <p className={styles.amountText}>등록된 행사 예산이 없습니다.</p>
+      ) : (
+        <div className={styles.grid}>
+          {budgets.map((budget) => (
+            <EventCard key={budget.fundingId} budget={budget} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
