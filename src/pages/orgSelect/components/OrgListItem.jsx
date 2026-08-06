@@ -17,18 +17,25 @@ export default function OrgListItem({ org, onEnter }) {
       </div>
 
       <div className={styles.info}>
-        <span className={styles.name}>{org.name}</span>
+        <span className={styles.name} title={org.name}>
+          {org.name}
+        </span>
         <span className={styles.memberCount}>
           <img src={usersIcon} alt="" className={styles.memberIcon} />
           {org.memberCount}
         </span>
       </div>
 
-      {isActive && (
-        <button type="button" className={styles.enterBtn} onClick={() => onEnter(org.id)}>
-          입장하기 →
-        </button>
-      )}
+      {/* 항상 렌더 → hover 시 레이아웃 안 흔들림 */}
+      <button
+        type="button"
+        className={styles.enterBtn}
+        onClick={() => onEnter(org.id)}
+        tabIndex={isActive ? 0 : -1}
+        aria-hidden={!isActive}
+      >
+        입장하기 →
+      </button>
     </li>
   );
 }
