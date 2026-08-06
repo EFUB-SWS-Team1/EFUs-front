@@ -167,9 +167,9 @@ export async function createTransaction(termId, payload) {
 /**
  * 거래 상세 조회
  */
-export async function getTransaction(transactionId) {
+export async function getTransaction(termId, transactionId) {
   const response = await axiosInstance.get(
-    `/transactions/${transactionId}`,
+    `/terms/${termId}/transactions/${transactionId}`,
   );
 
   return unwrapResponse(response);
@@ -179,11 +179,12 @@ export async function getTransaction(transactionId) {
  * 거래 수정
  */
 export async function updateTransaction(
+  termId,
   transactionId,
   payload,
 ) {
   const response = await axiosInstance.patch(
-    `/transactions/${transactionId}`,
+    `/terms/${termId}/transactions/${transactionId}`,
     toTransactionBody(payload),
   );
 
@@ -193,9 +194,9 @@ export async function updateTransaction(
 /**
  * 거래 삭제
  */
-export async function deleteTransaction(transactionId) {
+export async function deleteTransaction(termId, transactionId) {
   await axiosInstance.delete(
-    `/transactions/${transactionId}`,
+    `/terms/${termId}/transactions/${transactionId}`,
   );
 }
 
