@@ -154,10 +154,10 @@ const IncomeDetailPage2 = () => {
   const [incomeData, setIncomeData] = useState(
     initial || {
       id: null,
-      title: "9월 정기 회비",
-      registrationDate: "2026.10.17",
-      amount: "500,000원",
-      date: "2026.09.09",
+      title: "",
+      registrationDate: "-",
+      amount: "0원",
+      date: "-",
       event: "-",
       memo: "-",
       history: [],
@@ -209,13 +209,27 @@ const IncomeDetailPage2 = () => {
   const [error, setError] =
     useState("");
 
+  const [historyError, setHistoryError] =
+    useState("");
+
   const chargeId =
     initial?.id ??
     incomeData.id;
 
+  const isStaff =
+    String(role ?? "").toUpperCase() === "STAFF";
+
+  const isActiveTerm =
+    String(termStatus ?? "").toUpperCase() === "ACTIVE";
+
   const canManagePayments =
-    String(role ?? "").toUpperCase() === "STAFF" &&
-    String(termStatus ?? "").toUpperCase() === "ACTIVE" &&
+    isStaff &&
+    isActiveTerm &&
+    !incomeData.isDeleted;
+
+  const canManageCharge =
+    isStaff &&
+    isActiveTerm &&
     !incomeData.isDeleted;
 
   async function reloadMembers(id) {
@@ -235,8 +249,10 @@ const IncomeDetailPage2 = () => {
   }
 
   async function reloadHistories(id) {
-    const historyData =
-      await getChargeHistories(
+    try {
+      setHistoryError("");
+
+      const historyData = await getChargeHistories(
         id,
         {
           page: historyPage,
@@ -244,14 +260,24 @@ const IncomeDetailPage2 = () => {
         },
       );
 
-    setIncomeData((previous) => ({
-      ...previous,
-      history: historyData.histories,
-    }));
+      setIncomeData((previous) => ({
+        ...previous,
+        history: historyData.histories,
+      }));
 
-    setHistoryPageInfo(
-      historyData.pageInfo,
-    );
+      setHistoryPageInfo(historyData.pageInfo);
+    } catch (requestError) {
+      setHistoryError(
+        requestError.response?.data?.message ??
+          requestError.message ??
+          "수정 이력을 불러오지 못했습니다.",
+      );
+
+      setIncomeData((previous) => ({
+        ...previous,
+        history: [],
+      }));
+    }
   }
 
   useEffect(() => {
@@ -274,35 +300,20 @@ const IncomeDetailPage2 = () => {
       setError("");
 
       try {
-        const [detail, historyData] =
-          await Promise.all([
-            getCharge(chargeId),
-
-            getChargeHistories(
-              chargeId,
-              {
-                page: historyPage,
-                size: HISTORY_PAGE_SIZE,
-              },
-            ),
-          ]);
+        const detail = await getCharge(chargeId);
 
         if (ignore) return;
 
-        setIncomeData(
+        setIncomeData((previous) =>
           mapChargeToView(
             detail,
             {
+              ...previous,
               ...initial,
               id: chargeId,
-              history:
-                historyData.histories,
+              history: previous.history,
             },
           ),
-        );
-
-        setHistoryPageInfo(
-          historyData.pageInfo,
         );
       } catch (err) {
         if (!ignore) {
@@ -335,6 +346,52 @@ const IncomeDetailPage2 = () => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chargeId]);
+
+  useEffect(() => {
+    if (!chargeId) return;
+
+    let ignore = false;
+
+    async function loadHistories() {
+      setHistoryError("");
+
+      try {
+        const historyData = await getChargeHistories(
+          chargeId,
+          {
+            page: historyPage,
+            size: HISTORY_PAGE_SIZE,
+          },
+        );
+
+        if (ignore) return;
+
+        setIncomeData((previous) => ({
+          ...previous,
+          history: historyData.histories,
+        }));
+        setHistoryPageInfo(historyData.pageInfo);
+      } catch (requestError) {
+        if (ignore) return;
+
+        setHistoryError(
+          requestError.response?.data?.message ??
+            requestError.message ??
+            "수정 이력을 불러오지 못했습니다.",
+        );
+        setIncomeData((previous) => ({
+          ...previous,
+          history: [],
+        }));
+      }
+    }
+
+    loadHistories();
+
+    return () => {
+      ignore = true;
+    };
   }, [chargeId, historyPage]);
 
   useEffect(() => {
@@ -529,7 +586,7 @@ const IncomeDetailPage2 = () => {
   ]);
 
   const handleDeleteConfirm = async () => {
-    if (!chargeId) {
+    if (!chargeId || !canManageCharge) {
       setIsDeleteModalOpen(false);
       return;
     }
@@ -623,6 +680,25 @@ const IncomeDetailPage2 = () => {
     }
   };
 
+  if (!chargeId) {
+    return (
+      <div className="detail-container">
+        <button
+          className="btn-back"
+          onClick={() => navigate("/ledger")}
+        >
+          <img
+            src={backArrowIcon}
+            alt="뒤로가기"
+            className="back-arrow-svg"
+          />{" "}
+          가계부 목록으로
+        </button>
+        <p>조회할 회비 정보가 없습니다.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="detail-container">
       <div className="detail-top-nav">
@@ -654,7 +730,7 @@ const IncomeDetailPage2 = () => {
               )
             }
             disabled={
-              incomeData.isDeleted
+              !canManageCharge
             }
           >
             수정
@@ -668,7 +744,7 @@ const IncomeDetailPage2 = () => {
               )
             }
             disabled={
-              incomeData.isDeleted
+              !canManageCharge
             }
           >
             삭제
@@ -800,7 +876,9 @@ const IncomeDetailPage2 = () => {
               : "is-empty"
           }`}
         >
-          {incomeData.history &&
+          {historyError ? (
+            <p>{historyError}</p>
+          ) : incomeData.history &&
           incomeData.history.length >
             0 ? (
             <table className="history-table charge-history-table">
