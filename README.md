@@ -39,12 +39,12 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 
 | Category | Technology | Description |
 |:---:|:---:|:---|
-| **Framework** | `작성 예정` | 프론트엔드 애플리케이션 개발 |
-| **Language** | `작성 예정` | 서비스 UI 및 비즈니스 로직 구현 |
+| **Framework** | `React` | 프론트엔드 애플리케이션 개발 |
+| **Language** | `JavaScript` | 서비스 UI 및 비즈니스 로직 구현 |
 | **Build Tool** | Vite | 개발 서버 및 프로젝트 빌드 |
-| **HTTP Client** | `작성 예정` | 백엔드 REST API 통신 |
-| **State Management** | `작성 예정` | 클라이언트 상태 관리 |
-| **Styling** | `작성 예정` | UI 스타일링 |
+| **HTTP Client** | `Axios` | 백엔드 REST API 통신 |
+| **State Management** | `React Hooks` | 클라이언트 상태 관리 |
+| **Styling** | `CSS Modules` | UI 스타일링 |
 | **Deploy** | Vercel | 프론트엔드 서비스 배포 |
 
 </br>
