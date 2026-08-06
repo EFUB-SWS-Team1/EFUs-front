@@ -1,7 +1,3 @@
-export {
-  USE_MOCK_AUTH,
-  getKakaoAuthorizeUrl,
-  loginWithKakaoCode,
-  mockKakaoLogin,
-} from "./kakaoLogin";
+export { getKakaoAuthorizeUrl, loginWithKakaoCode } from "./kakaoLogin";
 export { reissue } from "./reissue";
+export { getCurrentUser } from "./user";

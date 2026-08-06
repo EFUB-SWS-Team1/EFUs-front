@@ -25,12 +25,17 @@ let isRefreshing = false;
 let refreshSubscribers = [];
 
 function onTokenRefreshed(token) {
-  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers.forEach(({ resolve }) => resolve(token));
   refreshSubscribers = [];
 }
 
-function addRefreshSubscriber(cb) {
-  refreshSubscribers.push(cb);
+function onRefreshFailed(error) {
+  refreshSubscribers.forEach(({ reject }) => reject(error));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(resolve, reject) {
+  refreshSubscribers.push({ resolve, reject });
 }
 
 axiosInstance.interceptors.response.use(
@@ -57,19 +62,20 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(config);
       } catch (err) {
         isRefreshing = false;
-        refreshSubscribers = [];
+        onRefreshFailed(err);
         localStorage.removeItem("accessToken");
+        window.dispatchEvent(new Event("auth:unauthorized"));
         window.location.href = "/";
         return Promise.reject(err);
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       addRefreshSubscriber((token) => {
         config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${token}`;
         resolve(axiosInstance(config));
-      });
+      }, reject);
     });
   },
 );
