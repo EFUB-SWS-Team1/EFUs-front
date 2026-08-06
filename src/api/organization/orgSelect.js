@@ -1,6 +1,6 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
-const USE_MOCK = true; 
+const USE_MOCK = false;
 
 /** 'empty' | 'with-orgs' */
 const MOCK_MODE = "with-orgs";
@@ -16,7 +16,6 @@ function mapOrg(item) {
     id: item.id ?? item.organizationId,
     name: item.name,
     memberCount: item.memberCount ?? item.member_count ?? 0,
-    // 명세: 현재 기수, 내 역할도 오나?
     currentTerm: item.currentTerm ?? item.activeTerm ?? null,
     role: item.role ?? null,
   };
@@ -46,41 +45,17 @@ function todayDateString() {
   return `${y}-${m}-${day}`;
 }
 
-/** 내 단체 목록 — 빈 배열이면 empty UI */
 export async function getMyOrganizations() {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 300));
     return MOCK_MODE === "empty" ? [] : MOCK_ORGS;
   }
 
-  // GET /api/organizations (Authorization 필요)
   const { data } = await axiosInstance.get("/organizations");
   const list = Array.isArray(data) ? data : data?.content ?? data?.organizations ?? [];
   return list.map(mapOrg);
 }
 
-/** 초대 코드로 가입 */
-export async function joinOrganizationByCode(code) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 300));
-    if (!code.trim()) throw new Error("초대 코드를 입력해주세요");
-    return { id: "joined-org", name: "새로 참여한 단체", memberCount: 1 };
-  }
-
-  // POST /api/invitations/join
-  const { data } = await axiosInstance.post("/invitations/join", {
-    code: code.trim(),
-  });
-
-  return mapOrg(data.organization ?? data);
-}
-
-/**
- * 단체 생성
- * 명세 Body: name, initialTermName, initialTermStartDate
- *
- * 지금은 모달이 name만 받음 → 기수 정보는 임시 기본값
- */
 export async function createOrganization({
   name,
   initialTermName,
@@ -101,7 +76,6 @@ export async function createOrganization({
     initialTermStartDate: initialTermStartDate || todayDateString(),
   };
 
-  // POST /api/organizations
   const { data } = await axiosInstance.post("/organizations", body);
 
   return {

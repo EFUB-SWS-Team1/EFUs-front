@@ -5,7 +5,7 @@ import "./LedgerCreatePage.css";
 import logoIcon from "../../assets/efub로고1.svg";
 import calendarIcon from "../../assets/Calendar.svg";
 import checkIcon from "../../assets/checkbox.svg";
-import { getLedgerEntries } from "../../api/ledger";
+import { getLedgerEntries } from "../../api/transaction/ledger";
 
 // TODO: 나중에 useGroup의 실제 숫자 termId로 교체
 const TERM_ID = 1;

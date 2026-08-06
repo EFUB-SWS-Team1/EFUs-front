@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import modalStyles from "./orgSelectModal.module.css";
+import { getInviteCodes } from "../../../api/invitation/invitation";
 
 export default function InviteCodeModal({ isOpen, onClose, onSubmit }) {
   const [code, setCode] = useState("");

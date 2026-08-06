@@ -11,7 +11,7 @@ import {
   getChargePaymentMembers,
   payChargeMember,
   reverseChargeMemberPayment,
-} from "../../api/charge";
+} from "../../api/charge/charge";
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "-";
@@ -140,7 +140,9 @@ const IncomeDetailPage2 = () => {
       }
       await reloadMembers(chargeId);
       const detail = await getCharge(chargeId);
-      setIncomeData((prev) => mapChargeToView(detail, { ...prev, history: prev.history }));
+      setIncomeData((prev) =>
+        mapChargeToView(detail, { ...prev, history: prev.history }),
+      );
     } catch (err) {
       setError(err.message ?? "납부 상태 변경에 실패했습니다.");
     }
@@ -154,13 +156,17 @@ const IncomeDetailPage2 = () => {
       await bulkPayCharge(chargeId, { targetMode: "ALL_UNPAID" });
       await reloadMembers(chargeId);
       const detail = await getCharge(chargeId);
-      setIncomeData((prev) => mapChargeToView(detail, { ...prev, history: prev.history }));
+      setIncomeData((prev) =>
+        mapChargeToView(detail, { ...prev, history: prev.history }),
+      );
     } catch (err) {
       setError(err.message ?? "전체 납부 처리에 실패했습니다.");
     }
   };
 
-  const completedCount = memberList.filter((m) => m.status === "completed").length;
+  const completedCount = memberList.filter(
+    (m) => m.status === "completed",
+  ).length;
   const pendingCount = memberList.filter((m) => m.status === "pending").length;
 
   const paidAmountSum = useMemo(() => {
@@ -213,9 +219,7 @@ const IncomeDetailPage2 = () => {
           {/* 회비 수정 화면이 따로 없으면 일단 비활성/또는 기존 경로 유지 */}
           <button
             className="btn-action btn-edit"
-            onClick={() =>
-              navigate("/income-edit", { state: { incomeData } })
-            }
+            onClick={() => navigate("/income-edit", { state: { incomeData } })}
             disabled={incomeData.isDeleted}
           >
             수정
@@ -363,7 +367,13 @@ const IncomeDetailPage2 = () => {
                   key={member.id}
                   className={`target-item ${isCompleted ? "checked" : ""}`}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
                     <span
                       className={`badge ${member.role === "운영진" ? "admin" : "general"}`}
                     >
@@ -406,7 +416,10 @@ const IncomeDetailPage2 = () => {
               >
                 취소
               </button>
-              <button className="btn-modal-confirm" onClick={handleDeleteConfirm}>
+              <button
+                className="btn-modal-confirm"
+                onClick={handleDeleteConfirm}
+              >
                 삭제
               </button>
             </div>

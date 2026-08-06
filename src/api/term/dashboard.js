@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 /**
  * dashboard.js
@@ -12,7 +12,7 @@ import axiosInstance from "./axiosInstance";
  * USE_MOCK = false → 실제 API
  */
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const MOCK_DASHBOARD = {
   "efub-6": {

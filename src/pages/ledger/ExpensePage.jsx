@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import "./ExpensePage.css";
 import FolderIcon from "../../assets/Folder plus.svg";
-import { createTransaction, uploadReceipt } from "../../api/ledger";
+import { createTransaction, uploadReceipt } from "../../api/transaction/ledger";
+
 
 const TERM_ID = 1;
 
