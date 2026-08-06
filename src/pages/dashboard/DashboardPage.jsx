@@ -9,7 +9,7 @@ import EventSummary from "./components/EventSummary";
 import styles from "./DashboardPage.module.css";
 
 export default function DashboardPage() {
-  const { currentGeneration } = useGroup();
+  const { currentTermId } = useGroup();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,7 +21,7 @@ export default function DashboardPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const result = await getDashboardSummary(currentGeneration.id);
+        const result = await getDashboardSummary(currentTermId);
         if (!ignore) setData(result);
       } catch (err) {
         if (!ignore) setError(err);
@@ -34,7 +34,7 @@ export default function DashboardPage() {
     return () => {
       ignore = true;
     };
-  }, [currentGeneration.id]);
+  }, [currentTermId]);
 
   if (isLoading) {
     return <div className={styles.statusText}>불러오는 중...</div>;

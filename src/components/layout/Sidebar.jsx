@@ -6,6 +6,7 @@ import styles from "./Sidebar.module.css";
 
 import sidebarToggleIcon from "../../assets/Bar_Left.svg";
 import groupLogoIcon from "../../assets/efub로고2.svg";
+import useGroup from "../../hooks/useGroup";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "대시보드" },
@@ -14,22 +15,16 @@ const NAV_ITEMS = [
   { to: "/group-manage", label: "단체" },
 ];
 
-export default function Sidebar({
-  generations = [
-    { id: 6, label: "EFUB 6기" },
-    { id: 5, label: "EFUB 5기" },
-    { id: 4, label: "EFUB 4기" },
-    { id: 3, label: "EFUB 3기" },
-  ],
-  activeGenerationId = 6,
-  onGenerationChange,
-}) {
+export default function Sidebar() {
+  const {
+    currentOrganization,
+    terms,
+    currentTermId,
+    selectTerm,
+  } = useGroup();
   const [collapsed, setCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
-  const activeGeneration =
-    generations.find((g) => g.id === activeGenerationId) ?? generations[0];
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -41,12 +36,13 @@ export default function Sidebar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (collapsed) setDropdownOpen(false);
-  }, [collapsed]);
+  const handleToggle = () => {
+    setCollapsed((prev) => !prev);
+    setDropdownOpen(false);
+  };
 
-  const handleGenerationSelect = (id) => {
-    onGenerationChange?.(id);
+  const handleGenerationSelect = async (id) => {
+    await selectTerm(id);
     setDropdownOpen(false);
   };
 
@@ -62,7 +58,7 @@ export default function Sidebar({
         <button
           type="button"
           className={styles.toggleBtn}
-          onClick={() => setCollapsed((prev) => !prev)}
+          onClick={handleToggle}
           aria-label={collapsed ? "사이드바 펼치기" : "사이드바 접기"}
         >
           <img src={sidebarToggleIcon} alt="" className={styles.toggleIcon} />
@@ -77,7 +73,7 @@ export default function Sidebar({
             onClick={() => setDropdownOpen((prev) => !prev)}
           >
             <img src={groupLogoIcon} alt="" className={styles.groupLogo} />
-            <span className={styles.groupName}>EFUB</span>
+            <span className={styles.groupName}>{currentOrganization?.name}</span>
             <span
               className={[
                 styles.chevron,
@@ -90,15 +86,18 @@ export default function Sidebar({
 
           {dropdownOpen && (
             <ul className={styles.dropdown}>
-              {generations.map((gen) => (
+              {terms.map((term) => {
+                const termId = term.termId ?? term.id;
+                return (
                 <GenerationItem
-                  key={gen.id}
-                  label={gen.label}
+                  key={termId}
+                  label={term.name}
                   logo={groupLogoIcon}
-                  isActive={gen.id === activeGenerationId}
-                  onClick={() => handleGenerationSelect(gen.id)}
+                  isActive={String(termId) === String(currentTermId)}
+                  onClick={() => handleGenerationSelect(termId)}
                 />
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>
