@@ -1,75 +1,99 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   padding: 20px;
+  background: rgba(20, 22, 35, 0.42);
+  backdrop-filter: blur(2px);
 }
 
 .modal {
   position: relative;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   width: 320px;
+  max-width: 100%;
+  height: auto;
   padding: 40px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  background: #fff;
+  border: 1px solid #e7e7ec;
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(25, 29, 65, 0.18);
 }
 
 .closeBtn {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
+  display: grid;
   width: 28px;
   height: 28px;
-  border: none;
-  background: none;
-  font-size: 22px;
-  color: #aaaaaa;
-  cursor: pointer;
-  line-height: 1;
   padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #929292;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
 }
+
+.closeBtn:hover { background: #f5f5f7; color: #555; }
+.header { width: 100%; }
 
 .title {
   margin: 0 0 6px;
-  padding-right: 24px;
+  color: #1d1d1f;
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .desc {
-  margin: 0 0 20px;
+  margin: 0;
+  color: #888a92;
   font-size: 14px;
-  font-weight: 400;
-  color: #888888;
+  line-height: 1.45;
+}
+
+.status,
+.error {
+  margin: -10px 0;
+  font-size: 12px;
   line-height: 1.4;
 }
+
+.status { color: #777b88; }
+.error { color: #d33b4e; }
 
 .codeList {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
 .codeCard {
-  background: #f0f1ff;
-  border-radius: 12px;
-  padding: 14px 16px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  background: #f1f2ff;
+  border-radius: 10px;
 }
 
 .roleLabel {
   display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #777777;
+  margin-bottom: 7px;
+  color: #727583;
+  font-size: 12px;
+  font-weight: 600;
   line-height: 1.2;
 }
 
@@ -77,55 +101,61 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .code {
-  font-size: 24px;
+  min-width: 0;
+  color: #343746;
+  font-family: Pretendard, sans-serif;
+  font-size: 18px;
   font-weight: 900;
-  letter-spacing: 0.2em;
-  line-height: normal;
-  
+  line-height: 1;
+  letter-spacing: -0.01em;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
-.codeStaff {
-  color: #3340b0;
-}
-
-.codeGeneral {
-  color: #333333;
-}
+.codeStaff { color: #3340b0; }
+.codeGeneral { color: #343746; }
 
 .copyBtn {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s ease;
+  place-items: center;
+  border: 1px solid #e6e7ed;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(51, 64, 176, 0.08);
+  cursor: pointer;
 }
 
-.copyBtn:hover {
-  opacity: 0.85;
-}
+.copyBtn:hover { background: #fafaff; }
+.copyIcon { display: block; width: 17px; height: 17px; }
 
-.copyIcon {
-  width: 20px;
-  height: 20px;
-  display: block;
+.copyBtn:focus-visible,
+.closeBtn:focus-visible {
+  outline: 2px solid #5b6cf9;
+  outline-offset: 2px;
 }
 
 .expire {
-  margin: 16px 0 0;
-  font-size: 13px;
-  font-weight: 400;
-  color: #aaaaaa;
-  text-align: left;
+  margin: 0;
+  color: #a0a1a8;
+  font-size: 12px;
   line-height: 1.4;
+  text-align: left;
+}
+
+@media (max-width: 359px) {
+  .overlay { padding: 12px; }
+  .modal { padding: 32px; }
+  .codeCard { padding-inline: 12px; }
+  .code { font-size: 14px; letter-spacing: 0; }
 }
