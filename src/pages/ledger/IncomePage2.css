@@ -538,39 +538,3 @@ input[type="date"]:focus,
 .preview-message.error {
   color: #DC2626;
 }
-
-.charge-preview-details {
-  padding: 16px 20px;
-  border: 1px solid #EEEEEE;
-  border-radius: 16px;
-  background: #FAFAFA;
-}
-
-.preview-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  color: #6B7280;
-  font-size: 14px;
-}
-
-.preview-metrics strong,
-.preview-member-row strong {
-  color: #111111;
-}
-
-.preview-member-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 24px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #EEEEEE;
-}
-
-.preview-member-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-}

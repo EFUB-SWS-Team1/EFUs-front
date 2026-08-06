@@ -433,26 +433,6 @@ const IncomePage2 = () => {
 
         {canPreview && isPreviewLoading && <p className="preview-message">금액 계산 중...</p>}
         {canPreview && previewError && <p className="preview-message error">{previewError}</p>}
-        {activePreview && !isPreviewLoading && (
-          <div className="charge-preview-details">
-            <div className="preview-metrics">
-              <span>배정 금액 <strong>{Number(activePreview.totalAmount ?? 0).toLocaleString()}원</strong></span>
-              <span>요청 금액 <strong>{Number(activePreview.requestedAmount ?? 0).toLocaleString()}원</strong></span>
-              <span>나머지 금액 <strong>{Number(activePreview.remainderAmount ?? 0).toLocaleString()}원</strong></span>
-              <span>대상 인원 <strong>{activePreview.targetCount ?? activePreview.members?.length ?? 0}명</strong></span>
-            </div>
-            {activePreview.members?.length > 0 && (
-              <div className="preview-member-list">
-                {activePreview.members.map((member) => (
-                  <div key={member.termMemberId} className="preview-member-row">
-                    <span>{member.name}</span>
-                    <strong>{Number(member.assignedAmount ?? 0).toLocaleString()}원</strong>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {submitError && <p style={{ color: "red" }}>{submitError}</p>}
 
