@@ -7,4 +7,21 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 268px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d9dbe5 transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #d9dbe5;
 }
