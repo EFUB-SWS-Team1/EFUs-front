@@ -1,3 +1,6 @@
+<img width="1920" height="1080" alt="19" src="https://github.com/user-attachments/assets/ebbf933c-7c90-4636-a98c-779d2547893e" />
+
+
 ```
 단체의 회비와 행사 예산을 더 쉽고 투명하게 관리하는 서비스, EFUs 💸
 EFUB SWS 1팀 EFUs 프로젝트입니다.
