@@ -1,6 +1,9 @@
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #eeeeee;
   padding: 16px 14px;
@@ -12,6 +15,7 @@
     width 0.2s ease,
     padding 0.2s ease;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .collapsed {
@@ -66,6 +70,7 @@
 .groupSelector {
   position: relative;
   width: 100%;
+  min-width: 0;
   flex-shrink: 0;
 }
 
@@ -74,6 +79,7 @@
   align-items: center;
   gap: 10px;
   width: 100%;
+  min-width: 0;
   padding: 4px 2px;
   border: none;
   background: none;
@@ -81,6 +87,7 @@
   border-radius: 8px;
   font-family: inherit;
   transition: background-color 0.15s ease;
+  overflow: hidden;
 }
 
 .groupBtn:hover {
@@ -96,12 +103,15 @@
 }
 
 .groupName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 18px;
   font-weight: 700;
   color: #1a1a1a;
   text-align: left;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
 /* EFUB 옆 드롭다운 화살표 */
@@ -109,7 +119,6 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin-left: auto;
   margin-right: 4px;
   border-right: 2px solid #aaaaaa;
   border-bottom: 2px solid #aaaaaa;
@@ -149,7 +158,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-
   padding: 11px 14px;
   border-radius: 10px;
   font-size: 15px;
@@ -188,6 +196,13 @@
 
 .dotActive {
   background-color: #5b6cf9;
+}
+
+.navLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── 접힘: Bar_Left 위, dot 4개 세로 중앙 ── */

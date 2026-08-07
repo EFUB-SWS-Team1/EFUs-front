@@ -37,4 +37,18 @@
   /* layout */
   --sidebar-width: 220px;
   --sidebar-width-collapsed: 64px;
+  --content-max-width: 1251px;
+  --section-gap: 32px;
+}
+
+/*margin제거*/
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background-color: #f7f8fb;
 }

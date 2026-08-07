@@ -1,0 +1,66 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logoIcon {
+  width: 158.22px;
+  height: 160px;
+  object-fit: contain;
+  margin-bottom: 80px;
+}
+
+.logoText {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 18px;
+  line-height: 24px;
+  color: #2b42b6;
+  margin: 0 0 80px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+
+.kakaoButton {
+  width: 320px;
+  height: 40px;
+  background-color: #fee500;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.kakaoButton:hover {
+  opacity: 0.9;
+}
+
+.kakaoIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  object-fit: contain;
+}

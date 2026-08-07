@@ -13,20 +13,12 @@ import styles from "./GenerationSwitcher.module.css";
  * 현재 기수 -> /dashboard, 지난 기수 -> /past/:generationId
  */
 export default function GenerationSwitcher({ isOpen, onToggle }) {
-  const { currentGeneration, generations, switchGeneration } = useGroup();
+  const { currentOrganization, currentTermId, terms, selectTerm } = useGroup();
   const navigate = useNavigate();
 
   function handleSelectGeneration(generation) {
-    switchGeneration(generation.id);
-
-    if (generation.isCurrent) {
-      navigate("/dashboard");
-      return;
-    }
-
-    // TODO: pastData(지난 기수 대시보드) 준비되면 아래로 교체
-    // navigate(`/past/${generation.id}`);
-    alert("지난 기수 대시보드는 아직 준비 중이에요.");
+    selectTerm(generation.termId ?? generation.id);
+    navigate("/dashboard");
   }
 
   return (
@@ -35,7 +27,7 @@ export default function GenerationSwitcher({ isOpen, onToggle }) {
         <span className={styles.logoWrapper}>
           <img src={logoIcon} alt="" className={styles.logo} />
         </span>
-        <span className={styles.clubName}>EFUB</span>
+        <span className={styles.clubName}>{currentOrganization?.name}</span>
         <span className={styles.chevron} aria-hidden="true">
           {isOpen ? "⌃" : "⌄"}
         </span>
@@ -43,11 +35,11 @@ export default function GenerationSwitcher({ isOpen, onToggle }) {
 
       {isOpen && (
         <ul className={styles.generationList}>
-          {generations.map((gen) => (
+          {terms.map((gen) => (
             <GenerationItem
-              key={gen.id}
-              name={gen.name}
-              isSelected={gen.id === currentGeneration.id}
+              key={gen.termId ?? gen.id}
+              label={gen.name}
+              isSelected={String(gen.termId ?? gen.id) === String(currentTermId)}
               onClick={() => handleSelectGeneration(gen)}
             />
           ))}

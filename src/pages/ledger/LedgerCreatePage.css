@@ -1,0 +1,763 @@
+/* =========================================================
+   1. 메인 레이아웃 및 전체 컨테이너
+   ========================================================= */
+
+/* 가계부 전체를 감싸는 메인 영역 */
+.account-container {
+  padding: 32px 40px;   /* 위아래 32px, 좌우 40px 안쪽 여백 */
+  max-width: 1000px;    /* 화면이 넓어져도 최대 너비는 1000px로 제한 */
+  margin: 0 auto;       /* 가운데 정렬 */
+}
+
+
+/* =========================================================
+   2. 상단 헤더 (로고, 타이틀, 내역 추가 버튼)
+   ========================================================= */
+
+/* 헤더 상단 영역 (좌: 로고/타이틀, 우: 내역 추가 버튼) */
+.account-header {
+  display: flex;                /* 가로 배치 */
+  justify-content: space-between; /* 양 끝으로 분배 배치 */
+  align-items: center;          /* 세로 중앙 정렬 */
+  margin-bottom: 33px;          /* 아래 요소와의 간격 */
+}
+
+/* 로고 박스와 '가계부' 글자를 묶어주는 컨테이너 */
+.header-title {
+  display: flex;         /* 가로 배치 */
+  align-items: center;   /* 세로 중앙 정렬 */
+  gap: 12px;             /* 로고와 글자 사이 간격 12px */
+}
+
+/* 로고 아이콘 뒤의 연보라색 네모 배경 박스 */
+.logo-box {
+  width: 40px;
+  height: 40px;
+  background-color: #EEF0FF; /* 연한 보라/파란색 배경 */
+  border-radius: 12px;       /* 모서리 둥글게 */
+  display: flex;
+  align-items: center;       /* 아이콘 세로 중앙 정렬 */
+  justify-content: center;    /* 아이콘 가로 중앙 정렬 */
+}
+
+/* 로고 이미지 자체의 크기 */
+.logo-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* '가계부' 큰 제목 글자 */
+.account-header h1 {
+  font-size: 24px;      /* 글자 크기 */
+  font-weight: 500;     /* 글자 굵기 (보통) */
+  color: #3340B0;       /* 메인 보라/파란색 */
+  margin: 0;            /* h1 기본 태그 여백 제거 */
+}
+
+/* '+ 내역 추가' 우측 상단 버튼 */
+.add-btn {
+  background-color: #5B6CF9; /* 파란색 배경 */
+  color: #ffffff;            /* 흰색 글씨 */
+  border: none;              /* 테두리 제거 */
+  border-radius: 20px;       /* 타원형 둥근 모서리 */
+  padding: 12px 20px;        /* 위아래 10px, 좌우 20px 안쪽 여백 */
+  font-size: 15px;
+  font-weight: 700;          /* 굵은 글씨 */
+  cursor: pointer;           /* 마우스 올리면 손가락 모양 표시 */
+  transition: background-color 0.2s; /* 색 변경 시 0.2초간 부드럽게 전환 */
+}
+
+/* '+ 내역 추가' 버튼에 마우스 올렸을 때 */
+.add-btn:hover {
+  background-color: #4a5be4; /* 약간 더 어두운 파란색으로 변경 */
+}
+
+/* =========================================================
+   3. 필터 영역 (기간 선택, 전체/수입/지출 탭 버튼)
+   ========================================================= */
+
+/* 필터 전체를 감싸는 섹션 */
+.filter-section {
+  display: flex;
+  flex-direction: column; /* 세로로 차곡차곡 정렬 */
+  gap: 32px;              /* 필터 요소 간 간격, 달력<->전체 */
+  border-bottom: 1px solid #EEEEEE; /* 은은한 구분선 추가 */
+  padding-bottom: 32px;            /* 선과 탭 버튼 사이의 여백 */
+  margin-bottom: 32px;             /* 선과 날짜(2026.06.23) 사이의 여백 */
+}
+ 
+
+/* '기간' 안내 소제목 글자 */
+.filter-label {
+  font-size: 14px;
+  color: #777777;         /* 연한 회색 */
+  font-weight: 500;
+}
+
+/* 달력 아이콘과 '전체' 글자가 들어있는 흰색 드롭다운 선택 박스 */
+.select-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;              /* 아이콘과 텍스트 간격 */
+  border: 1px solid #EEEEEE; /* 은은한 회색 테두리 */
+  border-radius: 12px;
+  padding: 12px 20px;
+  background-color: #FFFFFF;
+  font-size: 14px;
+  color: #555555;
+  width: 100%;
+  max-width: 486px;       /* 최대 너비 지정 */
+  height: 41px;
+  box-sizing: border-box; /* 살짝 밑 그림자 효과 */
+}
+
+/* 달력 아이콘 크기 */
+.calendar-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* 전체 / 수입 / 지출 탭 버튼들을 묶는 그룹 */
+.tab-group {
+  display: flex;
+  gap: 12px;               /* 버튼들끼리의 간격 */
+}
+
+/* 기본 탭 버튼 (선택 안 되었을 때) */
+.tab-btn {
+  border: none;
+  background-color: #FFFFFF; /* 회색 배경 */
+  color: #555555;            /* 회색 글자 */
+  border: 1px solid #EEEEEE;      /*  '은은한 테두리' */
+  padding: 8px 20px;         /* 알약 모양을 위한 안쪽 여백 */
+  border-radius: 20px;       /* 둥근 알약 모양 */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+
+
+/* 현재 선택된 활성화(Active) 탭 버튼 */
+.tab-btn.active {
+  background-color: #5B6CF9; /* 강조 파란색 배경 */
+  color: #ffffff;            /* 흰색 글자 */
+  border: 1px solid #5B6CF9;      /* 파란색과 같은 테두리로 처리하여 테두리 안 보이게 함 */
+  font-weight: 700;
+}
+
+
+
+
+/* =========================================================
+   4. 내역 목록 (날짜 그룹 & 데이터 테이블)
+   ========================================================= */
+
+/* 날짜별 내역 하나 묶음 */
+.date-group {
+  margin-bottom: 32px;
+}
+
+/* 날짜 제목 (예: 2026.06.23) */
+.date-title {
+  font-size: 20px;
+  font-weight: 500;       /* 너무 굵지 않은 글씨 */
+  color: #555555;
+  margin-bottom: 20px;
+}
+
+/* 목록 전체를 감싸는 흰색 카드 박스 */
+.table-card {
+  background-color: #ffffff;
+  border-radius: 20px;       /* 둥근 카드 형태 */
+  border: 1px solid #FAFAFA; /* 연한 테두리 */
+  overflow: hidden;          /* 자식 요소가 모서리 밖으로 삐져나가지 않게 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02); /* 미세한 그림자 */
+}
+
+/* 테이블의 제목줄(행사, 내용, 금액) 및 각 데이터 줄 */
+.table-header, .table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* 3개 열의 너비를 1:1:1로 동일하게 나눔 */
+  height: 43px; 
+  padding: 12px 60px;                 /* 행 안쪽 여백 */
+  align-items: center;                /* 세로 중앙 정렬 */
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+
+
+/* 테이블 맨 위 헤더 줄 (행사 / 내용 / 금액) */
+.table-header {
+  background-color: #FAFAFA; /* 아주 연한 회색 배경 */
+  color: #999999;            /* 회색 글자 */
+  font-weight: 400;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+
+/* 내역 데이터 개별 줄 */
+.table-row {
+  border-bottom: 1px solid #EEEEEE; /* 줄 사이 구분선 */
+  color: #555555;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table-row:hover,
+.table-row:focus-visible {
+  background-color: #fafafa;
+}
+
+.table-row:focus-visible {
+  outline: 2px solid #5b6cf9;
+  outline-offset: -2px;
+}
+
+/* 마지막 내역은 밑줄 제거 */
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* '금액' */
+.col-amount {
+  font-weight: 400;
+}
+
+/* 금액이 수입일 때 색상 */
+.col-amount.income {
+  font-weight: 600;
+  color: #25C189; /* 수입 (+) 초록색 */
+}
+
+/* 금액이 지출일 때 색상 */
+.col-amount.expense {
+  font-weight: 600;
+  color: #FF6B6B; /* 지출 (-) 빨간색 */
+}
+
+/* 5. 피그마 모달 스타일 (카드형 선택 박스) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 32px 28px;
+  width: 360px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.modal-title {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+/* 선택 안 된 카드 상태 */
+.type-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background-color: #ffffff;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.type-option input[type="radio"] {
+  display: none;
+}
+
+/* 기본 (미선택) 동그라미 - 회색 점 */
+.custom-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #E5E7EB;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* 선택된 카드 상태 - 파란 테두리 */
+.type-option.selected {
+  border: 2px solid #3340B0;
+  box-shadow: none;
+}
+
+/* 선택된 라디오 버튼 - 파란 동그라미 안에 흰 점 */
+.type-option.selected .custom-radio {
+  background-color: #3340B0;
+}
+
+.type-option.selected .custom-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: #ffffff;
+  border-radius: 50%;
+}
+
+
+.option-label {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 400; /* 600에서 400으로 변경 */
+}
+
+/* 모달 하단 버튼 */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancel, .btn-next {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  border: 1px solid #E5E7EB;
+  color: #666666;
+}
+
+.btn-next {
+  background-color: #5B6CF9;
+  border: none;
+  color: #ffffff;
+}
+
+/* =========================================================
+   8. 가계부 목록 - Figma 데스크톱 레이아웃
+   ========================================================= */
+
+.account-container {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.account-header {
+  width: 100%;
+  height: 41px;
+  margin-bottom: 32px;
+}
+
+.account-header .add-btn {
+  min-height: 41px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.filter-section {
+  gap: 32px;
+  margin-bottom: 0;
+  padding-bottom: 32px;
+  border-bottom: 0;
+}
+
+.filter-period {
+  width: 486px;
+  min-height: 62px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.period-select-trigger {
+  width: 486px;
+  max-width: 100%;
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #555555;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.period-select-trigger:hover,
+.period-select-trigger:focus-visible,
+.period-select-trigger[aria-expanded="true"] {
+  border-color: #5b6cf9;
+  box-shadow: 0 0 0 3px rgba(91, 108, 249, 0.1);
+  outline: 0;
+}
+
+.period-select-trigger .calendar-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.period-picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: 486px;
+  max-width: 100%;
+  padding: 18px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(17, 17, 17, 0.1);
+  box-sizing: border-box;
+}
+
+.period-picker-dates {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.period-picker-dates label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #777777;
+  font-size: 12px;
+}
+
+.period-picker-dates input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  color: #555555;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.period-picker .period-divider {
+  padding-bottom: 10px;
+  color: #b5b5b5;
+  font-size: 16px;
+}
+
+.period-picker-actions {
+  min-height: 32px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.period-picker-actions button {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.period-reset-btn {
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  color: #777777;
+}
+
+.period-apply-btn {
+  border: 1px solid #5b6cf9;
+  background: #5b6cf9;
+  color: #ffffff;
+}
+
+.filter-section > .tab-group {
+  width: 219px;
+  height: 33px;
+  align-items: stretch;
+}
+
+.filter-section > .tab-group .tab-btn {
+  height: 33px;
+  padding: 7px 20px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.transaction-list {
+  padding: 32px 0;
+  border-top: 1px solid #eeeeee;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.transaction-list .date-group {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transaction-list .date-title {
+  margin: 0;
+}
+
+.transaction-list .table-card {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.025);
+}
+
+.transaction-list .table-header,
+.transaction-list .table-row {
+  grid-template-columns: minmax(180px, 1fr) minmax(320px, 2fr) minmax(160px, 1fr);
+  min-height: 43px;
+  height: auto;
+  padding: 12px 60px;
+}
+
+.transaction-list .col-amount {
+  text-align: right;
+}
+
+.transaction-list .col-desc {
+  text-align: center;
+}
+
+.transaction-list .table-row .col-amount {
+  font-weight: 600;
+}
+
+.ledger-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.ledger-page-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #555555;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 32px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.ledger-page-btn:not(:disabled):hover {
+  background: #f0f2ff;
+  color: #3340b0;
+}
+
+.ledger-page-btn:disabled {
+  color: #cccccc;
+  cursor: not-allowed;
+}
+
+.ledger-page-info {
+  min-width: 48px;
+  color: #555555;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 1320px) {
+  .account-container {
+    padding: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-container {
+    padding: 0;
+  }
+
+  .filter-period,
+  .period-select-trigger,
+  .period-picker {
+    width: 100%;
+  }
+
+  .period-picker-dates {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .period-picker .period-divider {
+    display: none;
+  }
+
+
+  .transaction-list .table-header,
+  .transaction-list .table-row {
+    grid-template-columns: minmax(72px, 0.8fr) minmax(120px, 1.5fr) minmax(92px, 1fr);
+    padding: 12px 16px;
+    gap: 8px;
+    font-size: 14px;
+  }
+}
+
+/* 회비로 걷기 컨테이너 */
+.fee-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 4px 20px; /* 위치 조정 */
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+}
+
+.fee-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+/* 체크박스 기본 커스텀 박스 */
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #D1D5DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent; /* 체크 안 됐을 땐 안 보임 */
+  transition: all 0.2s;
+}
+
+/* 체크되었을 때 색상 (#3340B0 적용) */
+.fee-checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
+  background-color: #3340B0;
+  border-color: #3340B0;
+  color: #ffffff; /* 흰색 체크 표시 */
+}
+
+
+
+/* =========================================================
+   6. 회비로 걷기 커스텀 체크박스
+   ========================================================= */
+
+/* 회비로 걷기 전체 감싸는 라벨 */
+.fee-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 80px 0 40px;/* 위: 16px, 오른쪽: 80px, 아래: 0, 왼쪽: 40px */
+  font-size: 14px;
+  font-weight: 500;
+  color: #555555;
+  cursor: pointer;
+}
+
+/* 브라우저 기본 사각형 체크박스 숨김 */
+.fee-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+/* 직접 만든 커스텀 체크박스 사각형 (미체크 시 기본 모습) */
+.custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;             /* 약간 둥근 모서리 */
+  border: 1.5px solid #555555;    /* 회색 테두리 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;             /* 미체크 시 내부 아이콘 숨김 */
+  transition: all 0.2s;
+}
+
+/* 체크박스가 체크(checked) 되었을 때 색상 및 흰색 체크 아이콘 설정 */
+.fee-checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
+  background-color: #3340B0;       /* 진한 파란 배경 */
+  border-color: #3340B0;           /* 테두리 색 일치 */
+  color: #ffffff;                  /* 흰색 체크 표시 */
+
+}
+
+
+/* =========================================================
+   7. 모달 하단 버튼 (취소 / 다음)
+   ========================================================= */
+
+/* 버튼 2개를 가로로 나란히 놓는 영역 */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 취소, 다음 버튼 공통 기본 스타일 */
+.btn-cancel, .btn-next {
+  flex: 1;                 /* 1:1 비율로 가로 공간 나누어 갖기 */
+  padding: 8px;           /* 버튼 높이감 형성 */
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 취소 버튼 (흰색 배경 + 회색 테두리) */
+.btn-cancel {
+  background-color: #ffffff;
+  border: 1px solid #EEEEEE;
+  color: #777777;
+}
+
+/* 다음 버튼 (파란색 강조 배경) */
+.btn-next {
+  background-color: #5B6CF9;
+  border: none;
+  color: #ffffff;
+}
