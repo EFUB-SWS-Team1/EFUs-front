@@ -95,28 +95,13 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 # 📝 Commit Convention
 
 ```text
-[INIT] 프로젝트 초기 설정
+
 [FEAT] 새로운 기능 구현
 [FIX] 버그 및 오류 수정
-[DESIGN] UI 디자인 및 스타일 수정
 [REFACTOR] 코드 리팩토링
-[CHORE] 설정 및 기타 작업
-[DOCS] 문서 수정
+
 ```
 
-예시
-
-```text
-[FEAT] 단체 목록 조회 구현
-
-[FEAT] 회비 상세 페이지 API 연동
-
-[DESIGN] 대시보드 UI 구현
-
-[FIX] 로그인 리다이렉트 오류 수정
-
-[CHORE] Vercel 배포 설정 추가
-```
 
 </br>
 
