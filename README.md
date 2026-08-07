@@ -10,7 +10,7 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 | 마승혜 | 최수연 |
 |:---:|:---:|
 | [@seunghyema](https://github.com/seunghyema) | [@sunny6312](https://github.com/sunny6312) |
-| <p align="left">• 대시보드 페이지 전체<br>• 행사 페이지 전체<br>• 단체 관리 페이지 전체<br>• 로그인 후 단체 선택 플로우<br>• 공통 컴포넌트 (Button, Input, Modal, Card 등)<br>• 레이아웃/사이드바 등 공통 구조 정리<br>• 담당 화면 API 연동 및 axios 공통 설정<br>• 폴더 구조·라우팅 정리 및 머지 이슈 해결<br>• UI/UX 피드백 반영</p> | |
+| <p align="left">• 대시보드 페이지 전체<br>• 행사 페이지 전체<br>• 단체 관리 페이지 전체<br>• 로그인 후 단체 선택 플로우<br>• 공통 컴포넌트 (Button, Input, Modal, Card 등)<br>• 레이아웃/사이드바 등 공통 구조 정리<br>• 담당 화면 API 연동 및 axios 공통 설정<br>• 폴더 구조·라우팅 정리 및 머지 이슈 해결<br>• UI/UX 피드백 반영</p> |<p align="left">• 온보딩 페이지 (로그인)<br>• 가계부 페이지 전체<br>• 온보딩 페이지 API 연동</p> |
 
 </br>
 
