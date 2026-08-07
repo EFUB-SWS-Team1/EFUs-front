@@ -205,7 +205,7 @@
 
 .pageBtn:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
+  cursor: default;
 }
 
 .pageBtn:not(:disabled):hover {
