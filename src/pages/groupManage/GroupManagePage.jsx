@@ -11,6 +11,7 @@ import useGroup from "../../hooks/useGroup";
 import MemberItem from "./components/MemberItem";
 import InviteCodeModal from "./components/InviteCodeModal";
 import GenerationCloseModal from "./components/GenerationCloseModal";
+import GenerationCreateModal from "./components/GenerationCreateModal";
 import MemberDetailPanel from "./components/MemberDetailPanel";
 import SuccessModal from "./components/SuccessModal";
 
@@ -20,6 +21,7 @@ import {
   closeGeneration,
   getMemberDetail,
   getMembers,
+  createTerm, // ✨ 작성하신 기수 생성 API 임포트
 } from "../../api";
 
 const PAGE_SIZE = 7;
@@ -54,6 +56,7 @@ export default function GroupManagePage() {
     currentTermId,
     role,
     termStatus,
+    currentOrganizationId, // ✨ API 호출에 필요한 조직(단체) ID 가져오기
   } = useGroup();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,7 +75,9 @@ export default function GroupManagePage() {
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isCloseOpen, setIsCloseOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(""); 
 
   const [memberDetail, setMemberDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -109,8 +114,6 @@ export default function GroupManagePage() {
   }, [currentTermId, page, roleFilter, search]);
 
   useEffect(() => {
-    // Async API synchronization intentionally starts when query state changes.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadMembers();
   }, [loadMembers]);
 
@@ -123,8 +126,6 @@ export default function GroupManagePage() {
 
     let active = true;
 
-    // Async API synchronization intentionally starts for the URL member id.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDetailLoading(true);
     setDetailError("");
 
@@ -167,10 +168,31 @@ export default function GroupManagePage() {
   };
 
   async function handleGenerationClose(endDate) {
-    await closeGeneration(currentTermId, endDate);
+    try {
+      await closeGeneration(currentTermId, endDate);
+      setIsCloseOpen(false);
+      setSuccessMessage("기수가 성공적으로 종료되었어요!");
+      setIsSuccessOpen(true);
+    } catch (err) {
+      alert(errorMessage(err));
+    }
+  }
 
-    setIsCloseOpen(false);
-    setIsSuccessOpen(true);
+  async function handleGenerationCreate({ name, startDate }) {
+    if (!currentOrganizationId) {
+      alert("조직(단체) 정보를 찾을 수 없어 기수를 생성할 수 없습니다.");
+      return;
+    }
+
+    try {
+      await createTerm(currentOrganizationId, { name, startDate });
+      
+      setIsCreateOpen(false);
+      setSuccessMessage(`${name} 기수가 성공적으로 생성되었어요! 변경사항 적용을 위해 새로고침 해주세요.`);
+      setIsSuccessOpen(true);
+    } catch (err) {
+      alert(errorMessage(err));
+    }
   }
 
   return (
@@ -215,14 +237,24 @@ export default function GroupManagePage() {
             </p>
           </div>
 
-          {isStaff && isActive && (
-            <Button
-              variant="primary"
-              className={styles.closeGenBtn}
-              onClick={() => setIsCloseOpen(true)}
-            >
-              기수 종료
-            </Button>
+          {isStaff && (
+            isActive ? (
+              <Button
+                variant="primary"
+                className={styles.closeGenBtn}
+                onClick={() => setIsCloseOpen(true)}
+              >
+                기수 종료
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                className={styles.closeGenBtn}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                다음 기수 생성
+              </Button>
+            )
           )}
         </section>
 
@@ -252,12 +284,7 @@ export default function GroupManagePage() {
 
         <div className={styles.filters}>
           <div className={styles.searchCard}>
-            <img
-              src={searchIcon}
-              alt=""
-              className={styles.searchIcon}
-            />
-
+            <img src={searchIcon} alt="" className={styles.searchIcon} />
             <input
               type="search"
               className={styles.searchInput}
@@ -279,119 +306,80 @@ export default function GroupManagePage() {
             }}
             aria-label="역할 필터"
           >
-            <option value="">
-              전체 역할
-            </option>
-
-            <option value="STAFF">
-              운영진
-            </option>
-
-            <option value="MEMBER">
-              일반
-            </option>
+            <option value="">전체 역할</option>
+            <option value="STAFF">운영진</option>
+            <option value="MEMBER">일반</option>
           </select>
         </div>
 
         <section className={styles.listCard}>
-          {loading && (
-            <p className={styles.empty}>
-              불러오는 중...
-            </p>
-          )}
-
-          {!loading && error && (
-            <p className={styles.empty}>
-              {error}
-            </p>
-          )}
-
+          {loading && <p className={styles.empty}>불러오는 중...</p>}
+          {!loading && error && <p className={styles.empty}>{error}</p>}
           {!loading && !error && (
             <ul className={styles.memberList}>
               {members.map((member) => (
                 <li key={member.termMemberId}>
                   <MemberItem
                     member={member}
-                    isSelected={
-                      String(selectedMemberId) ===
-                      String(member.termMemberId)
-                    }
-                    onClick={() =>
-                      selectMember(member.termMemberId)
-                    }
+                    isSelected={String(selectedMemberId) === String(member.termMemberId)}
+                    onClick={() => selectMember(member.termMemberId)}
                   />
                 </li>
               ))}
             </ul>
           )}
-
-          {!loading &&
-            !error &&
-            members.length === 0 && (
-              <p className={styles.empty}>
-                구성원이 없습니다.
-              </p>
-            )}
-
-          {!loading &&
-            !error &&
-            totalElements > 0 && (
-              <div className={styles.pagination}>
-                <button
-                  type="button"
-                  className={styles.pageBtn}
-                  disabled={page === 0}
-                  onClick={() =>
-                    setPage((value) => value - 1)
-                  }
-                >
-                  ‹
-                </button>
-
-                <span className={styles.pageInfo}>
-                  {page + 1} / {totalPages}
-                </span>
-
-                <button
-                  type="button"
-                  className={styles.pageBtn}
-                  disabled={page + 1 >= totalPages}
-                  onClick={() =>
-                    setPage((value) => value + 1)
-                  }
-                >
-                  ›
-                </button>
-              </div>
-            )}
+          {!loading && !error && members.length === 0 && (
+            <p className={styles.empty}>구성원이 없습니다.</p>
+          )}
+          {!loading && !error && totalElements > 0 && (
+            <div className={styles.pagination}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={page === 0}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                ‹
+              </button>
+              <span className={styles.pageInfo}>{page + 1} / {totalPages}</span>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={page + 1 >= totalPages}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                ›
+              </button>
+            </div>
+          )}
         </section>
       </div>
 
-      {isStaff && isActive && (
+      {isStaff && (
         <>
           <InviteCodeModal
             isOpen={isInviteOpen}
             termId={currentTermId}
-            onClose={() =>
-              setIsInviteOpen(false)
-            }
+            onClose={() => setIsInviteOpen(false)}
           />
 
           <GenerationCloseModal
             isOpen={isCloseOpen}
             generationLabel={currentTerm?.name ?? ""}
-            onClose={() =>
-              setIsCloseOpen(false)
-            }
+            onClose={() => setIsCloseOpen(false)}
             onSubmit={handleGenerationClose}
+          />
+
+          <GenerationCreateModal
+            isOpen={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            onSubmit={handleGenerationCreate}
           />
 
           <SuccessModal
             isOpen={isSuccessOpen}
-            message="기수가 성공적으로 종료되었어요!"
-            onClose={() =>
-              setIsSuccessOpen(false)
-            }
+            message={successMessage}
+            onClose={() => setIsSuccessOpen(false)}
           />
         </>
       )}
