@@ -88,7 +88,6 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 └── main
 ```
 
-> 실제 프로젝트 폴더 구조에 맞게 수정합니다.
 
 </br>
 
@@ -110,18 +109,24 @@ EFUB SWS 1팀 EFUs 프로젝트입니다.
 ```text
 main
 │
-│  배포 브랜치
+배포 브랜치
 │
-└── develop
-      │
-      │  개발 통합 브랜치
-      │
-      ├── feature/login
-      ├── feature/organization
-      ├── feature/member
-      ├── feature/transaction
-      ├── feature/charge
-      └── ...
+develop
+│
+개발 통합 브랜치
+│
+|- feature/auth
+|- feature/kakao-login
+|- feature/org-select
+|- feature/dashboard
+|- feature/event
+|- feature/group-manage
+|- feature/ledger
+|- feature/common-components
+|- feature/axios-reissue
+|- fix/...
+|- refactor/...
+|- ...
 ```
 
 ```text
