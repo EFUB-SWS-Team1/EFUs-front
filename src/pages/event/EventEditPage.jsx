@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getEventDetail, updateEvent } from "../../api";
 import EventForm from './components/EventForm';
 import styles from './components/EventForm.module.css';
+import useGroup from "../../hooks/useGroup";
 
-const GENERATION_ID = 'efub-6';
 
 export default function EventEditPage() {
+  const { currentTermId: GENERATION_ID } = useGroup();
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
@@ -19,7 +20,7 @@ export default function EventEditPage() {
   }, [eventId]);
 
   async function handleSubmit(payload) {
-    await updateEvent(GENERATION_ID, eventId, payload);
+    await updateEvent(eventId, payload);
     navigate(`/events/${eventId}`);
   }
 

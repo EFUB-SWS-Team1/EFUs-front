@@ -8,64 +8,7 @@ import axiosInstance from "../axiosInstance";
  * USE_MOCK = false → 실제 API
  */
 
-const USE_MOCK = true;
-
-const MOCK_EVENTS_BY_GENERATION = {
-  "efub-6": {
-    summary: {
-      totalBudget: 1000000,
-      totalSpent: 640000,
-      balance: 360000,
-    },
-    events: [
-      {
-        id: 1,
-        name: "8월 MT",
-        status: "ongoing",
-        spent: 300000,
-        budget: 600000,
-        percent: 50,
-        participants: 25,
-        startDate: "2025-08-08",
-        endDate: "2026-08-09",
-      },
-      {
-        id: 2,
-        name: "1학기 종강파티",
-        status: "warning",
-        spent: 190000,
-        budget: 200000,
-        percent: 95,
-        participants: 30,
-        startDate: "2025-06-01",
-        endDate: "2025-06-01",
-      },
-      {
-        id: 3,
-        name: "3월 OT 회식",
-        status: "over",
-        spent: 150000,
-        budget: 100000,
-        percent: 150,
-        overAmount: 50000,
-        participants: 20,
-        startDate: "2025-03-15",
-        endDate: "2025-03-15",
-      },
-    ],
-  },
-};
-
-const MOCK_TRANSACTIONS_BY_EVENT = {
-  1: [
-    { id: 1, date: "2026-07-05", description: "MT 회비", amount: 600000 },
-    { id: 2, date: "2026-07-03", description: "MT 숙소비", amount: -300000 },
-  ],
-};
-
-function getMockData(termId) {
-  return MOCK_EVENTS_BY_GENERATION[termId] ?? MOCK_EVENTS_BY_GENERATION["efub-6"];
-}
+const USE_MOCK = false;
 
 /** 백엔드 상태값 → 화면용 status */
 function mapStatus(status) {
@@ -78,19 +21,20 @@ function mapStatus(status) {
 
 /** 목록/상세 행사 객체를 화면용으로 변환 (필드명 다르면 여기만 수정) */
 function mapEvent(item) {
-  const budget = item.budget ?? item.budgetAmount ?? 0;
-  const spent = item.spent ?? item.spentAmount ?? item.totalExpense ?? 0;
-  const percent = item.percent ?? item.usageRate ?? item.utilizationRate ?? 0;
+  const budget = item.budgetAmount ?? 0;
+  const spent = item.spentAmount ?? 0;
+  const percent = item.progressRate ?? item.usageRate ?? 0; 
+  const statusValue = item.status ?? item.budgetStatus ?? item.scheduleStatus;
 
   return {
-    id: item.id ?? item.fundingId,
+    id: item.fundingId ?? item.id,
     name: item.name,
-    status: mapStatus(item.status ?? item.budgetStatus),
+    status: mapStatus(statusValue),
     spent,
     budget,
     percent,
-    overAmount: item.overAmount ?? Math.max(spent - budget, 0),
-    participants: item.participants ?? item.participantCount ?? 0,
+    overAmount: item.overBudgetAmount ?? item.exceededAmount ?? Math.max(spent - budget, 0),
+    participants: item.participantCount ?? 0,
     startDate: item.startDate,
     endDate: item.endDate,
   };
@@ -98,22 +42,22 @@ function mapEvent(item) {
 
 function mapSummary(data) {
   return {
-    totalBudget: data.totalBudget ?? data.budgetAmount ?? 0,
-    totalSpent: data.totalSpent ?? data.totalExpense ?? data.spentAmount ?? 0,
-    balance: data.balance ?? data.remainingBudget ?? 0,
+    totalBudget: data.totalBudgetAmount ?? data.totalBudget ?? 0,
+    totalSpent: data.totalSpentAmount ?? data.totalSpent ?? 0,
+    balance: data.totalRemainingAmount ?? data.balance ?? 0,
   };
 }
 
 function mapTransaction(item) {
   const rawAmount = item.amount ?? 0;
-  const type = String(item.type ?? item.transactionType ?? "").toUpperCase();
+  const type = String(item.transactionType ?? item.cashFlowType ?? item.type ?? "").toUpperCase();
   const amount =
     type === "EXPENSE" ? -Math.abs(rawAmount) : type === "INCOME" ? Math.abs(rawAmount) : rawAmount;
 
   return {
-    id: item.id ?? item.transactionId ?? item.ledgerEntryId,
-    date: item.date ?? item.transactionDate,
-    description: item.description ?? item.title ?? item.memo ?? "",
+    id: item.transactionId ?? item.entryId ?? item.id,
+    date: item.transactionDate ?? item.date,
+    description: item.title ?? item.description ?? "",
     amount,
   };
 }
@@ -163,28 +107,21 @@ function toFundingBody(payload) {
   }
 
 export async function getEventDetail(termId, fundingId) {
-  if (USE_MOCK) {
-    const { events } = getMockData(termId);
-    const event = events.find((item) => String(item.id) === String(fundingId));
-    if (!event) throw new Error("행사를 찾을 수 없습니다.");
-    return {
-      event,
-      transactions: MOCK_TRANSACTIONS_BY_EVENT[fundingId] ?? [],
-    };
-  }
-
   const [detailRes, ledgerRes] = await Promise.all([
     axiosInstance.get(`/terms/${termId}/fundings/${fundingId}`),
     axiosInstance.get(`/fundings/${fundingId}/ledger-entries`),
   ]);
 
-  const ledgerData = ledgerRes.data;
-  const transactions = Array.isArray(ledgerData)
-    ? ledgerData
-    : ledgerData?.content ?? ledgerData?.ledgerEntries ?? [];
+  const detailData = detailRes.data?.data ?? detailRes.data;
+  const ledgerData = ledgerRes.data?.data ?? ledgerRes.data;
+
+  let transactions = Array.isArray(ledgerData) ? ledgerData : ledgerData?.ledgerEntries ?? ledgerData?.content ?? [];
+  if (!transactions || transactions.length === 0) {
+    transactions = detailData.transactions ?? [];
+  }
 
   return {
-    event: mapEvent(detailRes.data),
+    event: mapEvent(detailData),
     transactions: transactions.map(mapTransaction),
   };
 }
@@ -209,19 +146,7 @@ export async function createEvent(
   return mapEvent(funding);
 }
 
-export async function updateEvent(termId, fundingId, payload) {
-  if (USE_MOCK) {
-    const data = getMockData(termId);
-    const index = data.events.findIndex((item) => String(item.id) === String(fundingId));
-    if (index === -1) throw new Error("행사를 찾을 수 없습니다.");
-    data.events[index] = { ...data.events[index], ...payload };
-    return data.events[index];
-  }
-
-  // 수정 API는 URI에 termId 없음야르~
-  const { data } = await axiosInstance.patch(
-    `/fundings/${fundingId}`,
-    toFundingBody(payload),
-  );
-  return mapEvent(data);
+export async function updateEvent(fundingId, payload) {
+  const { data } = await axiosInstance.patch(`/fundings/${fundingId}`, toFundingBody(payload));
+  return mapEvent(data?.data ?? data);
 }
