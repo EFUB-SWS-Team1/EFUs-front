@@ -206,6 +206,12 @@ const IncomeDetailPage2 = () => {
   const [payingMemberId, setPayingMemberId] =
     useState(null);
 
+  const [selectedMemberIds, setSelectedMemberIds] =
+    useState([]);
+
+  const [isBulkPaying, setIsBulkPaying] =
+    useState(false);
+
   const [error, setError] =
     useState("");
 
@@ -442,19 +448,27 @@ const IncomeDetailPage2 = () => {
   const handleAllComplete = async () => {
     if (
       !chargeId ||
-      !canManagePayments
+      !canManagePayments ||
+      isBulkPaying ||
+      payingMemberId !== null
     ) {
       return;
     }
 
     try {
       setError("");
+      setIsBulkPaying(true);
 
       await bulkPayCharge(
         chargeId,
-        {
-          targetMode: "ALL_UNPAID",
-        },
+        selectedMemberIds.length > 0
+          ? {
+              targetMode: "SELECTED",
+              chargeMemberIds: selectedMemberIds,
+            }
+          : {
+              targetMode: "ALL_UNPAID",
+            },
       );
 
       await reloadMembers(
@@ -480,12 +494,15 @@ const IncomeDetailPage2 = () => {
           },
         ),
       );
+      setSelectedMemberIds([]);
     } catch (err) {
       setError(
         err.response?.data?.message ??
           err.message ??
           "전체 납부 처리에 실패했습니다.",
       );
+    } finally {
+      setIsBulkPaying(false);
     }
   };
 
@@ -496,7 +513,8 @@ const IncomeDetailPage2 = () => {
       !chargeId ||
       !canManagePayments ||
       member.status !== "pending" ||
-      payingMemberId !== null
+      payingMemberId !== null ||
+      isBulkPaying
     ) {
       return;
     }
@@ -515,6 +533,12 @@ const IncomeDetailPage2 = () => {
 
       await reloadMembers(
         chargeId,
+      );
+
+      setSelectedMemberIds((previous) =>
+        previous.filter(
+          (id) => id !== member.chargeMemberId,
+        ),
       );
 
       const detail =
@@ -1076,10 +1100,16 @@ const IncomeDetailPage2 = () => {
               handleAllComplete
             }
             disabled={
-              !canManagePayments
+              !canManagePayments ||
+              isBulkPaying ||
+              payingMemberId !== null
             }
           >
-            전체 납부 처리
+            {isBulkPaying
+              ? "처리 중"
+              : selectedMemberIds.length > 0
+                ? `선택 납부 처리 (${selectedMemberIds.length})`
+                : "전체 납부 처리"}
           </button>
         </div>
 
@@ -1111,6 +1141,31 @@ const IncomeDetailPage2 = () => {
                         gap: "8px",
                       }}
                     >
+                      {!isCompleted && canManagePayments && (
+                        <input
+                          type="checkbox"
+                          className="payment-member-checkbox"
+                          checked={selectedMemberIds.includes(
+                            member.chargeMemberId,
+                          )}
+                          onChange={(event) => {
+                            const memberId = member.chargeMemberId;
+
+                            setSelectedMemberIds((previous) =>
+                              event.target.checked
+                                ? [...previous, memberId]
+                                : previous.filter(
+                                    (id) => id !== memberId,
+                                  ),
+                            );
+                          }}
+                          disabled={
+                            isBulkPaying ||
+                            payingMemberId !== null
+                          }
+                          aria-label={`${member.name} 선택`}
+                        />
+                      )}
                       <span
                         className={`badge ${
                           member.role ===
@@ -1153,7 +1208,8 @@ const IncomeDetailPage2 = () => {
                         isCompleted ||
                         !canManagePayments ||
                         payingMemberId !==
-                          null
+                          null ||
+                        isBulkPaying
                       }
                     >
                       {isCompleted

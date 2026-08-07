@@ -480,6 +480,18 @@
   border-radius: 10px;            /* 모서리 둥글게 */
 }
 
+.payment-member-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #6c5ce7;
+}
+
+.payment-member-checkbox:disabled {
+  cursor: not-allowed;
+}
+
 /* =========================================================
    회비 청구 상세 - Figma 레이아웃 보정
    ========================================================= */
