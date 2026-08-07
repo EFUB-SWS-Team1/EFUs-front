@@ -74,7 +74,7 @@ export default function DashboardPage() {
         <h1 className={styles.title}>
           <span className={styles.titleHighlight}>{termName}</span>
           <span className={styles.titleSuffixWrap}>
-            <span className={styles.titleSuffix}> 공동 가계부입니다</span>
+            <span className={styles.titleSuffix}>공동 가계부입니다</span>
             {canEdit && (
               <button type="button" className={styles.editButton} aria-label="가계부 이름 수정">
                 <img src={pencilIcon} alt="" />

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { formatDate, formatNumber } from "../../../utils/format";
 import styles from "./RecentTransaction.module.css";
 
@@ -12,12 +13,46 @@ function formatAmount(entry) {
 }
 
 function getDescription(entry) {
-  if (entry.entryType !== "CHARGE") return entry.title;
-  return `${entry.title} (납부 ${formatNumber(entry.paidAmount)} / 미납 ${formatNumber(entry.unpaidAmount)})`;
+  return entry.title;
 }
 
 export default function RecentTransaction({ entries }) {
+  const navigate = useNavigate();
   const recent = entries.slice(0, 3);
+
+  function handleEntryClick(entry) {
+    if (!entry?.entryId) return;
+
+    if (entry.entryType === "CHARGE") {
+      navigate("/income-detail2", {
+        state: {
+          incomeData: {
+            id: entry.entryId,
+            title: entry.title,
+            date: entry.transactionDate,
+            event: entry.fundingName,
+            rawAmount: entry.requestedAmount,
+            paidAmount: entry.paidAmount,
+            unpaidAmount: entry.unpaidAmount,
+            paymentStatus: entry.paymentStatus,
+          },
+        },
+      });
+      return;
+    }
+
+    const detailPath = entry.cashFlowType === "INCOME"
+      ? "/income-detail"
+      : "/expense-detail";
+    navigate(`${detailPath}?transactionId=${entry.entryId}`);
+  }
+
+  function handleEntryKeyDown(event, entry) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleEntryClick(entry);
+    }
+  }
 
   return (
     <section className={styles.section}>
@@ -33,7 +68,14 @@ export default function RecentTransaction({ entries }) {
           {recent.length === 0 ? (
             <span className={styles.cell}>최근 거래 내역이 없습니다.</span>
           ) : recent.map((entry) => (
-            <div key={`${entry.entryType}-${entry.entryId}`} className={styles.dataRow}>
+            <div
+              key={`${entry.entryType}-${entry.entryId}`}
+              className={`${styles.dataRow} ${styles.clickableRow}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleEntryClick(entry)}
+              onKeyDown={(event) => handleEntryKeyDown(event, entry)}
+            >
               <span className={styles.cell}>{formatDate(entry.transactionDate)}</span>
               <span className={styles.cell}>{entry.fundingName ?? "-"}</span>
               <span className={`${styles.cell} ${styles.description}`}>{getDescription(entry)}</span>

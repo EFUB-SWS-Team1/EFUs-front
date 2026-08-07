@@ -37,7 +37,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  column-gap: 0;
+  column-gap: 8px;
   font-family: Pretendard, sans-serif;
   font-size: 24px;
   font-weight: 400;
@@ -105,4 +105,28 @@
   display: block;
   width: 20px;
   height: 20px;
+}
+
+@media (max-width: 760px) {
+  .titleRow {
+    align-items: flex-start;
+  }
+
+  .titleIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .titleIcon img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .titleHighlight {
+    font-size: 28px;
+  }
+
+  .titleSuffix {
+    font-size: 20px;
+  }
 }

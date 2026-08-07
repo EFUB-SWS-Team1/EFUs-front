@@ -60,35 +60,44 @@ export default function InviteCodeModal({ isOpen, onClose, onSubmit, onValidate 
 
   return (
     <div className={modalStyles.overlay} onClick={handleClose}>
-      <div className={modalStyles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${modalStyles.modal} ${modalStyles.inviteModal}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className={modalStyles.title}>초대 코드 입력</h2>
         <p className={modalStyles.description}>
           단체에서 받은 초대 코드를 입력하세요
         </p>
 
-        <input
-          type="text"
-          className={[modalStyles.input, error ? modalStyles.inputError : ""]
-            .filter(Boolean)
-            .join(" ")}
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="초대 코드"
-        />
-        {error && <p className={modalStyles.errorText}>{error}</p>}
-        {validation && <p className={modalStyles.description}>{validation.organizationName ?? validation.organization?.name} · {validation.termName ?? validation.term?.name} · {validation.role}</p>}
-
-        <div className={modalStyles.actions}>
-          <button type="button" className={modalStyles.cancelBtn} onClick={handleClose}>
-            취소
-          </button>
+        <div className={modalStyles.codeField}>
+          <input
+            type="text"
+            className={`${modalStyles.input} ${modalStyles.inviteInput} ${error ? modalStyles.inputError : ""}`}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="초대 코드"
+          />
           <button
             type="button"
-            className={modalStyles.cancelBtn}
+            className={modalStyles.validateBtn}
             onClick={handleValidate}
             disabled={isSubmitting || !code.trim()}
           >
             코드 확인
+          </button>
+        </div>
+        <div className={modalStyles.inviteFeedback}>
+          {error && <p className={modalStyles.errorText}>{error}</p>}
+          {validation && (
+            <p className={modalStyles.validationText}>
+              {validation.organizationName ?? validation.organization?.name} · {validation.termName ?? validation.term?.name} · {validation.role}
+            </p>
+          )}
+        </div>
+
+        <div className={`${modalStyles.actions} ${modalStyles.inviteActions}`}>
+          <button type="button" className={modalStyles.cancelBtn} onClick={handleClose}>
+            취소
           </button>
           <button
             type="button"

@@ -1,10 +1,28 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import orgLogo from "../../../assets/efub로고2.svg";
 import usersIcon from "../../../assets/Users.svg";
 import styles from "./OrgListItem.module.css";
 
 export default function OrgListItem({ org, onEnter }) {
   const [isActive, setIsActive] = useState(false);
+  const [isNameOverflowing, setIsNameOverflowing] = useState(false);
+  const nameRef = useRef(null);
+
+  useEffect(() => {
+    const nameElement = nameRef.current;
+    if (!nameElement) return undefined;
+
+    const updateOverflow = () => {
+      const textElement = nameElement.querySelector("span > span");
+      setIsNameOverflowing((textElement?.scrollWidth ?? 0) > nameElement.clientWidth);
+    };
+
+    updateOverflow();
+    const resizeObserver = new ResizeObserver(updateOverflow);
+    resizeObserver.observe(nameElement);
+
+    return () => resizeObserver.disconnect();
+  }, [org.name]);
 
   return (
     <li
@@ -17,8 +35,15 @@ export default function OrgListItem({ org, onEnter }) {
       </div>
 
       <div className={styles.info}>
-        <span className={styles.name} title={org.name}>
-          {org.name}
+        <span
+          ref={nameRef}
+          className={`${styles.name} ${isNameOverflowing ? styles.overflowing : ""}`}
+          title={org.name}
+        >
+          <span className={styles.nameTrack}>
+            <span>{org.name}</span>
+            {isActive && isNameOverflowing && <span aria-hidden="true">{org.name}</span>}
+          </span>
         </span>
         <span className={styles.memberCount}>
           <img src={usersIcon} alt="" className={styles.memberIcon} />
