@@ -258,7 +258,13 @@ export default function TransactionDetail({
             등록 {formatDisplayDate(transaction.createdAt)}
           </p>
         </div>
-        <div className="detail-amount">
+        <div
+          className={`detail-amount ${
+            transactionType === "EXPENSE"
+              ? "expense-amount"
+              : "income-amount"
+          }`}
+        >
           {amountSign}
           {formattedAmount}
         </div>

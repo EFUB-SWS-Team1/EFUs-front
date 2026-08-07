@@ -123,9 +123,17 @@
 .detail-amount {
   font-size: 24px;
   font-weight: 700;
-  
+
   color: #FF6B6B;
-  
+
+}
+
+.detail-amount.expense-amount {
+  color: #FF6B6B;
+}
+
+.detail-amount.income-amount {
+  color: #25C189;
 }
 
 /* =========================================================
