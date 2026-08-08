@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { createEvent } from "../../api";
+import useGroup from "../../hooks/useGroup";
 import EventForm from './components/EventForm';
 import styles from './components/EventForm.module.css';
 
-const GENERATION_ID = 'efub-6';
 
 export default function EventCreatePage() {
+  const { currentTermId: GENERATION_ID } = useGroup();
   const navigate = useNavigate();
 
   async function handleSubmit(payload) {

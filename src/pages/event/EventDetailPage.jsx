@@ -6,6 +6,7 @@ import { Button, PermissionBadge } from "../../components/common";
 import EventFormModal from "./components/EventFormModal";
 import styles from "./EventDetailPage.module.css";
 import chevronLeft from "../../assets/Chevron left.svg";
+import useGroup from "../../hooks/useGroup";
 
 const STATUS_MAP = {
   ongoing: { label: "진행 중", variant: "success" },
@@ -13,9 +14,9 @@ const STATUS_MAP = {
   over: { label: "예산 초과", variant: "danger" },
 };
 
-const GENERATION_ID = "efub-6";
 
 export default function EventDetailPage() {
+  const { currentTermId: GENERATION_ID } = useGroup();
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
@@ -36,7 +37,7 @@ export default function EventDetailPage() {
   }, [eventId]);
 
   async function handleUpdate(payload) {
-    await updateEvent(GENERATION_ID, eventId, payload);
+    await updateEvent(eventId, payload);
     setIsEditOpen(false);
     loadDetail();
   }
