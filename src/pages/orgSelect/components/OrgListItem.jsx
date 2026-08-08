@@ -45,10 +45,12 @@ export default function OrgListItem({ org, onEnter }) {
             {isActive && isNameOverflowing && <span aria-hidden="true">{org.name}</span>}
           </span>
         </span>
-        <span className={styles.memberCount}>
-          <img src={usersIcon} alt="" className={styles.memberIcon} />
-          {org.memberCount}
-        </span>
+        {org.memberCount != null && (
+          <span className={styles.memberCount}>
+            <img src={usersIcon} alt="" className={styles.memberIcon} />
+            {org.memberCount}
+          </span>
+        )}
       </div>
 
       {/* 항상 렌더 → hover 시 레이아웃 안 흔들림 */}

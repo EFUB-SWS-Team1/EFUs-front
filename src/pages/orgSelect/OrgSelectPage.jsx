@@ -12,6 +12,7 @@ import CreateOrgSuccessModal from "./components/CreateOrgSuccessModal";
 import styles from "./OrgSelectPage.module.css";
 import {
   createOrganization,
+  getInviteCodes,
   getMyOrganizations,
   joinOrganizationByCode,
   validateInvitation,
@@ -63,8 +64,9 @@ export default function OrgSelectPage() {
 
   const handleCreateOrg = async (payload) => {
     const result = await createOrganization(payload);
+    const inviteCodes = await getInviteCodes(result.termId);
     setOrganizations((prev) => [...prev, result.org]);
-    setCreatedInviteCodes(result.inviteCodes);
+    setCreatedInviteCodes(inviteCodes);
     setActiveModal("createSuccess");
   };
 

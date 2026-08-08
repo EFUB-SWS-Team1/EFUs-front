@@ -4,25 +4,9 @@ function mapOrg(item) {
   return {
     id: item.id ?? item.organizationId,
     name: item.name,
-    memberCount: item.memberCount ?? item.member_count ?? 0,
+    memberCount: item.activeTerm?.memberCount,
     currentTerm: item.currentTerm ?? item.activeTerm ?? null,
     role: item.role ?? null,
-  };
-}
-
-function mapInviteCodes(data) {
-  const codes = data.inviteCodes ?? data.invitations ?? data;
-  if (Array.isArray(codes)) {
-    const staff = codes.find((c) => String(c.role).toUpperCase() === "STAFF");
-    const member = codes.find((c) => String(c.role).toUpperCase() === "MEMBER");
-    return {
-      staff: staff?.code ?? "",
-      general: member?.code ?? "",
-    };
-  }
-  return {
-    staff: codes.staff ?? codes.staffCode ?? "",
-    general: codes.general ?? codes.member ?? codes.memberCode ?? "",
   };
 }
 
@@ -64,6 +48,6 @@ export async function createOrganization({
 
   return {
     org: mapOrg(data.organization ?? data.org ?? data),
-    inviteCodes: mapInviteCodes(data),
+    termId: data.initialTerm?.termId,
   };
 }
