@@ -10,22 +10,6 @@ function mapOrg(item) {
   };
 }
 
-function mapInviteCodes(data) {
-  const codes = data.inviteCodes ?? data.invitations ?? data;
-  if (Array.isArray(codes)) {
-    const staff = codes.find((c) => String(c.role).toUpperCase() === "STAFF");
-    const member = codes.find((c) => String(c.role).toUpperCase() === "MEMBER");
-    return {
-      staff: staff?.code ?? "",
-      general: member?.code ?? "",
-    };
-  }
-  return {
-    staff: codes.staff ?? codes.staffCode ?? "",
-    general: codes.general ?? codes.member ?? codes.memberCode ?? "",
-  };
-}
-
 function todayDateString() {
   const d = new Date();
   const y = d.getFullYear();
@@ -64,6 +48,6 @@ export async function createOrganization({
 
   return {
     org: mapOrg(data.organization ?? data.org ?? data),
-    inviteCodes: mapInviteCodes(data),
+    termId: data.initialTerm?.termId,
   };
 }
