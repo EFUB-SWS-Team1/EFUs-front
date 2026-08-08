@@ -98,7 +98,7 @@ export default function LedgerCreatePage() {
             type: typeMap[filter] ?? "ALL",
             fromDate: fromDate || undefined,
             toDate: toDate || undefined,
-            includeDeleted: false,
+            includeDeleted: true,
             page,
             size: PAGE_SIZE,
           },
@@ -511,7 +511,9 @@ export default function LedgerCreatePage() {
                     (item) => (
                       <div
                         key={`${item.entryType}-${item.id}`}
-                        className="table-row"
+                        className={`table-row ${
+                          item.deleted ? "deleted" : ""
+                        }`}
                         role="button"
                         tabIndex={0}
                         onClick={() =>
@@ -541,9 +543,7 @@ export default function LedgerCreatePage() {
                         </span>
 
                         <span className="col-desc">
-                          {item.deleted
-                            ? `${item.desc} (삭제됨)`
-                            : item.desc}
+                          {item.desc}
                         </span>
 
                         <span

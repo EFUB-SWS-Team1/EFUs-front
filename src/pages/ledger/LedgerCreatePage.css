@@ -220,6 +220,17 @@
   border-bottom: none;
 }
 
+.transaction-list .table-row.deleted {
+  color: #999999;
+}
+
+.transaction-list .table-row.deleted .col-desc,
+.transaction-list .table-row.deleted .col-amount {
+  color: #999999;
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
 /* '금액' */
 .col-amount {
   font-weight: 400;
