@@ -56,6 +56,7 @@ export default function GroupManagePage() {
     currentTermId,
     role,
     termStatus,
+    terms,
     currentOrganizationId, // ✨ API 호출에 필요한 조직(단체) ID 가져오기
   } = useGroup();
 
@@ -78,6 +79,7 @@ export default function GroupManagePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState(""); 
+  const [createdTermOrganizationId, setCreatedTermOrganizationId] = useState(null);
 
   const [memberDetail, setMemberDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -85,6 +87,13 @@ export default function GroupManagePage() {
 
   const isStaff = String(role).toUpperCase() === "STAFF";
   const isActive = String(termStatus).toUpperCase() === "ACTIVE";
+  const hasActiveTerm = terms.some(
+    (term) =>
+      String(term.status ?? term.termStatus).toUpperCase() === "ACTIVE",
+  );
+  const hasJustCreatedTerm =
+    createdTermOrganizationId != null &&
+    String(createdTermOrganizationId) === String(currentOrganizationId);
 
   const loadMembers = useCallback(async () => {
     if (currentTermId == null) {
@@ -188,6 +197,7 @@ export default function GroupManagePage() {
       await createTerm(currentOrganizationId, { name, startDate });
       
       setIsCreateOpen(false);
+      setCreatedTermOrganizationId(currentOrganizationId);
       setSuccessMessage(`${name} 기수가 성공적으로 생성되었어요! 변경사항 적용을 위해 새로고침 해주세요.`);
       setIsSuccessOpen(true);
     } catch (err) {
@@ -246,7 +256,7 @@ export default function GroupManagePage() {
               >
                 기수 종료
               </Button>
-            ) : (
+            ) : !hasActiveTerm && !hasJustCreatedTerm ? (
               <Button
                 variant="primary"
                 className={styles.closeGenBtn}
@@ -254,7 +264,7 @@ export default function GroupManagePage() {
               >
                 다음 기수 생성
               </Button>
-            )
+            ) : null
           )}
         </section>
 
