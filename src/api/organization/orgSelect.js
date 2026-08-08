@@ -4,7 +4,7 @@ function mapOrg(item) {
   return {
     id: item.id ?? item.organizationId,
     name: item.name,
-    memberCount: item.memberCount ?? item.member_count ?? 0,
+    memberCount: item.activeTerm?.memberCount,
     currentTerm: item.currentTerm ?? item.activeTerm ?? null,
     role: item.role ?? null,
   };
