@@ -5,6 +5,7 @@ import {
   createTransaction,
   getEvents,
   getTransaction,
+  recognizeReceiptImage,
   updateTransaction,
   uploadReceipt,
 } from "../../../api";
@@ -49,7 +50,9 @@ export default function TransactionForm({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(mode === "edit");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [error, setError] = useState("");
+  const ocrRequestIdRef = useRef(0);
 
   useEffect(() => {
     let ignore = false;
@@ -138,12 +141,63 @@ export default function TransactionForm({
     setIsDropdownOpen(false);
   }
 
-  function handleFileChange(event) {
+  async function handleFileChange(event) {
     const file = event.target.files?.[0] ?? null;
+    const requestId = ocrRequestIdRef.current + 1;
+
+    ocrRequestIdRef.current = requestId;
+
     setFormData((previous) => ({
       ...previous,
       receipt: file,
     }));
+
+    if (!file) {
+      setIsOcrLoading(false);
+      return;
+    }
+
+    try {
+      setIsOcrLoading(true);
+      setError("");
+
+      const ocrResult =
+        await recognizeReceiptImage(file);
+
+      if (ocrRequestIdRef.current !== requestId) {
+        return;
+      }
+
+      const recognizedAmount = Number(
+        ocrResult?.recognizedAmount,
+      );
+
+      if (!Number.isFinite(recognizedAmount) || recognizedAmount <= 0) {
+        throw new Error(
+          "영수증에서 올바른 금액을 인식하지 못했습니다.",
+        );
+      }
+
+      setFormData((previous) => ({
+        ...previous,
+        amount: String(recognizedAmount),
+      }));
+    } catch (ocrError) {
+      if (ocrRequestIdRef.current !== requestId) {
+        return;
+      }
+
+      setError(
+        getErrorMessage(
+          ocrError,
+          "영수증 금액 인식에 실패했습니다. 금액을 직접 입력해주세요.",
+        ),
+      );
+    } finally {
+      if (ocrRequestIdRef.current === requestId) {
+        setIsOcrLoading(false);
+      }
+    }
   }
 
   function handleDateClick() {
@@ -345,7 +399,10 @@ export default function TransactionForm({
               <img src={FolderIcon} alt="" className="folder-svg" />
             </div>
             <span className="upload-text">
-              {formData.receipt?.name ?? "OCR 금액 자동 인식 · JPG, PNG"}
+              {isOcrLoading
+                ? "영수증 금액 인식 중..."
+                : formData.receipt?.name ??
+                  "OCR 금액 자동 인식 · JPG, PNG"}
             </span>
             <input
               id="receipt-upload"
@@ -370,7 +427,7 @@ export default function TransactionForm({
           <button
             type="submit"
             className="btn btn-submit register-mode"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOcrLoading}
           >
             {isSubmitting
               ? mode === "edit"
