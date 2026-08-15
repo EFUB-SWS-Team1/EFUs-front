@@ -9,6 +9,7 @@ import {
 } from "../../../api";
 import backArrowIcon from "../../../assets/화살표.svg";
 import useGroup from "../../../hooks/useGroup";
+import "./TransactionDetail.css";
 
 const HISTORY_PAGE_SIZE = 20;
 
@@ -301,22 +302,45 @@ export default function TransactionDetail({
 
       <div className="detail-section">
         <h3 className="section-heading">영수증</h3>
-        <div className="section-box">
+        <div className="section-box transaction-receipt-box">
           {receipt ? (
-            <>
+            <div className="transaction-receipt-card">
               <a
                 href={receipt.presignedUrl}
                 target="_blank"
                 rel="noreferrer"
+                className="transaction-receipt-thumbnail-link"
               >
-                {receipt.originalFilename}
-              </a>{" "}
-              <button type="button" onClick={handleDeleteReceipt}>
-                삭제
-              </button>
-            </>
+                <img
+                  src={receipt.presignedUrl}
+                  alt={receipt.originalFilename}
+                  className="transaction-receipt-thumbnail"
+                />
+              </a>
+
+              <div className="transaction-receipt-info">
+                <span className="transaction-receipt-filename">
+                  {receipt.originalFilename}
+                </span>
+                <span className="transaction-receipt-description">
+                  이미지 영수증
+                </span>
+              </div>
+
+              <div className="transaction-receipt-actions">
+                <button
+                  type="button"
+                  className="transaction-receipt-delete-button"
+                  onClick={handleDeleteReceipt}
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
           ) : (
-            "첨부된 영수증이 없습니다"
+            <span className="transaction-receipt-empty">
+              첨부된 영수증이 없습니다
+            </span>
           )}
         </div>
       </div>
