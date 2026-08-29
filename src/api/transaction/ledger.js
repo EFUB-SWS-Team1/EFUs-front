@@ -272,6 +272,27 @@ export async function uploadReceipt(transactionId, file) {
 }
 
 /**
+ * 거래 등록 전 영수증 OCR 금액 인식
+ */
+export async function recognizeReceiptImage(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await axiosInstance.post(
+    "/receipts/ocr",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 120000,
+    },
+  );
+
+  return unwrapResponse(response);
+}
+
+/**
  * 영수증 삭제
  */
 export async function deleteReceipt(transactionId) {

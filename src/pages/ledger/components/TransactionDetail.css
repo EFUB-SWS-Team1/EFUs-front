@@ -1,0 +1,100 @@
+.transaction-receipt-box {
+  justify-content: flex-start;
+}
+
+.transaction-receipt-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.transaction-receipt-thumbnail-link {
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.transaction-receipt-thumbnail {
+  display: block;
+  width: 72px;
+  height: 72px;
+  padding: 6px;
+  object-fit: contain;
+  background: #f7f8fc;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.transaction-receipt-info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.transaction-receipt-filename {
+  overflow: hidden;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transaction-receipt-description {
+  color: #999999;
+  font-size: 14px;
+}
+
+.transaction-receipt-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.transaction-receipt-delete-button {
+  padding: 9px 16px;
+  border-radius: 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.transaction-receipt-delete-button {
+  color: #ff6b6b;
+  background: #fff0f0;
+  border: 1px solid transparent;
+}
+
+.transaction-receipt-delete-button:hover {
+  background: #ffe3e3;
+}
+
+.transaction-receipt-empty {
+  width: 100%;
+  color: #999999;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .transaction-receipt-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .transaction-receipt-info {
+    padding-top: 8px;
+  }
+
+  .transaction-receipt-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

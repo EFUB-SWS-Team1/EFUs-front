@@ -3,13 +3,19 @@ import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   createTransaction,
+  deleteReceipt,
   getEvents,
+  getReceipt,
   getTransaction,
+  recognizeReceiptImage,
   updateTransaction,
   uploadReceipt,
 } from "../../../api";
 import FolderIcon from "../../../assets/Folder plus.svg";
 import useGroup from "../../../hooks/useGroup";
+import "./TransactionForm.css";
+
+const MAX_RECEIPT_FILE_SIZE = 10 * 1024 * 1024;
 
 const EMPTY_FORM = {
   title: "",
@@ -43,13 +49,31 @@ export default function TransactionForm({
   const hasMissingTransactionId =
     mode === "edit" && !transactionId;
   const dateInputRef = useRef(null);
+  const receiptInputRef = useRef(null);
+  const receiptPreviewUrlRef = useRef("");
 
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [events, setEvents] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(mode === "edit");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOcrLoading, setIsOcrLoading] = useState(false);
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState("");
+  const [existingReceipt, setExistingReceipt] = useState(null);
+  const [shouldDeleteExistingReceipt, setShouldDeleteExistingReceipt] =
+    useState(false);
+  const [ocrRecognizedAmount, setOcrRecognizedAmount] = useState(null);
+  const [hasOcrError, setHasOcrError] = useState(false);
   const [error, setError] = useState("");
+  const ocrRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (receiptPreviewUrlRef.current) {
+        URL.revokeObjectURL(receiptPreviewUrlRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -63,16 +87,27 @@ export default function TransactionForm({
       setError("");
 
       try {
-        const [eventData, transaction] = await Promise.all([
+        const [eventData, transaction, receipt] = await Promise.all([
           getEvents(currentTermId),
           mode === "edit"
             ? getTransaction(currentTermId, transactionId)
+            : Promise.resolve(null),
+          mode === "edit"
+            ? getReceipt(transactionId).catch((requestError) => {
+                if (requestError?.response?.status === 404) {
+                  return null;
+                }
+
+                throw requestError;
+              })
             : Promise.resolve(null),
         ]);
 
         if (ignore) return;
 
         setEvents(eventData.events);
+        setExistingReceipt(receipt);
+        setShouldDeleteExistingReceipt(false);
 
         if (transaction) {
           setFormData({
@@ -121,6 +156,12 @@ export default function TransactionForm({
   const selectedEvent = events.find(
     (event) => String(event.id) === String(formData.fundingId),
   );
+  const receiptImageUrl =
+    formData.receipt && receiptPreviewUrl
+      ? receiptPreviewUrl
+      : existingReceipt?.presignedUrl;
+  const receiptFilename =
+    formData.receipt?.name ?? existingReceipt?.originalFilename;
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -138,12 +179,123 @@ export default function TransactionForm({
     setIsDropdownOpen(false);
   }
 
-  function handleFileChange(event) {
+  async function handleFileChange(event) {
     const file = event.target.files?.[0] ?? null;
+    const requestId = ocrRequestIdRef.current + 1;
+
+    ocrRequestIdRef.current = requestId;
+
+    if (receiptPreviewUrlRef.current) {
+      URL.revokeObjectURL(receiptPreviewUrlRef.current);
+      receiptPreviewUrlRef.current = "";
+      setReceiptPreviewUrl("");
+    }
+
+    setOcrRecognizedAmount(null);
+    setHasOcrError(false);
+
+    if (file && file.size > MAX_RECEIPT_FILE_SIZE) {
+      setFormData((previous) => ({
+        ...previous,
+        receipt: null,
+      }));
+      setIsOcrLoading(false);
+      setError("영수증 이미지는 10MB 이하만 업로드할 수 있습니다.");
+      event.target.value = "";
+      return;
+    }
+
     setFormData((previous) => ({
       ...previous,
       receipt: file,
     }));
+
+    if (!file) {
+      setIsOcrLoading(false);
+      return;
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(file);
+    receiptPreviewUrlRef.current = nextPreviewUrl;
+    setReceiptPreviewUrl(nextPreviewUrl);
+
+    try {
+      setIsOcrLoading(true);
+      setError("");
+
+      const ocrResult =
+        await recognizeReceiptImage(file);
+
+      if (ocrRequestIdRef.current !== requestId) {
+        return;
+      }
+
+      const recognizedAmount = Number(
+        ocrResult?.recognizedAmount,
+      );
+
+      if (!Number.isFinite(recognizedAmount) || recognizedAmount <= 0) {
+        throw new Error(
+          "영수증에서 올바른 금액을 인식하지 못했습니다.",
+        );
+      }
+
+      setFormData((previous) => ({
+        ...previous,
+        amount: String(recognizedAmount),
+      }));
+      setOcrRecognizedAmount(recognizedAmount);
+    } catch (ocrError) {
+      if (ocrRequestIdRef.current !== requestId) {
+        return;
+      }
+
+      setError(
+        getErrorMessage(
+          ocrError,
+          "영수증 금액 인식에 실패했습니다. 금액을 직접 입력해주세요.",
+        ),
+      );
+      setHasOcrError(true);
+    } finally {
+      if (ocrRequestIdRef.current === requestId) {
+        setIsOcrLoading(false);
+      }
+    }
+  }
+
+  function handleRemoveReceipt() {
+    ocrRequestIdRef.current += 1;
+    setIsOcrLoading(false);
+    setOcrRecognizedAmount(null);
+    setHasOcrError(false);
+
+    if (receiptPreviewUrlRef.current) {
+      URL.revokeObjectURL(receiptPreviewUrlRef.current);
+      receiptPreviewUrlRef.current = "";
+      setReceiptPreviewUrl("");
+    }
+
+    if (formData.receipt) {
+      setFormData((previous) => ({
+        ...previous,
+        receipt: null,
+      }));
+    } else if (existingReceipt) {
+      setExistingReceipt(null);
+      setShouldDeleteExistingReceipt(true);
+    }
+
+    if (receiptInputRef.current) {
+      receiptInputRef.current.value = "";
+    }
+  }
+
+  function handleChangeReceipt() {
+    if (!receiptInputRef.current) return;
+
+    receiptInputRef.current.value = "";
+    receiptInputRef.current.click();
   }
 
   function handleDateClick() {
@@ -197,6 +349,8 @@ export default function TransactionForm({
 
       if (formData.receipt && savedId) {
         await uploadReceipt(savedId, formData.receipt);
+      } else if (shouldDeleteExistingReceipt && savedId) {
+        await deleteReceipt(savedId);
       }
 
       navigate(`${detailPath}?transactionId=${savedId}`);
@@ -340,21 +494,79 @@ export default function TransactionForm({
 
         <div className="form-group full-width">
           <label>영수증</label>
-          <label htmlFor="receipt-upload" className="file-upload-area">
-            <div className="folder-icon-wrapper">
-              <img src={FolderIcon} alt="" className="folder-svg" />
+          {receiptImageUrl ? (
+            <div className="file-upload-area transaction-form-receipt-card">
+              <a
+                href={receiptImageUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="transaction-form-receipt-thumbnail-link"
+              >
+                <img
+                  src={receiptImageUrl}
+                  alt={receiptFilename}
+                  className="transaction-form-receipt-thumbnail"
+                />
+              </a>
+
+              <div className="transaction-form-receipt-info">
+                <span className="transaction-form-receipt-filename">
+                  {receiptFilename}
+                </span>
+                {formData.receipt && (
+                  <span
+                    className={`transaction-form-receipt-status ${
+                      hasOcrError ? "error" : ""
+                    }`}
+                  >
+                    {isOcrLoading
+                    ? "금액 인식 중..."
+                    : hasOcrError
+                      ? "인식 실패 · 금액을 직접 입력해주세요"
+                      : ocrRecognizedAmount
+                        ? `OCR 인식 완료 · ${ocrRecognizedAmount.toLocaleString()}원`
+                        : "이미지 영수증"}
+                  </span>
+                )}
+              </div>
+
+              <div className="transaction-form-receipt-actions">
+                <button
+                  type="button"
+                  className="transaction-form-receipt-change-button"
+                  onClick={handleChangeReceipt}
+                  disabled={isOcrLoading}
+                >
+                  변경
+                </button>
+                <button
+                  type="button"
+                  className="transaction-form-receipt-remove-button"
+                  onClick={handleRemoveReceipt}
+                >
+                  제거
+                </button>
+              </div>
             </div>
-            <span className="upload-text">
-              {formData.receipt?.name ?? "OCR 금액 자동 인식 · JPG, PNG"}
-            </span>
-            <input
-              id="receipt-upload"
-              type="file"
-              accept="image/jpeg,image/png"
-              onChange={handleFileChange}
-              hidden
-            />
-          </label>
+          ) : (
+            <label htmlFor="receipt-upload" className="file-upload-area">
+              <div className="folder-icon-wrapper">
+                <img src={FolderIcon} alt="" className="folder-svg" />
+              </div>
+              <span className="upload-text">
+                OCR 금액 자동 인식 · JPG, PNG
+              </span>
+            </label>
+          )}
+
+          <input
+            ref={receiptInputRef}
+            id="receipt-upload"
+            type="file"
+            accept="image/jpeg,image/png"
+            onChange={handleFileChange}
+            hidden
+          />
         </div>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -370,7 +582,7 @@ export default function TransactionForm({
           <button
             type="submit"
             className="btn btn-submit register-mode"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOcrLoading}
           >
             {isSubmitting
               ? mode === "edit"

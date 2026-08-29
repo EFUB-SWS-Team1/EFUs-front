@@ -6,6 +6,7 @@ export {
   getReceipt,
   getTransaction,
   getTransactionHistories,
+  recognizeReceiptImage,
   updateTransaction,
   uploadReceipt,
 } from "./ledger";
