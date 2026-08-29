@@ -10,12 +10,14 @@ const axiosInstance = axios.create({
   withCredentials: true, // refreshToken 쿠키
 });
 
+const KAKAO_LOGIN_URL = "/auth/kakao/login";
+
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = normalizeAccessToken(
       localStorage.getItem("accessToken"),
     );
-    if (accessToken && config.headers) {
+    if (config.url !== KAKAO_LOGIN_URL && accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -78,7 +80,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const { config, response } = error;
 
-    if (!config || response?.status !== 401 || config._retry) {
+    if (
+      !config ||
+      response?.status !== 401 ||
+      config._retry ||
+      config.url === KAKAO_LOGIN_URL
+    ) {
       return Promise.reject(error);
     }
 
