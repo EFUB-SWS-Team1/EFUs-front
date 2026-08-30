@@ -1,0 +1,115 @@
+.file-upload-area.transaction-form-receipt-card {
+  height: 143px;
+  padding: 20px 24px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.transaction-form-receipt-thumbnail-link {
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.transaction-form-receipt-thumbnail {
+  display: block;
+  width: 84px;
+  height: 84px;
+  padding: 6px;
+  object-fit: contain;
+  background: #f7f8fc;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.transaction-form-receipt-info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.transaction-form-receipt-filename {
+  overflow: hidden;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transaction-form-receipt-status {
+  color: #25c189;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.transaction-form-receipt-status.error {
+  color: #ff6b6b;
+}
+
+.transaction-form-receipt-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.transaction-form-receipt-change-button,
+.transaction-form-receipt-remove-button {
+  padding: 9px 16px;
+  border-radius: 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.transaction-form-receipt-change-button {
+  color: #555555;
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+}
+
+.transaction-form-receipt-remove-button {
+  color: #ff6b6b;
+  background: #fff0f0;
+  border: 1px solid transparent;
+}
+
+.transaction-form-receipt-change-button:hover:not(:disabled) {
+  background: #f7f8fc;
+}
+
+.transaction-form-receipt-remove-button:hover {
+  background: #ffe3e3;
+}
+
+.transaction-form-receipt-change-button:disabled {
+  color: #b5b5b5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .file-upload-area.transaction-form-receipt-card {
+    height: auto;
+    min-height: 143px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .transaction-form-receipt-info {
+    padding-top: 8px;
+  }
+
+  .transaction-form-receipt-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

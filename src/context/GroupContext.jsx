@@ -88,6 +88,22 @@ export function GroupProvider({ children }) {
     }
   }, [loadTerm, terms]);
 
+  const refreshTerms = useCallback(async () => {
+  const organizationId = getId(currentOrganization, "organizationId");
+  if (organizationId == null) return;
+
+  const organizationTerms = await getOrganizationTerms(organizationId);
+  setTerms(organizationTerms);
+
+  const termId = getId(currentTerm, "termId");
+  if (termId == null) return;
+
+  const detail = await getTerm(termId);
+  if (detail) setCurrentTerm(detail);
+}, [currentOrganization, currentTerm]);
+
+
+
   useEffect(() => {
     let active = true;
 
@@ -149,6 +165,7 @@ export function GroupProvider({ children }) {
     isGroupLoading,
     selectOrganization,
     selectTerm,
+    refreshTerms,
     clearSelection,
   }), [
     clearSelection,
