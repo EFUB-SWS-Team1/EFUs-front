@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { Button } from "../../components/common";
@@ -7,6 +7,7 @@ import usersIcon from "../../assets/Users.svg";
 import searchIcon from "../../assets/searchIcon.svg";
 
 import useGroup from "../../hooks/useGroup";
+import useStaleRefresh from "../../hooks/useStaleRefresh";
 
 import MemberItem from "./components/MemberItem";
 import InviteCodeModal from "./components/InviteCodeModal";
@@ -85,6 +86,8 @@ export default function GroupManagePage() {
   const [memberDetail, setMemberDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const membersRef = useRef(members);
+  membersRef.current = members;
 
   const isStaff = String(role).toUpperCase() === "STAFF";
   const isActive = String(termStatus).toUpperCase() === "ACTIVE";
@@ -95,36 +98,49 @@ export default function GroupManagePage() {
     createdTermOrganizationId != null &&
     String(createdTermOrganizationId) === String(currentOrganizationId);
 
-  const loadMembers = useCallback(async () => {
-    if (currentTermId == null) {
-      return;
-    }
+  const loadMembers = useCallback(
+    async ({ silent = false } = {}) => {
+      if (currentTermId == null) {
+        return;
+      }
 
-    setLoading(true);
-    setError("");
+      if (!silent) {
+        setLoading(true);
+        setError("");
+      }
 
-    try {
-      const result = await getMembers(currentTermId, {
-        keyword: search.trim(),
-        role: roleFilter,
-        page,
-        size: PAGE_SIZE,
-      });
+      try {
+        const result = await getMembers(currentTermId, {
+          keyword: search.trim(),
+          role: roleFilter,
+          page,
+          size: PAGE_SIZE,
+        });
 
-      setMembers(result.content);
-      setTotalElements(result.totalElements);
-    } catch (requestError) {
-      setError(errorMessage(requestError));
-      setMembers([]);
-      setTotalElements(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentTermId, page, roleFilter, search]);
+        setMembers(result.content);
+        setTotalElements(result.totalElements);
+      } catch (requestError) {
+        if (!silent) {
+          setError(errorMessage(requestError));
+          setMembers([]);
+          setTotalElements(0);
+        }
+      } finally {
+        if (!silent) {
+          setLoading(false);
+        }
+      }
+    },
+    [currentTermId, page, roleFilter, search],
+  );
 
   useEffect(() => {
     loadMembers();
   }, [loadMembers]);
+
+  useStaleRefresh(() => {
+    loadMembers({ silent: true });
+  });
 
   useEffect(() => {
     if (!selectedMemberId || currentTermId == null) {
@@ -142,7 +158,7 @@ export default function GroupManagePage() {
       .then((detail) => {
         if (!active) return;
 
-        const listMember = members.find(
+        const listMember = membersRef.current.find(
           (member) => String(member.termMemberId) === String(selectedMemberId),
         );
 
@@ -172,7 +188,29 @@ export default function GroupManagePage() {
     return () => {
       active = false;
     };
-  }, [currentTermId, selectedMemberId, members]);
+  }, [currentTermId, selectedMemberId]);
+
+  useEffect(() => {
+    if (!selectedMemberId) return;
+
+    setMemberDetail((prev) => {
+      if (!prev?.member) return prev;
+
+      const listMember = members.find(
+        (member) => String(member.termMemberId) === String(selectedMemberId),
+      );
+      const nextUrl = listMember?.profileImageUrl;
+      if (!nextUrl || nextUrl === prev.member.profileImageUrl) return prev;
+
+      return {
+        ...prev,
+        member: {
+          ...prev.member,
+          profileImageUrl: nextUrl,
+        },
+      };
+    });
+  }, [members, selectedMemberId]);
 
   const totalPages = Math.max(1, Math.ceil(totalElements / PAGE_SIZE));
 
