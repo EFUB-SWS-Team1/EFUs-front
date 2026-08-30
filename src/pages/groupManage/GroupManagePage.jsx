@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { Button } from "../../components/common";
@@ -7,6 +7,7 @@ import usersIcon from "../../assets/Users.svg";
 import searchIcon from "../../assets/searchIcon.svg";
 
 import useGroup from "../../hooks/useGroup";
+import useStaleRefresh from "../../hooks/useStaleRefresh";
 
 import MemberItem from "./components/MemberItem";
 import InviteCodeModal from "./components/InviteCodeModal";
@@ -78,53 +79,68 @@ export default function GroupManagePage() {
   const [isCloseOpen, setIsCloseOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(""); 
-  const [createdTermOrganizationId, setCreatedTermOrganizationId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [createdTermOrganizationId, setCreatedTermOrganizationId] =
+    useState(null);
 
   const [memberDetail, setMemberDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const membersRef = useRef(members);
+  membersRef.current = members;
 
   const isStaff = String(role).toUpperCase() === "STAFF";
   const isActive = String(termStatus).toUpperCase() === "ACTIVE";
   const hasActiveTerm = terms.some(
-    (term) =>
-      String(term.status ?? term.termStatus).toUpperCase() === "ACTIVE",
+    (term) => String(term.status ?? term.termStatus).toUpperCase() === "ACTIVE",
   );
   const hasJustCreatedTerm =
     createdTermOrganizationId != null &&
     String(createdTermOrganizationId) === String(currentOrganizationId);
 
-  const loadMembers = useCallback(async () => {
-    if (currentTermId == null) {
-      return;
-    }
+  const loadMembers = useCallback(
+    async ({ silent = false } = {}) => {
+      if (currentTermId == null) {
+        return;
+      }
 
-    setLoading(true);
-    setError("");
+      if (!silent) {
+        setLoading(true);
+        setError("");
+      }
 
-    try {
-      const result = await getMembers(currentTermId, {
-        keyword: search.trim(),
-        role: roleFilter,
-        page,
-        size: PAGE_SIZE,
-      });
+      try {
+        const result = await getMembers(currentTermId, {
+          keyword: search.trim(),
+          role: roleFilter,
+          page,
+          size: PAGE_SIZE,
+        });
 
-      setMembers(result.content);
-      setTotalElements(result.totalElements);
-    } catch (requestError) {
-      setError(errorMessage(requestError));
-      setMembers([]);
-      setTotalElements(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentTermId, page, roleFilter, search]);
+        setMembers(result.content);
+        setTotalElements(result.totalElements);
+      } catch (requestError) {
+        if (!silent) {
+          setError(errorMessage(requestError));
+          setMembers([]);
+          setTotalElements(0);
+        }
+      } finally {
+        if (!silent) {
+          setLoading(false);
+        }
+      }
+    },
+    [currentTermId, page, roleFilter, search],
+  );
 
   useEffect(() => {
     loadMembers();
   }, [loadMembers]);
+
+  useStaleRefresh(() => {
+    loadMembers({ silent: true });
+  });
 
   useEffect(() => {
     if (!selectedMemberId || currentTermId == null) {
@@ -140,9 +156,22 @@ export default function GroupManagePage() {
 
     getMemberDetail(currentTermId, selectedMemberId)
       .then((detail) => {
-        if (active) {
-          setMemberDetail(detail);
-        }
+        if (!active) return;
+
+        const listMember = membersRef.current.find(
+          (member) => String(member.termMemberId) === String(selectedMemberId),
+        );
+
+        setMemberDetail({
+          ...detail,
+          member: {
+            ...detail.member,
+            profileImageUrl:
+              detail.member.profileImageUrl ??
+              listMember?.profileImageUrl ??
+              null,
+          },
+        });
       })
       .catch((requestError) => {
         if (active) {
@@ -161,10 +190,29 @@ export default function GroupManagePage() {
     };
   }, [currentTermId, selectedMemberId]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalElements / PAGE_SIZE),
-  );
+  useEffect(() => {
+    if (!selectedMemberId) return;
+
+    setMemberDetail((prev) => {
+      if (!prev?.member) return prev;
+
+      const listMember = members.find(
+        (member) => String(member.termMemberId) === String(selectedMemberId),
+      );
+      const nextUrl = listMember?.profileImageUrl;
+      if (!nextUrl || nextUrl === prev.member.profileImageUrl) return prev;
+
+      return {
+        ...prev,
+        member: {
+          ...prev.member,
+          profileImageUrl: nextUrl,
+        },
+      };
+    });
+  }, [members, selectedMemberId]);
+
+  const totalPages = Math.max(1, Math.ceil(totalElements / PAGE_SIZE));
 
   const selectMember = (termMemberId) => {
     setSearchParams({
@@ -195,10 +243,12 @@ export default function GroupManagePage() {
 
     try {
       await createTerm(currentOrganizationId, { name, startDate });
-      
+
       setIsCreateOpen(false);
       setCreatedTermOrganizationId(currentOrganizationId);
-      setSuccessMessage(`${name} 기수가 성공적으로 생성되었어요! 변경사항 적용을 위해 새로고침 해주세요.`);
+      setSuccessMessage(
+        `${name} 기수가 성공적으로 생성되었어요! 변경사항 적용을 위해 새로고침 해주세요.`,
+      );
       setIsSuccessOpen(true);
     } catch (err) {
       alert(errorMessage(err));
@@ -219,15 +269,9 @@ export default function GroupManagePage() {
 
       <div className={styles.page}>
         <header className={styles.header}>
-          <img
-            src={groupIcon}
-            alt=""
-            className={styles.headerIcon}
-          />
+          <img src={groupIcon} alt="" className={styles.headerIcon} />
 
-          <h1 className={styles.title}>
-            단체 관리
-          </h1>
+          <h1 className={styles.title}>단체 관리</h1>
         </header>
 
         <section className={styles.generationCard}>
@@ -247,8 +291,8 @@ export default function GroupManagePage() {
             </p>
           </div>
 
-          {isStaff && (
-            isActive ? (
+          {isStaff &&
+            (isActive ? (
               <Button
                 variant="primary"
                 className={styles.closeGenBtn}
@@ -264,19 +308,14 @@ export default function GroupManagePage() {
               >
                 다음 기수 생성
               </Button>
-            ) : null
-          )}
+            ) : null)}
         </section>
 
         <div className={styles.memberToolbar}>
           <h3 className={styles.memberCount}>
             <span>멤버</span>
 
-            <img
-              src={usersIcon}
-              alt=""
-              className={styles.memberIcon}
-            />
+            <img src={usersIcon} alt="" className={styles.memberIcon} />
 
             <span>{totalElements}</span>
           </h3>
@@ -331,7 +370,9 @@ export default function GroupManagePage() {
                 <li key={member.termMemberId}>
                   <MemberItem
                     member={member}
-                    isSelected={String(selectedMemberId) === String(member.termMemberId)}
+                    isSelected={
+                      String(selectedMemberId) === String(member.termMemberId)
+                    }
                     onClick={() => selectMember(member.termMemberId)}
                   />
                 </li>
@@ -351,7 +392,9 @@ export default function GroupManagePage() {
               >
                 ‹
               </button>
-              <span className={styles.pageInfo}>{page + 1} / {totalPages}</span>
+              <span className={styles.pageInfo}>
+                {page + 1} / {totalPages}
+              </span>
               <button
                 type="button"
                 className={styles.pageBtn}

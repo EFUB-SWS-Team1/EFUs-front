@@ -1,23 +1,31 @@
-import { PermissionBadge } from '../../../components/common';
-import styles from './MemberItem.module.css';
+import { PermissionBadge } from "../../../components/common";
+import styles from "./MemberItem.module.css";
 
 const ROLE_LABEL = {
-  staff: '운영진',
-  general: '일반',
+  staff: "운영진",
+  general: "일반",
 };
 
 export default function MemberItem({ member, isSelected, onClick }) {
   return (
     <button
       type="button"
-      className={[styles.item, isSelected ? styles.selected : '']
+      className={[styles.item, isSelected ? styles.selected : ""]
         .filter(Boolean)
-        .join(' ')}
+        .join(" ")}
       onClick={onClick}
     >
-      <div className={styles.avatar} aria-hidden="true" />
-      <PermissionBadge variant={member.role === 'staff' ? 'staff' : 'general'}>
-        {ROLE_LABEL[member.role] ?? '일반'}
+      <div className={styles.avatar} aria-hidden="true">
+        {member.profileImageUrl && (
+          <img
+            src={member.profileImageUrl}
+            alt=""
+            className={styles.avatarImage}
+          />
+        )}
+      </div>
+      <PermissionBadge variant={member.role === "staff" ? "staff" : "general"}>
+        {ROLE_LABEL[member.role] ?? "일반"}
       </PermissionBadge>
       <span className={styles.name}>{member.name}</span>
     </button>
